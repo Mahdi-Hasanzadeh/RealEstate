@@ -92,8 +92,8 @@ const Home = () => {
 
       {/* Recent Offers */}
       <RecentProductsSection title="Recent Offers" />
-      <RecentProductsSection title="Recent places for rent" />
-      <RecentProductsSection title="Recent places for sale" />
+      {/* <RecentProductsSection title="Recent places for rent" />
+      <RecentProductsSection title="Recent places for sale" /> */}
     </>
   );
 };
