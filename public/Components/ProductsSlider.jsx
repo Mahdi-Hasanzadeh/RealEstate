@@ -15,30 +15,33 @@ import { LIGHTGRAY } from "../../COLOR";
 
 const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
 
+import image from "../../assets/house1.jpg";
+
 const images = [
   {
     label: "LUXURY HOUSE",
-    imgPath: "../../assets/house1.jpg",
+    imgPath: "./assets/house1.jpg",
+    // imgPath: "../../assets/house1.jpg",
   },
   {
     label: "LUXURY HOUSE",
-    imgPath: "../../assets/house2.jpg",
+    imgPath: "./assets/house8.jpeg",
   },
   {
     label: "Bali, Indonesia",
-    imgPath: "../../assets/house3.jpg",
+    imgPath: "./assets/house3.jpg",
   },
   {
     label: "Goč, Serbia",
-    imgPath: "../../assets/house4.jpg",
+    imgPath: "./assets/house6.jpeg",
   },
   {
     label: "Goč, Serbia",
-    imgPath: "../../assets/house4.jpg",
+    imgPath: "./assets/house7.jpeg",
   },
   {
     label: "Goč, Serbia",
-    imgPath: "../../assets/house4.jpg",
+    imgPath: "./assets/house7.jpeg",
   },
 ];
 
