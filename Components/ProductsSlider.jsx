@@ -20,20 +20,20 @@ import image from "../../assets/house1.jpg";
 const images = [
   {
     label: "LUXURY HOUSE",
-    imgPath: "./RealEstate/assets/house1.jpg",
+    imgPath: "./assets/house1.jpg",
     // imgPath: "../../assets/house1.jpg",
   },
   {
     label: "LUXURY HOUSE",
-    imgPath: "./RealEstate/assets/house8.jpeg",
+    imgPath: "./assets/house8.jpeg",
   },
   {
     label: "Bali, Indonesia",
-    imgPath: "./RealEstate/assets/house3.jpg",
+    imgPath: "./assets/house3.jpg",
   },
   {
     label: "Goč, Serbia",
-    imgPath: "./RealEstate/assets/house6.jpeg",
+    imgPath: "./assets/house6.jpeg",
   },
   {
     label: "Goč, Serbia",
