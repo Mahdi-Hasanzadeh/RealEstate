@@ -15,17 +15,18 @@ import { LIGHTGRAY } from "../../COLOR";
 
 const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
 
-import image from "../../assets/house1.jpg";
+// import image from "../../assets/house1.jpg";
 
 const images = [
   {
     label: "LUXURY HOUSE",
-    imgPath: "./assets/house1.jpg",
+    // imgPath: "./assets/house1.jpg",
     // imgPath: "../../assets/house1.jpg",
+    imgPath: "https://Mahdi-Hasanzadeh.github.io/RealEstate/assets/house8.jpeg",
   },
   {
     label: "LUXURY HOUSE",
-    imgPath: "./assets/house8.jpeg",
+    imgPath: "https://Mahdi-Hasanzadeh.github.io/RealEstate/assets/house8.jpeg",
   },
   {
     label: "Bali, Indonesia",
