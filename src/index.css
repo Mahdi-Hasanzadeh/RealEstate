@@ -76,3 +76,30 @@ button:focus-visible {
 .cardLink {
   text-decoration: none;
 }
+
+.wave-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.wave {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.profile-title {
+  position: absolute;
+  top: 35%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  color: white; /* Change the color to match your design */
+
+  /* font-size: 2em; Adjust font size as needed */
+
+  text-align: center;
+  font-weight: bold;
+  color: black;
+}

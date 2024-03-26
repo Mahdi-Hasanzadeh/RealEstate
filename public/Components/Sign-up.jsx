@@ -10,19 +10,27 @@ import {
   useTheme,
 } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
-import { BLACK, LIGHTGRAY } from "../../COLOR";
+import { BLACK } from "../../COLOR";
 import { useState } from "react";
-import {
-  Visibility,
-  VisibilityOff,
-  VisibilityOffRounded,
-} from "@mui/icons-material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import axios from "axios";
+import { GoogleAuth } from "./ComponentsReturn";
+import { useSelector, useDispatch } from "react-redux";
+import {
+  signInFailed,
+  signInStart,
+  signInSuccess,
+} from "../../reactRedux/userSlice";
+import Wave from "../styleComponents/Wave";
 
-const signUp = () => {
+const signUp = ({ url }) => {
   const theme = useTheme();
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const userInfo = useSelector((store) => store.user);
+
+  // console.log(userInfo);
 
   const [loading, setLoading] = useState(false);
 
@@ -51,40 +59,89 @@ const signUp = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setLoading(true);
-    if (!formData.username || !formData.email || !formData.password) {
-      // toastContainer
-      console.log("Please provide credentials");
-      setLoading(false);
-      return;
-    }
-    try {
-      const res = await axios.post(
-        "http://localhost:8000/api/user/signup",
-        formData
-      );
-      console.log(res.data);
-      //   navigate("/");
 
-      //   const res = await fetch("http://localhost:8000/api/user/signup", {
-      //     method: "POST",
-      //     headers: {
-      //       "Content-Type": "application/json",
-      //     },
-      //     body: JSON.stringify(formData),
-      //   });
-    } catch (error) {
-      console.log(error.message);
-      console.log(error.response.data.message);
-      setErrorMessage(error.response.data.message);
-    } finally {
-      setLoading(false);
+    if (url === "signup") {
+      if (!formData.username || !formData.email || !formData.password) {
+        // toastContainer
+        console.log("Please provide credentials");
+        return;
+      }
+      try {
+        setLoading(true);
+        const res = await axios.post(
+          "http://localhost:8000/api/user/signup",
+          formData
+        );
+        console.log(res.data);
+        navigate("/signin");
+        setErrorMessage("");
+        setFormData({
+          username: "",
+          email: "",
+          password: "",
+        });
+        //   const res = await fetch("http://localhost:8000/api/user/signup", {
+        //     method: "POST",
+        //     headers: {
+        //       "Content-Type": "application/json",
+        //     },
+        //     body: JSON.stringify(formData),
+        //   });
+      } catch (error) {
+        console.log(error.message);
+        console.log(error.response.data.message);
+        setErrorMessage(error.response.data.message);
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      if (!formData.email || !formData.password) {
+        // toastContainer
+        console.log("Please provide credentials");
+        return;
+      }
+      try {
+        setLoading(true);
+        const res = await axios.post(
+          "http://localhost:8000/api/user/signin",
+          formData
+        );
+        localStorage.setItem("accessToken", res.data.accessToken);
+        console.log("res", res.data);
+        dispatch(
+          signInSuccess({
+            ...res.data,
+            email: formData.email,
+          })
+        );
+        navigate("/");
+      } catch (error) {
+        if (error.response.data.message) {
+          console.log(error?.response?.data?.message);
+          setErrorMessage(error.response.data.message);
+
+          dispatch(signInFailed(error.response.data.message));
+        } else {
+          console.log(error.message);
+          setErrorMessage(error.message);
+          dispatch(signInFailed(error.message));
+        }
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
   return (
     <>
       <Container maxWidth="md">
+        <Typography variant={isMobile ? "body1" : "h6"}>
+          {url === "signup" ? (
+            <Wave title="Sign Up" />
+          ) : (
+            <Wave title="Sign in" />
+          )}
+        </Typography>
         <Box
           component={"div"}
           sx={{
@@ -99,17 +156,19 @@ const signUp = () => {
             gap: 2,
           }}
         >
-          <Typography variant={isMobile ? "h6" : "h4"}>Sign Up</Typography>
-          <TextField
-            type="text"
-            fullWidth
-            size={isMobile ? "small" : "medium"}
-            variant="outlined"
-            label="Username"
-            value={formData.username}
-            onChange={handleFormData}
-            name="username"
-          />
+          {url === "signup" && (
+            <TextField
+              type="text"
+              fullWidth
+              size={isMobile ? "small" : "medium"}
+              variant="outlined"
+              label="Username"
+              value={formData.username}
+              onChange={handleFormData}
+              name="username"
+            />
+          )}
+
           <TextField
             type="email"
             fullWidth
@@ -163,23 +222,37 @@ const signUp = () => {
             disabled={loading}
             onClick={handleSubmit}
           >
-            {loading ? "Loading..." : "SIGN UP"}
+            {loading ? "Loading..." : url === "signin" ? "SIGN IN" : "SIGN UP"}
           </Button>
-          <Button
-            fullWidth
-            size={isMobile ? "small" : "medium"}
-            color="error"
-            variant="contained"
-          >
-            CONTINUE WITH GOOGLE
-          </Button>
+          <GoogleAuth isMobile={isMobile} />
 
-          <Typography variant={isMobile ? "body2" : "h6"}>
-            Have an account ?
-            <Link to="" className="Link">
-              Sign in
-            </Link>
-          </Typography>
+          {url === "signup" ? (
+            <Typography variant={isMobile ? "body2" : "h6"}>
+              Have an account?
+              <Link
+                to="/signin"
+                style={{
+                  marginLeft: 5,
+                }}
+                className="Link"
+              >
+                Sign in
+              </Link>
+            </Typography>
+          ) : (
+            <Typography variant={isMobile ? "body2" : "h6"}>
+              Don't have an account?
+              <Link
+                to="/signup"
+                style={{
+                  marginLeft: 5,
+                }}
+                className="Link"
+              >
+                Create one
+              </Link>
+            </Typography>
+          )}
         </Box>
       </Container>
     </>

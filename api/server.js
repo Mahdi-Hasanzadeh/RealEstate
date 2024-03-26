@@ -6,6 +6,8 @@ const port = process.env.PORT || 8001;
 const app = express();
 import userRouter from "./Routes/userRoute.js";
 import errorHandler from "./Middleware/errorHandler.js";
+import listingRouter from "./Routes/listingRoute.js";
+import cookieParser from "cookie-parser";
 
 import cors from "cors";
 const corsOptions = {
@@ -13,13 +15,13 @@ const corsOptions = {
   credentials: true, //access-control-allow-credentials:true
   optionSuccessStatus: 200,
 };
+
 app.use(cors(corsOptions));
 
+app.use(cookieParser());
 app.use(express.json());
 app.use("/api/user", userRouter);
-app.get("/api/data", (req, res) => {
-  res.status(200).send("data is sending");
-});
+app.use("/api/listing", listingRouter);
 app.use(errorHandler);
 mongoose
   .connect(process.env.CONNECTION_STRING)

@@ -22,11 +22,11 @@ const images = [
     label: "LUXURY HOUSE",
     // imgPath: "./assets/house1.jpg",
     // imgPath: "../../assets/house1.jpg",
-    imgPath: "https://Mahdi-Hasanzadeh.github.io/RealEstate/assets/house8.jpeg",
+    imgPath: "./assets/house8.jpeg",
   },
   {
     label: "LUXURY HOUSE",
-    imgPath: "https://Mahdi-Hasanzadeh.github.io/RealEstate/assets/house8.jpeg",
+    imgPath: "./assets/house8.jpeg",
   },
   {
     label: "Bali, Indonesia",

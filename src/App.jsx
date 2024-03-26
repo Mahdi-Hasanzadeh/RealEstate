@@ -6,7 +6,11 @@ import {
   Home,
   About,
   Signup,
+  UserProfile,
+  ProtectedRoute,
+  CreateListing,
 } from "../public/Components/ComponentsReturn";
+import Counter from "../public/Components/counter";
 const App = () => {
   const BasicLayout = () => {
     return (
@@ -25,9 +29,27 @@ const App = () => {
           <Route path="/" element={<BasicLayout />}>
             <Route index element={<Home />} />
             <Route path="about" element={<About />} />
-            <Route path="signup" element={<Signup />} />
+            <Route path="signup" element={<Signup url="signup" />} />
+            <Route path="signin" element={<Signup url="signin" />} />
+            <Route
+              path="profile"
+              element={
+                <ProtectedRoute>
+                  <UserProfile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="create-list"
+              element={
+                <ProtectedRoute>
+                  <CreateListing />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="counter" element={<Counter />} />
+            <Route path="*" element={<h1>No route match</h1>} />
           </Route>
-          <Route path="*" element={<h1>No route match</h1>} />
         </Routes>
       </BrowserRouter>
     </>

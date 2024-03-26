@@ -5,3 +5,7 @@ export { default as ProductsSlider } from "./ProductsSlider.jsx";
 export { default as Card } from "./Card.jsx";
 export { default as RecentProductsSection } from "./RecentProductsSection.jsx";
 export { default as Signup } from "./Sign-up.jsx";
+export { default as GoogleAuth } from "./GoogleAuth.jsx";
+export { default as UserProfile } from "./UserProfile.jsx";
+export { default as ProtectedRoute } from "./ProtectedRoute";
+export { default as CreateListing } from "./CreateListing.jsx";
