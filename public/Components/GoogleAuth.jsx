@@ -30,6 +30,7 @@ const GoogleAuth = ({ isMobile }) => {
       console.log("response gg:", response.data);
       localStorage.setItem("accessToken", response.data.accessToken);
       const { accessToken, ...rest } = response.data;
+      console.log(response.data);
       dispatch(
         signInSuccess({
           ...rest,

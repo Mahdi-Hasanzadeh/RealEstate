@@ -136,6 +136,8 @@ const Counter = () => {
   //     <picture>
   //       <source srcSet={img2} media="(min-width: 1024)" />
   //       <source srcSet={img} media="(max-width: 1023)" />
+  // <img src="img3" />  // this is the default image if the the two other is not showing on the page.
+  // this image will be shown.
   //     </picture>
   //   </>
   // );

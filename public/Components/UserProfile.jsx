@@ -207,7 +207,7 @@ const Profile = () => {
         // For instance, get the download URL: https://firebasestorage.googleapis.com/...
         // console.log("get Download URL");
         getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
-          // console.log("File available at", downloadURL);
+          console.log("File available at", downloadURL);
           // console.log("CurrentUser: ", currentUser.id);
           setFormData((prevData) => {
             return {

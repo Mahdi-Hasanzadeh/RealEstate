@@ -26,6 +26,10 @@ const listingSchema = mongoose.Schema(
       type: Number,
       required: [true, "Please provide bedrooms"],
     },
+    bath: {
+      type: Number,
+      required: [true, "Please provide bath"],
+    },
     furnished: {
       type: Boolean,
       required: [true, "Please provide furnished"],
