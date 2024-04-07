@@ -1,10 +1,10 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { localURL } from "../../PortConfig";
+import { URL } from "../../PortConfig";
 
-import image1 from "../../assets/house1.jpg";
-import image2 from "../../assets/house4.jpg";
+import image1 from "../assets/house1.jpg";
+import image2 from "../assets/house4.jpg";
 import ProductsSlider from "./ProductsSlider";
 import {
   Box,
@@ -56,7 +56,7 @@ const SingleList = () => {
     setLoading(true);
     try {
       const response = await axios.get(
-        `${localURL}api/listing/userListing/${listingId}`,
+        `${URL}api/listing/userListing/${listingId}`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,

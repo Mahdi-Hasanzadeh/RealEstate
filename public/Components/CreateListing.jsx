@@ -20,7 +20,7 @@ import {
 import { app } from "../../src/firebase";
 import Wave from "../styleComponents/Wave";
 import axios from "axios";
-import { localURL } from "../../PortConfig";
+import { URL } from "../../PortConfig";
 import { useNavigate } from "react-router-dom";
 
 const CreateListing = () => {
@@ -60,7 +60,7 @@ const CreateListing = () => {
     try {
       setUploading(true);
       const response = await axios.post(
-        `${localURL}api/listing/create`,
+        `${URL}api/listing/create`,
         {
           ...formData,
           discountPrice: formData.offer ? formData.discountPrice : 0,

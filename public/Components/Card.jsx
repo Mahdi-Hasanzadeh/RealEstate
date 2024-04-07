@@ -2,7 +2,7 @@ import { LocationCityRounded } from "@mui/icons-material";
 import { Box, Card, CardContent, CardMedia, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
 import { BLACK, CAPTIONLIGHTGRAY } from "../../COLOR";
-import Image from "../../assets/house1.jpg";
+import Image from "../assets/house1.jpg";
 const CardItem = () => {
   const description =
     " Lorem, ipsum dolor sit amet consectetur adipisicing elit.Laborum veniam vero eum accusamus deserunt aspernatur corporis, incidunt saepe! Aliquid ullam modi exercitationem sint quampossimus adipisci, repudiandae officia. Quia ipsum quas";

@@ -22,6 +22,7 @@ import {
   signInSuccess,
 } from "../../reactRedux/userSlice";
 import Wave from "../styleComponents/Wave";
+import { URL } from "../../PortConfig";
 
 const signUp = ({ url }) => {
   const theme = useTheme();
@@ -68,10 +69,7 @@ const signUp = ({ url }) => {
       }
       try {
         setLoading(true);
-        const res = await axios.post(
-          "http://localhost:8000/api/user/signup",
-          formData
-        );
+        const res = await axios.post(URL + "api/user/signup", formData);
         console.log(res.data);
         navigate("/signin");
         setErrorMessage("");

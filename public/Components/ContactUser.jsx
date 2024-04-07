@@ -1,7 +1,7 @@
 import { Typography, TextField, Box, Button } from "@mui/material";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { localURL } from "../../PortConfig";
+import { URL } from "../../PortConfig";
 import { Link } from "react-router-dom";
 const ContactUser = ({ userRef, name, isSmall }) => {
   const [userInfo, setUserInfo] = useState();
@@ -15,7 +15,7 @@ const ContactUser = ({ userRef, name, isSmall }) => {
 
   const fetchUserInfo = async () => {
     try {
-      const user = await axios.get(`${localURL}api/user/userInfo/${userRef}`, {
+      const user = await axios.get(`${URL}api/user/userInfo/${userRef}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },

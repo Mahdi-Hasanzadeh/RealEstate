@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { localURL } from "../../PortConfig";
+import { URL } from "../../PortConfig";
 import { useSelector } from "react-redux";
 import { Box, Button } from "@mui/material";
 import { LIGHTGRAY } from "../../COLOR";
@@ -13,14 +13,11 @@ const UserListings = () => {
 
   const fetchUserListing = async () => {
     try {
-      const response = await axios.get(
-        `${localURL}api/listing/${currentUser.id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-        }
-      );
+      const response = await axios.get(`${URL}api/listing/${currentUser.id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      });
 
       if (response.data.succeess === false) {
         console.log(response.data.message);
@@ -36,7 +33,7 @@ const UserListings = () => {
   const deleteListing = async (id) => {
     try {
       console.log("start deleting");
-      const response = await axios.delete(`${localURL}api/listing/${id}`, {
+      const response = await axios.delete(`${URL}api/listing/${id}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },

@@ -1,8 +1,8 @@
 import { useDispatch, useSelector } from "react-redux";
 import { LIGHTGRAY } from "../../COLOR";
 import { decrement, increment } from "../../reactRedux/counterSlice";
-import img from "../../assets/pexels-nout-gons-378570.jpg";
-import img2 from "../../assets/house1.jpg";
+// import img from "../../assets/pexels-nout-gons-378570.jpg";
+// import img2 from "../../assets/house1.jpg";
 
 const Counter = () => {
   const counter = useSelector((store) => store.counter);

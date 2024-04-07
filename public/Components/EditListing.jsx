@@ -20,7 +20,7 @@ import {
 import { app } from "../../src/firebase";
 import Wave from "../styleComponents/Wave";
 import axios from "axios";
-import { localURL } from "../../PortConfig";
+import { URL } from "../../PortConfig";
 import { useNavigate, useParams } from "react-router-dom";
 
 const EditListing = () => {
@@ -51,7 +51,7 @@ const EditListing = () => {
     setLoading(true);
     try {
       const response = await axios.get(
-        `${localURL}api/listing/userListing/${listingId}`,
+        `${URL}api/listing/userListing/${listingId}`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -91,7 +91,7 @@ const EditListing = () => {
     try {
       setUploading(true);
       const response = await axios.post(
-        `${localURL}api/listing/create`,
+        `${URL}api/listing/create`,
         {
           ...formData,
           discountPrice: formData.offer ? formData.discountPrice : 0,

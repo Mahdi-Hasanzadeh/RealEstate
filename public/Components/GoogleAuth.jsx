@@ -6,6 +6,7 @@ import { signInSuccess } from "../../reactRedux/userSlice";
 import { useDispatch } from "react-redux";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { URL } from "../../PortConfig";
 
 const GoogleAuth = ({ isMobile }) => {
   const dispatch = useDispatch();
@@ -19,14 +20,11 @@ const GoogleAuth = ({ isMobile }) => {
       const { displayName, email, photoURL } = result.user;
       console.log(displayName, email, photoURL);
       // we should write the post method here to send these data to save in our database
-      const response = await axios.post(
-        "http://localhost:8000/api/user/google",
-        {
-          name: displayName,
-          email,
-          avatar: photoURL,
-        }
-      );
+      const response = await axios.post(`${URL}api/user/google`, {
+        name: displayName,
+        email,
+        avatar: photoURL,
+      });
       console.log("response gg:", response.data);
       localStorage.setItem("accessToken", response.data.accessToken);
       const { accessToken, ...rest } = response.data;

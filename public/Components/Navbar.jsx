@@ -20,7 +20,7 @@ import { useEffect, useRef, useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
 import { BLACK, GRAY, LIGHTGRAY } from "../../COLOR";
 import { useSelector } from "react-redux";
-import profilePicture from "../../assets/profile.png";
+import profilePicture from "../assets/profile.png";
 const navItems = [
   {
     name: "Home",
