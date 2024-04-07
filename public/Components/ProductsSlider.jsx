@@ -12,43 +12,10 @@ import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
 import SwipeableViews from "react-swipeable-views";
 import { autoPlay } from "react-swipeable-views-utils";
 import { LIGHTGRAY } from "../../COLOR";
-import { getImageUrl } from "../../Utility/CreateImageUrl";
-import img1 from "../assets/house1.jpg";
-import img2 from "../assets/house2.jpg";
-import img3 from "../assets/house3.jpg";
 const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
 
-// import image from "../../assets/house1.jpg";
-const images = [
-  {
-    label: "LUXURY HOUSE",
-    // imgPath: "./assets/house1.jpg",
-    // imgPath: "../../assets/house1.jpg",
-    imgPath: img1,
-  },
-  {
-    label: "LUXURY HOUSE",
-    imgPath: img2,
-  },
-  {
-    label: "Bali, Indonesia",
-    imgPath: img3,
-  },
-  {
-    label: "Goč, Serbia",
-    imgPath: img2,
-  },
-  {
-    label: "Goč, Serbia",
-    imgPath: img1,
-  },
-  {
-    label: "Goč, Serbia",
-    imgPath: img3,
-  },
-];
 const path = "../assets/";
-const ProductsSlider = () => {
+const ProductsSlider = ({ images }) => {
   const theme = useTheme();
   const [activeStep, setActiveStep] = React.useState(0);
   const maxSteps = images.length;

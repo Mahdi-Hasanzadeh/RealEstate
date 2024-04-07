@@ -100,10 +100,7 @@ const signUp = ({ url }) => {
       }
       try {
         setLoading(true);
-        const res = await axios.post(
-          "http://localhost:8000/api/user/signin",
-          formData
-        );
+        const res = await axios.post(`${URL}api/user/signin`, formData);
         localStorage.setItem("accessToken", res.data.accessToken);
         console.log("res", res.data);
         dispatch(
