@@ -5,6 +5,7 @@ import {
   google,
   updateUser,
   deleteUser,
+  getUserInfo,
 } from "../Controllers/userController.js";
 
 import { validateToken } from "../Middleware/validateToken.js";
@@ -17,6 +18,7 @@ Router.post("/signup", signupUser);
 Router.post("/signin", signinUser);
 Router.post("/google", google);
 Router.delete("/delete/:id", validateToken, deleteUser);
+Router.get("/userInfo/:id", validateToken, getUserInfo);
 
 //private route
 Router.put("/update/:id", validateToken, updateUser);

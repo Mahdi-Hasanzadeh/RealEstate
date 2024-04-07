@@ -141,55 +141,101 @@ const Counter = () => {
   //     </picture>
   //   </>
   // );
+  // return (
+  //   <>
+  //     <div
+  //       style={{
+  //         display: "grid",
+  //         gridTemplateColumns: "auto auto auto",
+  //         gridTemplateRows: "auto auto auto",
+  //         padding: "20px",
+  //       }}
+  //     >
+  //       <div
+  //         style={{
+  //           gridColumn: "1/2",
+  //           gridRow: "1/2",
+  //           backgroundColor: "red",
+  //         }}
+  //       >
+  //         1
+  //       </div>
+  //       <div
+  //         style={{
+  //           gridColumn: "2/4",
+  //           backgroundColor: "blue",
+  //           padding: 5,
+  //         }}
+  //       >
+  //         2
+  //       </div>
+  //       <div
+  //         style={{
+  //           backgroundColor: "green",
+  //           padding: 5,
+  //           gridColumn: "1/span 1",
+  //           gridRow: "2/span 2",
+  //         }}
+  //       >
+  //         3
+  //       </div>
+  //       <div
+  //         style={{
+  //           backgroundColor: "red",
+  //           gridColumn: "2/span 2",
+  //           gridRow: "2/span 1",
+  //         }}
+  //       >
+  //         4
+  //       </div>
+  //       <div>5</div>
+  //     </div>
+  //   </>
+  // );
+
   return (
     <>
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "auto auto auto",
-          gridTemplateRows: "auto auto auto",
-          padding: "20px",
-        }}
+      <h1>Counter</h1>
+      {/* Video tag */}
+      <video
+        controls="controls"
+        muted
+        autoPlay // if we use only autoplay attribute then we must use the muted attribute with that to autoplay the video.
+        // width={"500"}
+        // height="500"
+        // poster="index.png"// it's like thumbnail
+        // preload="none"
+        // preload="metadata"
+        // preload="auto"
       >
-        <div
-          style={{
-            gridColumn: "1/2",
-            gridRow: "1/2",
-            backgroundColor: "red",
-          }}
-        >
-          1
-        </div>
-        <div
-          style={{
-            gridColumn: "2/4",
-            backgroundColor: "blue",
-            padding: 5,
-          }}
-        >
-          2
-        </div>
-        <div
-          style={{
-            backgroundColor: "green",
-            padding: 5,
-            gridColumn: "1/span 1",
-            gridRow: "2/span 2",
-          }}
-        >
-          3
-        </div>
-        <div
-          style={{
-            backgroundColor: "red",
-            gridColumn: "2/span 2",
-            gridRow: "2/span 1",
-          }}
-        >
-          4
-        </div>
-        <div>5</div>
-      </div>
+        <source
+          src="../../../../../C_ Tutorial - Full Course for Beginners(720P_HD).mp4"
+          // type="video/mp4"
+        />
+        Your browser doesn't support the video tag.
+      </video>
+
+      {/* Audio tag */}
+      <audio controls muted preload="auto" autoPlay>
+        <source src="" />
+      </audio>
+      {/* allow us to show other types of file like svg,pdf and words */}
+      <object
+        data="C:\Users\zohal soft\Desktop\Projects\Notes\Component life cycle.txt"
+        type="" // determine the type of the file
+      >
+        {/* <source data="C:\Users\zohal soft\Desktop\Projects\Notes\Component life cycle.txt" /> */}
+      </object>
+
+      {/* Grouping Elements */}
+      {/* 
+      1:div 2: span
+      Semantic Elements: 1: header 2: nav 3:main 4:section 5:aside 6: footer. 7: article
+
+
+      Core(Global) attributes
+      1:id 2:title acts like a tooltip. 3:class 4: style 5:dir
+      */}
     </>
   );
 };

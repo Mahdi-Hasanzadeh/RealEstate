@@ -3,7 +3,34 @@ import { BLACK, CAPTIONLIGHTGRAY, GRAY } from "../../COLOR";
 import { useTheme, useMediaQuery } from "@mui/material";
 import { Link } from "react-router-dom";
 import { ProductsSlider, RecentProductsSection } from "./ComponentsReturn";
-
+const images = [
+  {
+    label: "LUXURY HOUSE",
+    // imgPath: "./assets/house1.jpg",
+    // imgPath: "../../assets/house1.jpg",
+    imgPath: "./assets/house8.jpeg",
+  },
+  {
+    label: "LUXURY HOUSE",
+    imgPath: "./assets/house8.jpeg",
+  },
+  {
+    label: "Bali, Indonesia",
+    imgPath: "./assets/house3.jpg",
+  },
+  {
+    label: "Goč, Serbia",
+    imgPath: "./assets/house6.jpeg",
+  },
+  {
+    label: "Goč, Serbia",
+    imgPath: "./assets/house7.jpeg",
+  },
+  {
+    label: "Goč, Serbia",
+    imgPath: "./assets/house7.jpeg",
+  },
+];
 const Home = () => {
   const theme = useTheme();
   const isLaptop = useMediaQuery(theme.breakpoints.up("md"));
@@ -88,7 +115,7 @@ const Home = () => {
         </Box>
       </Container>
       {/* Products Slider */}
-      <ProductsSlider />
+      <ProductsSlider images={images} />
 
       {/* Recent Offers */}
       <RecentProductsSection title="Recent Offers" />

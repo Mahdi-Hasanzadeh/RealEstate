@@ -11,8 +11,7 @@ import cookieParser from "cookie-parser";
 
 import cors from "cors";
 const corsOptions = {
-  origin: "http://localhost:3000",
-  origin: "https://mahdi-hasanzadeh.github.io", // port of the frontend
+  origin: ["http://localhost:3000", "https://mahdi-hasanzadeh.github.io"], // port of the frontend
   credentials: true, //access-control-allow-credentials:true
   optionSuccessStatus: 200,
 };

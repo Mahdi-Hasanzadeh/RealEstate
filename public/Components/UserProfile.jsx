@@ -33,6 +33,7 @@ import { app } from "../../src/firebase";
 import axios from "axios";
 import { deleteUser, updateUser } from "../../reactRedux/userSlice";
 import Wave from "../styleComponents/Wave.jsx";
+import UserListings from "./UserListings.jsx";
 // import { jwtDecode } from "jwt-decode";
 const Transition = forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -58,6 +59,7 @@ const Profile = () => {
   };
 
   const [open, setOpen] = useState(false);
+  const [showListings, setShowListings] = useState(false);
 
   const handleOpen = () => {
     setOpen(true);
@@ -65,6 +67,10 @@ const Profile = () => {
 
   const handleClose = () => {
     setOpen(false);
+  };
+
+  const handleShowListing = () => {
+    setShowListings(!showListings);
   };
 
   const handleSignOutUser = () => {
@@ -453,6 +459,12 @@ const Profile = () => {
               Sign out
             </Button>
           </Box>
+          <Box display="flex" justifyContent={"center"} width={"100%"}>
+            <Button onClick={handleShowListing} variant="text" type="button">
+              Show Listings
+            </Button>
+          </Box>
+          {showListings && <UserListings />}
           {updateError && (
             <Typography
               sx={{

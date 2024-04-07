@@ -11,6 +11,8 @@ import {
   CreateListing,
 } from "../public/Components/ComponentsReturn";
 import Counter from "../public/Components/counter";
+import SingleList from "../public/Components/SingleList";
+import EditListing from "../public/Components/EditListing";
 const App = () => {
   const BasicLayout = () => {
     return (
@@ -47,6 +49,8 @@ const App = () => {
                 </ProtectedRoute>
               }
             />
+            <Route path="listing/:listingId" element={<SingleList />} />
+            <Route path="listing/update/:listingId" element={<EditListing />} />
             <Route path="counter" element={<Counter />} />
             <Route path="*" element={<h1>No route match</h1>} />
           </Route>

@@ -1,9 +1,18 @@
 import express from "express";
-import { createListing } from "../Controllers/listingController.js";
+import {
+  createListing,
+  getListings,
+  deleteListingById,
+  getListingById,
+} from "../Controllers/listingController.js";
 // import { validateToken } from "../Middleware/validateToken.js";
 import { validateToken } from "../Middleware/validateToken.js";
 const Router = express.Router();
 
-Router.post("/create", validateToken, createListing);
+//Route: api/listing/
 
+Router.post("/create", validateToken, createListing);
+Router.get("/:id", validateToken, getListings);
+Router.delete("/:id", validateToken, deleteListingById);
+Router.get("/userListing/:id", validateToken, getListingById);
 export default Router;

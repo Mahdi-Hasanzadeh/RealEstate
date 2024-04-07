@@ -17,36 +17,7 @@ const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
 
 // import image from "../../assets/house1.jpg";
 
-const images = [
-  {
-    label: "LUXURY HOUSE",
-    // imgPath: "./assets/house1.jpg",
-    // imgPath: "../../assets/house1.jpg",
-    imgPath: "./assets/house8.jpeg",
-  },
-  {
-    label: "LUXURY HOUSE",
-    imgPath: "./assets/house8.jpeg",
-  },
-  {
-    label: "Bali, Indonesia",
-    imgPath: "./assets/house3.jpg",
-  },
-  {
-    label: "Goč, Serbia",
-    imgPath: "./assets/house6.jpeg",
-  },
-  {
-    label: "Goč, Serbia",
-    imgPath: "./assets/house7.jpeg",
-  },
-  {
-    label: "Goč, Serbia",
-    imgPath: "./assets/house7.jpeg",
-  },
-];
-
-const ProductsSlider = () => {
+const ProductsSlider = ({ images }) => {
   const theme = useTheme();
   const [activeStep, setActiveStep] = React.useState(0);
   const maxSteps = images.length;
@@ -95,13 +66,12 @@ const ProductsSlider = () => {
               <Box
                 component="img"
                 sx={{
-                  height: 600,
+                  height: { sm: 550 },
                   display: "block",
-                  //   maxWidth: 400,
-                  overflow: "hidden",
-                  objectFit: "cover",
-                  objectPosition: "center",
                   width: "100%",
+                  overflow: "hidden",
+                  objectFit: { xs: "contain", sm: "cover" },
+                  objectPosition: "center",
                 }}
                 src={step.imgPath}
                 alt={step.label}

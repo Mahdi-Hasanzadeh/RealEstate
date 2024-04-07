@@ -1,4 +1,8 @@
+import { useMediaQuery, useTheme } from "@mui/material";
+
 const Wave = ({ title }) => {
+  const theme = useTheme();
+  const md = useMediaQuery(theme.breakpoints.down("sm"));
   return (
     <>
       <div className="wave-container">
@@ -114,7 +118,14 @@ const Wave = ({ title }) => {
             transform="rotate(-180 720 200)"
           ></path>
         </svg>
-        <h1 className="profile-title">{title}</h1>
+        <h1
+          style={{
+            fontSize: md && "large",
+          }}
+          className="profile-title"
+        >
+          {title}
+        </h1>
       </div>
     </>
   );

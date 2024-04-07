@@ -57,6 +57,7 @@ const Navbar = () => {
   useEffect(() => {
     renderCount.current += 1;
   });
+  console.log(user);
 
   const drawer = (
     <Box onClick={handleDrawerToggle} sx={{ textAlign: "center" }}>
@@ -194,6 +195,7 @@ const Navbar = () => {
               <Box
                 sx={{
                   display: { xs: "none", md: "flex" },
+                  alignItems: "center",
                   gap: 1,
                 }}
               >
@@ -221,6 +223,7 @@ const Navbar = () => {
                           {/* <Button sx={{ color: "#334155" }}>{item.name}</Button> */}
                           <img
                             srcSet={user.avatar ? user.avatar : profilePicture}
+                            alt={user.username}
                             // title={"profile"}
                             style={{
                               width: "30px",

@@ -240,3 +240,19 @@ export const deleteUser = asyncHandler(async (req, res, next) => {
 
   res.status(200).json(deletedUser);
 });
+
+export const getUserInfo = asyncHandler(async (req, res, next) => {
+  if (!req.user) {
+    res.status(401);
+    throw new Error("User is not authorized");
+  }
+  console.log(req.params.id);
+  const user = await userModel.findOne({ _id: req.params.id });
+  console.log(user);
+  if (!user) {
+    res.status(404);
+    throw new Error("User is not found");
+  }
+  const { username, email } = user;
+  res.status(200).json({ username, email });
+});
