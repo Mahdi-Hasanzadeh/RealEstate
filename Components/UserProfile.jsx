@@ -17,7 +17,7 @@ import {
   useTheme,
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
-import profilePicture from "../../assets/profile.png";
+import profilePicture from "../assets/profile.png";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { BLACK } from "../../COLOR";
 import { Link, useNavigate } from "react-router-dom";
@@ -33,6 +33,8 @@ import { app } from "../../src/firebase";
 import axios from "axios";
 import { deleteUser, updateUser } from "../../reactRedux/userSlice";
 import Wave from "../styleComponents/Wave.jsx";
+import UserListings from "./UserListings.jsx";
+import { URL } from "../../PortConfig.js";
 // import { jwtDecode } from "jwt-decode";
 const Transition = forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -58,6 +60,7 @@ const Profile = () => {
   };
 
   const [open, setOpen] = useState(false);
+  const [showListings, setShowListings] = useState(false);
 
   const handleOpen = () => {
     setOpen(true);
@@ -65,6 +68,10 @@ const Profile = () => {
 
   const handleClose = () => {
     setOpen(false);
+  };
+
+  const handleShowListing = () => {
+    setShowListings(!showListings);
   };
 
   const handleSignOutUser = () => {
@@ -80,7 +87,7 @@ const Profile = () => {
     try {
       const accessToken = localStorage.getItem("accessToken");
       const response = await axios.delete(
-        `http://localhost:8000/api/user/delete/${currentUser.id}`,
+        `${URL}api/user/delete/${currentUser.id}`,
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -106,7 +113,7 @@ const Profile = () => {
     try {
       const accessToken = localStorage.getItem("accessToken");
       const response = await axios.put(
-        `http://localhost:8000/api/user/update/${currentUser.id}`,
+        `${URL}api/user/update/${currentUser.id}`,
         {
           ...formData,
         },
@@ -453,6 +460,12 @@ const Profile = () => {
               Sign out
             </Button>
           </Box>
+          <Box display="flex" justifyContent={"center"} width={"100%"}>
+            <Button onClick={handleShowListing} variant="text" type="button">
+              Show Listings
+            </Button>
+          </Box>
+          {showListings && <UserListings />}
           {updateError && (
             <Typography
               sx={{

@@ -6,6 +6,8 @@ import {
   Checkbox,
   Grid,
   Button,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import { useState } from "react";
 import { BLACK, LIGHTGRAY } from "../../COLOR";
@@ -18,10 +20,17 @@ import {
 import { app } from "../../src/firebase";
 import Wave from "../styleComponents/Wave";
 import axios from "axios";
-import { localURL } from "../../PortConfig";
+import { URL } from "../../PortConfig";
 import { useNavigate } from "react-router-dom";
 
 const CreateListing = () => {
+  const navigate = useNavigate();
+  const [file, setFile] = useState([]);
+  const [uploadError, setUploadError] = useState();
+  const [uploading, setUploading] = useState(false);
+  const theme = useTheme();
+  const md = useMediaQuery(theme.breakpoints.down("md"));
+
   const [formData, setFormData] = useState({
     type: "rent",
     description: "",
@@ -35,11 +44,8 @@ const CreateListing = () => {
     discountPrice: 1,
   });
 
-  const navigate = useNavigate();
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const accessToken = localStorage.getItem("accessToken");
     // console.log(accessToken);
     if (
       !formData.name ||
@@ -50,10 +56,11 @@ const CreateListing = () => {
       console.log("Fill out the form");
       return;
     }
+    const accessToken = localStorage.getItem("accessToken");
     try {
       setUploading(true);
       const response = await axios.post(
-        `${localURL}api/listing/create`,
+        `${URL}api/listing/create`,
         {
           ...formData,
           discountPrice: formData.offer ? formData.discountPrice : 0,
@@ -67,7 +74,10 @@ const CreateListing = () => {
       console.log(response.data);
       if (response.data.succeess == false) {
         console.log(response.data.message);
+        setUploadError(response.data.message);
+        return;
       }
+      console.log("naviagte");
       navigate(`/listing/${response.data._id}`);
     } catch (error) {
       console.log(error);
@@ -76,9 +86,14 @@ const CreateListing = () => {
     }
   };
 
-  const [file, setFile] = useState([]);
-  const [uploadError, setUploadError] = useState();
-  const [uploading, setUploading] = useState(false);
+  const deleteImageFromlist = (item) => {
+    setFormData((prevData) => {
+      return {
+        ...prevData,
+        imageURLs: [...formData.imageURLs.filter((url) => url !== item)],
+      };
+    });
+  };
 
   const handleFormData = (event) => {
     // console.log(event.target.value);
@@ -177,13 +192,16 @@ const CreateListing = () => {
       );
     });
   };
-  // console.log(formData);
   return (
     <>
       <Container maxWidth="md">
         <Wave title={"Create list"} />
 
-        <Grid container spacing={1}>
+        <Grid
+          container
+          spacing={md ? 0 : 1}
+          justifyContent={md ? "normal" : "flex-start"}
+        >
           <Grid item xs={10} md={6}>
             <Box
               component={"form"}
@@ -195,7 +213,7 @@ const CreateListing = () => {
                 sx={{
                   display: "flex",
                   flexDirection: "column",
-                  gap: 2,
+                  gap: 1.5,
                 }}
               >
                 <TextField
@@ -207,6 +225,7 @@ const CreateListing = () => {
                   value={formData.name || ""}
                   onChange={handleFormData}
                   required
+                  size={md ? "small" : "medium"}
                 />
                 <TextField
                   multiline
@@ -219,6 +238,7 @@ const CreateListing = () => {
                   value={formData.description}
                   onChange={handleFormData}
                   required
+                  size={md ? "small" : "medium"}
                 />
                 <TextField
                   fullWidth
@@ -229,17 +249,28 @@ const CreateListing = () => {
                   value={formData?.address || ""}
                   onChange={handleFormData}
                   required
+                  size={md ? "small" : "medium"}
                 />
               </Box>
-
-              <Box>
+              {/* property type: sell or rent */}
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: { xs: "space-between", sm: "flex-start" },
+                }}
+              >
                 <FormControlLabel
                   value="sell"
                   label="Sell"
                   labelPlacement="start"
                   name="type"
                   onChange={handleFormData}
-                  control={<Checkbox checked={formData.type === "sell"} />}
+                  control={
+                    <Checkbox
+                      size={md ? "small" : "medium"}
+                      checked={formData.type === "sell"}
+                    />
+                  }
                 />
                 <FormControlLabel
                   value={"rent"}
@@ -247,17 +278,36 @@ const CreateListing = () => {
                   labelPlacement="start"
                   name="type"
                   onChange={handleFormData}
-                  control={<Checkbox checked={formData.type === "rent"} />}
+                  control={
+                    <Checkbox
+                      size={md ? "small" : "medium"}
+                      checked={formData.type === "rent"}
+                    />
+                  }
                 />
               </Box>
-              <Box>
+              {/* Features of property */}
+              <Box
+                sx={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  flexDirection: { xs: "column", sm: "row" },
+                  alignItems: "flex-start",
+                  mb: 1.5,
+                }}
+              >
                 <FormControlLabel
                   value={true}
                   label="Parking spot"
                   labelPlacement="start"
                   name="parking"
                   onChange={handleFormData}
-                  control={<Checkbox checked={formData.parking || false} />}
+                  control={
+                    <Checkbox
+                      size={md ? "small" : "medium"}
+                      checked={formData.parking || false}
+                    />
+                  }
                 />
                 <FormControlLabel
                   value={true}
@@ -265,7 +315,12 @@ const CreateListing = () => {
                   labelPlacement="start"
                   name="furnished"
                   onChange={handleFormData}
-                  control={<Checkbox checked={formData.furnished || false} />}
+                  control={
+                    <Checkbox
+                      size={md ? "small" : "medium"}
+                      checked={formData.furnished || false}
+                    />
+                  }
                 />
                 <FormControlLabel
                   value={true}
@@ -273,9 +328,15 @@ const CreateListing = () => {
                   labelPlacement="start"
                   name="offer"
                   onChange={handleFormData}
-                  control={<Checkbox checked={formData.offer || false} />}
+                  control={
+                    <Checkbox
+                      size={md ? "small" : "medium"}
+                      checked={formData.offer || false}
+                    />
+                  }
                 />
               </Box>
+              {/* Price of the property */}
               <Box
                 sx={{
                   display: "flex",
@@ -287,7 +348,7 @@ const CreateListing = () => {
                 <TextField
                   type="number"
                   label="Beds"
-                  size="small"
+                  size={md ? "small" : "medium"}
                   name="bedrooms"
                   value={formData.bedrooms}
                   onChange={handleFormData}
@@ -295,7 +356,7 @@ const CreateListing = () => {
                 <TextField
                   type="number"
                   label="Baths"
-                  size="small"
+                  size={md ? "small" : "medium"}
                   name="bath"
                   value={formData.bath}
                   onChange={handleFormData}
@@ -303,7 +364,7 @@ const CreateListing = () => {
                 <TextField
                   type="number"
                   label="Regular Price / month"
-                  size="small"
+                  size={md ? "small" : "medium"}
                   name="regularPrice"
                   value={formData.regularPrice}
                   onChange={handleFormData}
@@ -312,19 +373,16 @@ const CreateListing = () => {
                   <TextField
                     type="number"
                     label="Discount Price / month"
-                    size="small"
+                    size={md ? "small" : "medium"}
                     name="discountPrice"
-                    value={
-                      formData.discountPrice < formData.regularPrice
-                        ? formData.discountPrice
-                        : formData.regularPrice
-                    }
+                    value={formData.discountPrice}
                     onChange={handleFormData}
                   />
                 )}
               </Box>
             </Box>
           </Grid>
+          {/* Upload Photo section */}
           <Grid
             item
             xs={10}
@@ -332,11 +390,17 @@ const CreateListing = () => {
             sx={{
               display: "flex",
               flexDirection: "column",
-              gap: 3,
+              gap: 1,
             }}
           >
             <Box>
-              <h3>
+              <h3
+                style={{
+                  fontSize: md ? "16.5px" : "20px",
+                  fontWeight: "bolder",
+                  textAlign: "justify",
+                }}
+              >
                 Images:
                 <span
                   style={{
@@ -349,7 +413,9 @@ const CreateListing = () => {
               <Box
                 sx={{
                   display: "flex",
-                  gap: 1,
+                  justifyContent: "flex-start",
+                  flexWrap: "wrap",
+                  gap: 1.5,
                 }}
               >
                 <input
@@ -368,8 +434,9 @@ const CreateListing = () => {
                   onClick={handleUpload}
                   variant="contained"
                   color="success"
-                  size="large"
+                  size={md ? "small" : "large"}
                   disabled={uploading}
+                  fullwidth
                 >
                   {uploading ? "Uploading...." : "UPLOAD"}
                 </Button>
@@ -400,7 +467,13 @@ const CreateListing = () => {
                         src={item}
                         alt={item}
                       />
-                      <Button variant="text" color="warning">
+                      <Button
+                        onClick={() => {
+                          deleteImageFromlist(item);
+                        }}
+                        variant="text"
+                        color="warning"
+                      >
                         Delete
                       </Button>
                     </Box>
@@ -408,11 +481,12 @@ const CreateListing = () => {
                 })}
             </Box>
             <Button
+              sx={{}}
               type="submit"
               onClick={handleSubmit}
               variant="contained"
               fullWidth
-              size="large"
+              size={md ? "small" : "large"}
               color="success"
               disabled={uploading ? true : false}
             >
