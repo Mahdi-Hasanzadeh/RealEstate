@@ -13,6 +13,7 @@ import {
 import Counter from "../public/Components/counter";
 import SingleList from "../public/Components/SingleList";
 import EditListing from "../public/Components/EditListing";
+import SearchListings from "../public/Components/SearchListings";
 const App = () => {
   const BasicLayout = () => {
     return (
@@ -31,6 +32,7 @@ const App = () => {
           <Route path="/" element={<BasicLayout />}>
             <Route index element={<Home />} />
             <Route path="about" element={<About />} />
+            <Route path="search" element={<SearchListings />} />
             <Route path="signup" element={<Signup url="signup" />} />
             <Route path="signin" element={<Signup url="signin" />} />
             <Route

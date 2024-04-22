@@ -24,6 +24,8 @@ import {
 
 import { useSelector } from "react-redux";
 import ContactUser from "./ContactUser";
+import { formatDistanceToNow } from "date-fns";
+import { BLACK } from "../../COLOR";
 
 // const listings = {
 //   userRef: "6605354eef735ae7fe854a7f",
@@ -44,7 +46,7 @@ import ContactUser from "./ContactUser";
 const SingleList = () => {
   const { listingId } = useParams();
   const currentUser = useSelector((store) => store.user.userInfo);
-  console.log("currentUser: ", currentUser);
+  // console.log("currentUser: ", currentUser);
   const [listings, setListing] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -81,7 +83,7 @@ const SingleList = () => {
     setShow(false);
   };
 
-  console.log(listings);
+  // console.log(listings);
 
   const priceAfterDiscount = (regularPrice, discountPrice) => {
     return regularPrice - discountPrice;
@@ -134,16 +136,15 @@ const SingleList = () => {
                   {listings?.name}{" "}
                 </Typography>
                 <Typography variant="h5" fontWeight={"bold"}>
-                  $
                   {priceAfterDiscount(
                     listings?.regularPrice,
                     listings?.discountPrice
                   )}{" "}
-                  / month
+                  {listings?.type === "rent" ? "/ month" : null}
                 </Typography>
               </Box>
               {/* Address section */}
-              <Box mt={3} display={"flex"} alignItems={"flex-end"} gap={1}>
+              <Box mt={2} display={"flex"} alignItems={"flex-end"} gap={1}>
                 {
                   <LocationCityRounded
                     color="success"
@@ -156,7 +157,8 @@ const SingleList = () => {
               </Box>
               {/* type of property section */}
               <Box
-                mt={1}
+                mt={1.5}
+                mb={1}
                 sx={{
                   display: "flex",
                   gap: 1,
@@ -175,25 +177,27 @@ const SingleList = () => {
                 >
                   {listings?.type == "rent" ? "Rent" : "Sell"}
                 </Typography>
-                <Typography
-                  variant="body1"
-                  sx={{
-                    backgroundColor: "green",
-                    width: "200px",
-                    textAlign: "center",
-                    color: "white",
-                    fontSize: "19px",
-                    borderRadius: 5,
-                  }}
-                >
-                  {"$ " + listings?.discountPrice}
-                </Typography>
+                {listings?.offer && (
+                  <Typography
+                    variant="body1"
+                    sx={{
+                      backgroundColor: "green",
+                      width: "200px",
+                      textAlign: "center",
+                      color: "white",
+                      fontSize: "19px",
+                      borderRadius: 5,
+                    }}
+                  >
+                    {"AFG" + listings?.discountPrice}
+                  </Typography>
+                )}
               </Box>
 
               {/* Description Section */}
-              <Box p={1.5}>
+              <Box>
                 <Typography
-                  variant="body2"
+                  variant="body1"
                   width={"80%"}
                   sx={{
                     wordWrap: "break-word",
@@ -208,6 +212,14 @@ const SingleList = () => {
                     Description -
                   </span>{" "}
                   {listings?.description}
+                </Typography>
+              </Box>
+              <Box mt={1} mb={1}>
+                <Typography variant="body2" color={BLACK}>
+                  {/* {listing?.createdAt.toString()} */}
+                  {listings?.createdAt &&
+                    formatDistanceToNow(new Date(listings?.createdAt))}{" "}
+                  ago
                 </Typography>
               </Box>
               {/* Home Properties */}
