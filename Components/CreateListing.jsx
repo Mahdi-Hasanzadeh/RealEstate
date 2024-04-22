@@ -56,6 +56,14 @@ const CreateListing = () => {
       console.log("Fill out the form");
       return;
     }
+
+    if (parseInt(formData.discountPrice) >= parseInt(formData.regularPrice)) {
+      console.log(formData.discountPrice, formData.regularPrice);
+      console.log(
+        "Discount price can not be bigger than or equal to regular price"
+      );
+      return;
+    }
     const accessToken = localStorage.getItem("accessToken");
     try {
       setUploading(true);
@@ -71,13 +79,11 @@ const CreateListing = () => {
           },
         }
       );
-      console.log(response.data);
       if (response.data.succeess == false) {
         console.log(response.data.message);
         setUploadError(response.data.message);
         return;
       }
-      console.log("naviagte");
       navigate(`/listing/${response.data._id}`);
     } catch (error) {
       console.log(error);
@@ -436,7 +442,7 @@ const CreateListing = () => {
                   color="success"
                   size={md ? "small" : "large"}
                   disabled={uploading}
-                  fullwidth
+                  fullWidth
                 >
                   {uploading ? "Uploading...." : "UPLOAD"}
                 </Button>

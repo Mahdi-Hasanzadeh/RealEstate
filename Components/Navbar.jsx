@@ -17,7 +17,12 @@ import {
   CardMedia,
 } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
-import { NavLink, Outlet } from "react-router-dom";
+import {
+  NavLink,
+  Outlet,
+  useSearchParams,
+  useNavigate,
+} from "react-router-dom";
 import { BLACK, GRAY, LIGHTGRAY } from "../../COLOR";
 import { useSelector } from "react-redux";
 import profilePicture from "../assets/profile.png";
@@ -46,39 +51,65 @@ const navItems = [
 const drawerWidth = 240;
 
 const Navbar = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const renderCount = useRef(0);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [searchTerm, setSearcTerm] = useState("");
   const user = useSelector((store) => store.user.userInfo);
   // console.log(user);
 
   const handleDrawerToggle = () => {
     setMobileOpen((prevState) => !prevState);
   };
+
+  const handleSearchTerm = (event) => {
+    setSearcTerm(event.target.value);
+  };
+
+  const handleSearch = () => {
+    // console.log(window.location.search);
+    searchParams.set("searchTerm", searchTerm);
+    // console.log(searchParams.toString());
+    navigate(`/search?${searchParams.toString()}`);
+  };
+
   useEffect(() => {
-    renderCount.current += 1;
-  });
-  console.log(user);
+    const term = searchParams.get("searchTerm");
+    if (term) {
+      setSearcTerm(term);
+    }
+  }, [location.search]);
+  // console.log(user);
 
   const drawer = (
     <Box onClick={handleDrawerToggle} sx={{ textAlign: "center" }}>
-      <Typography variant="h6" sx={{ my: 2 }}>
-        MUI
+      <Typography variant="body1" sx={{ my: 2 }}>
+        HASANZADEH
+        <Typography variant="body1" component={"span"} color={GRAY}>
+          ESTATE
+        </Typography>
       </Typography>
       <Divider />
-      <List>
+      <List
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
         {navItems.map((item, index) => {
           if (item.name === "Sign in") {
             if (user === null) {
               return (
                 <ListItem key={index} disablePadding>
-                  <NavLink
-                    to={item.link}
-                    className="Link"
-                    style={{
-                      color: "red",
-                    }}
-                  >
-                    <ListItemButton sx={{ textAlign: "center" }}>
+                  <NavLink style={{}} to={item.link} className="Link">
+                    <ListItemButton
+                      sx={{
+                        textAlign: "center",
+                      }}
+                    >
                       <ListItemText primary={item.name} />
                     </ListItemButton>
                   </NavLink>
@@ -88,9 +119,22 @@ const Navbar = () => {
           } else if (item.name === "profile") {
             if (user !== null) {
               return (
-                <ListItem key={index} disablePadding>
+                <ListItem
+                  sx={{
+                    justifyContent: "center",
+                    flexGrow: 1,
+                  }}
+                  key={index}
+                  disablePadding
+                >
                   <NavLink to={item.link} className="Link">
-                    <ListItemButton sx={{ textAlign: "center" }}>
+                    <ListItemButton
+                      sx={{
+                        textAlign: "center",
+                        backgroundColor: "green",
+                        width: 1,
+                      }}
+                    >
                       {/* <img
                         srcSet={user.avatar}
                         title={"profile"}
@@ -180,11 +224,15 @@ const Navbar = () => {
                   sx={{
                     width: { xs: 150, sm: 250 },
                   }}
+                  value={searchTerm}
+                  onChange={handleSearchTerm}
                   placeholder=""
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
-                        <SearchRounded />
+                        <IconButton onClick={handleSearch}>
+                          <SearchRounded />
+                        </IconButton>
                       </InputAdornment>
                     ),
                   }}
@@ -257,7 +305,9 @@ const Navbar = () => {
                 display: { xs: "block" },
                 "& .MuiDrawer-paper": {
                   boxSizing: "border-box",
-                  width: drawerWidth,
+                  backgroundColor: LIGHTGRAY,
+                  borderRadius: 1,
+                  width: "50%",
                 },
               }}
             >

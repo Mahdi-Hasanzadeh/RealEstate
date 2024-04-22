@@ -39,6 +39,7 @@ import { URL } from "../../PortConfig.js";
 const Transition = forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
+
 const Profile = () => {
   const [visibility, setVisibility] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -107,7 +108,7 @@ const Profile = () => {
     }
   };
 
-  console.log("Form Data: ", formData);
+  // console.log("Form Data: ", formData);
   const handleSubmit = async (event) => {
     setLoading(true);
     try {

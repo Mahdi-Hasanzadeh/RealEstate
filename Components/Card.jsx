@@ -2,30 +2,27 @@ import { LocationCityRounded } from "@mui/icons-material";
 import { Box, Card, CardContent, CardMedia, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
 import { BLACK, CAPTIONLIGHTGRAY } from "../../COLOR";
-import Image from "../assets/house1.jpg";
-const CardItem = () => {
-  const description =
-    " Lorem, ipsum dolor sit amet consectetur adipisicing elit.Laborum veniam vero eum accusamus deserunt aspernatur corporis, incidunt saepe! Aliquid ullam modi exercitationem sint quampossimus adipisci, repudiandae officia. Quia ipsum quas";
+import { formatDistanceToNow } from "date-fns";
 
+const CardItem = ({ listing }) => {
   return (
     <>
-      <Link to="/search" className="cardLink">
+      <Link to={`/listing/${listing?._id}`} className="cardLink">
         <Card
           sx={{
+            minWidth: 245,
             maxWidth: 345,
           }}
         >
           <CardMedia
             component={"img"}
-            alt="image"
+            alt={listing?.name}
             height={145}
-            // image={require("../../assets/house5.png")}
-            image={Image}
+            srcSet={listing?.imageURLs[0]}
           />
           <CardContent>
             <Typography variant="h5" component={"div"}>
-              {" "}
-              Tranquil Lakeside Retreat
+              {listing?.name}
             </Typography>
             <Typography
               variant="caption"
@@ -34,21 +31,30 @@ const CardItem = () => {
               display={"flex"}
               alignItems={"center"}
             >
-              <LocationCityRounded color="success" /> Herat, Esmail khan street
+              <LocationCityRounded color="success" /> {listing?.address}
             </Typography>
             <Typography variant="body1" fontSize={"15"} component={"div"}>
-              {description.substring(0, 90)}...
+              {listing?.description.substring(0, 90)}...
+            </Typography>
+            <Typography variant="h6" color={BLACK}>
+              {listing?.regularPrice}AFG{" "}
+              {listing?.type === "rent" ? "/month" : null}
             </Typography>
 
-            <Typography variant="h6" color={BLACK}>
-              500$
-            </Typography>
-            <Box display={"flex"} justifyContent={"flex-start"} gap={2}>
+            <Box display={"flex"} justifyContent={"flex-start"} mt={1} gap={2}>
               <Typography variant="body2" color={BLACK}>
-                2 Beds
+                {listing?.bedrooms} Bed{listing?.bedrooms !== 1 ? "s" : ""}
               </Typography>
               <Typography variant="body2" color={BLACK}>
-                4 Baths
+                {listing?.bath} Bath{listing?.bath !== 1 ? "s" : ""}
+              </Typography>
+            </Box>
+            <Box mt={1}>
+              <Typography variant="body2" color={BLACK}>
+                {/* {listing?.createdAt.toString()} */}
+                {listing?.createdAt &&
+                  formatDistanceToNow(new Date(listing?.createdAt))}{" "}
+                ago
               </Typography>
             </Box>
           </CardContent>

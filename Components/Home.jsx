@@ -2,11 +2,14 @@ import { Box, Container, Typography } from "@mui/material";
 import { BLACK, CAPTIONLIGHTGRAY, GRAY } from "../../COLOR";
 import { useTheme, useMediaQuery } from "@mui/material";
 import { Link } from "react-router-dom";
-import { ProductsSlider, RecentProductsSection } from "./ComponentsReturn";
+import { ProductsSlider, LatestProducts } from "./ComponentsReturn";
 
 import img1 from "../assets/house1.jpg";
 import img2 from "../assets/house2.jpg";
 import img3 from "../assets/house3.jpg";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { URL } from "../../PortConfig";
 
 // import image from "../../assets/house1.jpg";
 const images = [
@@ -37,11 +40,104 @@ const images = [
     imgPath: img3,
   },
 ];
-
+const numberOfListings = 4;
+const offer = true;
+const rent = "rent";
+const sale = "sell";
+const offerQuery = `limit=${numberOfListings}&offer=${offer}`;
+const rentQuery = `limit=${numberOfListings}&type=${rent}`;
+const saleQuery = `limit=${numberOfListings}&type=${sale}`;
 const Home = () => {
   const theme = useTheme();
   const isLaptop = useMediaQuery(theme.breakpoints.up("md"));
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
+  const [recentOffers, setRecentOffers] = useState([]);
+  const [recentRent, setRecentRent] = useState([]);
+  const [recentSale, setRecentSale] = useState([]);
+
+  const [errorOffer, setErrorOffer] = useState(null);
+  const [errorRent, setErrorRent] = useState(null);
+  const [errorSale, setErrorSale] = useState(null);
+
+  const [loadingOffer, setLoadingOffer] = useState(false);
+  const [loadingRent, setLoadingRent] = useState(false);
+  const [loadingSale, setLoadingSale] = useState(false);
+
+  const fetchRecentOffers = async () => {
+    try {
+      setLoadingOffer(true);
+      const response = await axios.get(`${URL}api/listing/get?${offerQuery}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      });
+
+      if (response.data.success == false) {
+        setErrorOffer(response.data.message);
+        return;
+      }
+      setRecentOffers(response.data.listings);
+      setErrorOffer(null);
+      // Calling next function to load the data
+      fetchRecentRent();
+    } catch (error) {
+      setErrorOffer(error.message);
+    } finally {
+      setLoadingOffer(false);
+    }
+  };
+
+  const fetchRecentRent = async () => {
+    try {
+      setLoadingRent(true);
+      const response = await axios.get(`${URL}api/listing/get?${rentQuery}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      });
+
+      if (response.data.success == false) {
+        setErrorRent(response.data.message);
+        return;
+      }
+      setRecentRent(response.data.listings);
+      setErrorRent(null);
+      // Calling next function to load the data
+      fetchRecentSale();
+    } catch (error) {
+      setErrorRent(error.message);
+    } finally {
+      setLoadingRent(false);
+    }
+  };
+
+  const fetchRecentSale = async () => {
+    try {
+      setLoadingSale(true);
+      const response = await axios.get(`${URL}api/listing/get?${saleQuery}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      });
+
+      if (response.data.success == false) {
+        setErrorSale(response.data.message);
+        return;
+      }
+      setRecentSale(response.data.listings);
+      setErrorSale(null);
+    } catch (error) {
+      setErrorSale(error.message);
+    } finally {
+      setLoadingSale(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchRecentOffers();
+  }, []);
+
   return (
     <>
       <Container
@@ -121,11 +217,32 @@ const Home = () => {
           </Box>
         </Box>
       </Container>
-      {/* Products Slider */}
+      {/* Slider */}
       <ProductsSlider images={images} />
 
       {/* Recent Offers */}
-      <RecentProductsSection title="Recent Offers" />
+
+      <LatestProducts
+        query={"offer"}
+        title="Recent Offers"
+        loading={loadingOffer}
+        error={errorOffer}
+        listings={recentOffers}
+      />
+      <LatestProducts
+        query={"rent"}
+        title="Recent Places For Rent"
+        loading={loadingRent}
+        error={errorRent}
+        listings={recentRent}
+      />
+      <LatestProducts
+        query={"sell"}
+        title="Recent Places For Sale"
+        loading={loadingSale}
+        error={errorSale}
+        listings={recentSale}
+      />
       {/* <RecentProductsSection title="Recent places for rent" />
       <RecentProductsSection title="Recent places for sale" /> */}
     </>
