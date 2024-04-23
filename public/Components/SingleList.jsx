@@ -2,7 +2,6 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { URL } from "../../PortConfig";
-import ProductsSlider from "./ProductsSlider";
 import {
   Box,
   Button,
@@ -10,6 +9,7 @@ import {
   Typography,
   useTheme,
   useMediaQuery,
+  Paper,
 } from "@mui/material";
 import {
   BathroomRounded,
@@ -24,14 +24,22 @@ import { addLocationHistory } from "../../reactRedux/userLocationHistory";
 import ContactUser from "./ContactUser";
 
 import { formatDistanceToNow } from "date-fns";
-import { BLACK } from "../../COLOR";
+import { BLACK, LIGHTGRAY } from "../../COLOR";
+import MobileStepper from "@mui/material/MobileStepper";
 
+import { autoPlay } from "react-swipeable-views-utils";
+import KeyboardArrowLeft from "@mui/icons-material/KeyboardArrowLeft";
+import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
+import SwipeableViews from "react-swipeable-views";
+const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
 const SingleList = () => {
+  const [activeStep, setActiveStep] = useState(0);
   const { listingId } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const currentUser = useSelector((store) => store.persistData.user.userInfo);
   const [listings, setListing] = useState(null);
+  const maxSteps = listings?.imageURLs?.length || 0;
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [show, setShow] = useState(true);
@@ -97,10 +105,28 @@ const SingleList = () => {
     }
   };
 
+  const handleNext = () => {
+    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+  };
+
+  const handleBack = () => {
+    setActiveStep((prevActiveStep) => prevActiveStep - 1);
+  };
+
+  const handleStepChange = (step) => {
+    setActiveStep(step);
+  };
+
   return (
     <>
       {currentUser == null ? (
-        <Box padding={2}>
+        <Box
+          sx={{
+            position: "relative",
+            top: 30,
+          }}
+          padding={2}
+        >
           <Typography
             sx={{
               textAlign: "center",
@@ -140,6 +166,8 @@ const SingleList = () => {
       ) : loading ? (
         <main
           style={{
+            position: "relative",
+            top: 50,
             textAlign: "center",
           }}
         >
@@ -151,14 +179,86 @@ const SingleList = () => {
         listings && (
           <main>
             <div>
-              <ProductsSlider
-                images={listings?.imageURLs.map((item) => {
-                  return {
-                    label: listings?.name,
-                    imgPath: item,
-                  };
-                })}
-              />
+              <Container
+                maxWidth="lg"
+                sx={{
+                  mt: 4,
+                }}
+              >
+                <Paper
+                  square
+                  elevation={1}
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    height: 50,
+                    pl: 2,
+                    bgcolor: LIGHTGRAY,
+                    mt: 10,
+                  }}
+                >
+                  <Typography>{listings.name}</Typography>
+                </Paper>
+                <AutoPlaySwipeableViews
+                  axis={theme.direction === "rtl" ? "x-reverse" : "x"}
+                  index={activeStep}
+                  onChangeIndex={handleStepChange}
+                  enableMouseEvents
+                >
+                  {listings?.imageURLs.map((step, index) => (
+                    <div key={index}>
+                      {Math.abs(activeStep - index) <= 2 ? (
+                        <Box
+                          component="img"
+                          sx={{
+                            height: { sm: 450, md: 500 },
+                            display: "block",
+                            width: "100%",
+                            overflow: "hidden",
+                            objectFit: { xs: "contain", sm: "cover" },
+                            objectPosition: "center",
+                          }}
+                          src={step}
+                          alt={step}
+                        />
+                      ) : null}
+                    </div>
+                  ))}
+                </AutoPlaySwipeableViews>
+                <MobileStepper
+                  steps={maxSteps}
+                  position="static"
+                  activeStep={activeStep}
+                  nextButton={
+                    <Button
+                      size="small"
+                      onClick={handleNext}
+                      disabled={activeStep === maxSteps - 1}
+                    >
+                      Next
+                      {theme.direction === "rtl" ? (
+                        <KeyboardArrowLeft />
+                      ) : (
+                        <KeyboardArrowRight />
+                      )}
+                    </Button>
+                  }
+                  backButton={
+                    <Button
+                      size="small"
+                      onClick={handleBack}
+                      disabled={activeStep === 0}
+                    >
+                      {theme.direction === "rtl" ? (
+                        <KeyboardArrowRight />
+                      ) : (
+                        <KeyboardArrowLeft />
+                      )}
+                      Back
+                    </Button>
+                  }
+                />
+              </Container>
             </div>
             <Container
               maxWidth="lg"

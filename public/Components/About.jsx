@@ -1,7 +1,16 @@
+import { Box } from "@mui/material";
+
 const About = () => {
   return (
     <>
-      <h1>About</h1>
+      <Box
+        sx={{
+          position: "relative",
+          top: 45,
+        }}
+      >
+        <h1>About</h1>
+      </Box>
     </>
   );
 };

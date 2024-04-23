@@ -47,23 +47,49 @@ const sale = "sell";
 const offerQuery = `limit=${numberOfListings}&offer=${offer}`;
 const rentQuery = `limit=${numberOfListings}&type=${rent}`;
 const saleQuery = `limit=${numberOfListings}&type=${sale}`;
+const specialListingsQuery = `limit=${numberOfListings}&offer=${offer}&furnished=true&parking=true`;
 
 const Home = () => {
   const theme = useTheme();
   const isLaptop = useMediaQuery(theme.breakpoints.up("md"));
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
+  const [specialListings, setSpecialListings] = useState([]);
   const [recentOffers, setRecentOffers] = useState([]);
   const [recentRent, setRecentRent] = useState([]);
   const [recentSale, setRecentSale] = useState([]);
 
+  const [specialError, setSpecialError] = useState(null);
   const [errorOffer, setErrorOffer] = useState(null);
   const [errorRent, setErrorRent] = useState(null);
   const [errorSale, setErrorSale] = useState(null);
 
+  const [specialListingsLoading, setSpecialListingsLoading] = useState(false);
   const [loadingOffer, setLoadingOffer] = useState(false);
   const [loadingRent, setLoadingRent] = useState(false);
   const [loadingSale, setLoadingSale] = useState(false);
+
+  const fetchSpecialListings = async () => {
+    try {
+      setSpecialListingsLoading(true);
+      const response = await axios.get(
+        `${URL}api/listing/get?${specialListingsQuery}`
+      );
+
+      if (response.data.success == false) {
+        setSpecialError(response.data.message);
+        return;
+      }
+      setSpecialListings(response.data.listings);
+      setSpecialError(null);
+      // Calling next function to load the data
+      fetchRecentOffers();
+    } catch (error) {
+      setSpecialError(error.message);
+    } finally {
+      setSpecialListingsLoading(false);
+    }
+  };
 
   const fetchRecentOffers = async () => {
     try {
@@ -132,7 +158,7 @@ const Home = () => {
   };
 
   useEffect(() => {
-    fetchRecentOffers();
+    fetchSpecialListings();
   }, []);
 
   return (
@@ -215,7 +241,11 @@ const Home = () => {
         </Box>
       </Container>
       {/* Slider */}
-      <ProductsSlider images={images} />
+      <ProductsSlider
+        loading={specialListingsLoading}
+        error={specialError}
+        listings={specialListings}
+      />
 
       {/* Recent Offers */}
 
