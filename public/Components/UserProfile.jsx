@@ -43,7 +43,7 @@ const Transition = forwardRef(function Transition(props, ref) {
 const Profile = () => {
   const [visibility, setVisibility] = useState(false);
   const [loading, setLoading] = useState(false);
-  const currentUser = useSelector((store) => store.user.userInfo);
+  const currentUser = useSelector((store) => store.persistData.user.userInfo);
   const theme = useTheme();
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -78,6 +78,7 @@ const Profile = () => {
   const handleSignOutUser = () => {
     // first we remove access token from the local storage
     localStorage.removeItem("accessToken");
+    localStorage.removeItem("persist:root");
 
     navigate("/signin");
     // then we delete the user from state of application
@@ -97,6 +98,8 @@ const Profile = () => {
       );
       if (response.data) {
         console.log("user deleted");
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("persist:root");
         setOpen(false);
         navigate("/signup");
         dispatch(deleteUser());

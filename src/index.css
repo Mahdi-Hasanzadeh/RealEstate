@@ -103,3 +103,10 @@ button:focus-visible {
   font-weight: bold;
   color: black;
 }
+.cardImage {
+  transition: 0.75s ease-in-out;
+}
+.cardImage:hover {
+  scale: 1.1;
+  border-radius: 5%;
+}

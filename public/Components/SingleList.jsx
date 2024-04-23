@@ -1,10 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { URL } from "../../PortConfig";
-
-import image1 from "../assets/house1.jpg";
-import image2 from "../assets/house4.jpg";
 import ProductsSlider from "./ProductsSlider";
 import {
   Box,
@@ -22,31 +19,18 @@ import {
   LocationCityRounded,
 } from "@mui/icons-material";
 
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { addLocationHistory } from "../../reactRedux/userLocationHistory";
 import ContactUser from "./ContactUser";
+
 import { formatDistanceToNow } from "date-fns";
 import { BLACK } from "../../COLOR";
 
-// const listings = {
-//   userRef: "6605354eef735ae7fe854a7f",
-//   offer: true,
-//   type: "sell",
-//   parking: true,
-//   furnished: true,
-//   bedrooms: 1,
-//   address: "Herat",
-//   bath: 2,
-//   description: "this is a good house",
-//   regularPrice: 100,
-//   discountPrice: 90,
-//   name: "Hotel Hasanzadeh",
-//   imageURLs: [image1, image2],
-// };
-
 const SingleList = () => {
   const { listingId } = useParams();
-  const currentUser = useSelector((store) => store.user.userInfo);
-  // console.log("currentUser: ", currentUser);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const currentUser = useSelector((store) => store.persistData.user.userInfo);
   const [listings, setListing] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -55,8 +39,13 @@ const SingleList = () => {
   const isSmall = useMediaQuery(theme.breakpoints.down("sm"));
 
   const fetchUserListing = async () => {
+    if (currentUser == null) {
+      console.log("Please login");
+      return;
+    }
     setLoading(true);
     try {
+      // dispatch(addLocationHistory(null));
       const response = await axios.get(
         `${URL}api/listing/userListing/${listingId}`,
         {
@@ -93,9 +82,62 @@ const SingleList = () => {
     fetchUserListing();
   }, []);
 
+  const handleNavigate = (to) => {
+    // getting the user location
+    const location =
+      "/" + window.location.pathname.split("/").slice(2).join("/");
+
+    dispatch(addLocationHistory(location));
+
+    // console.log(location.pathname.split("/").slice(2).join("/"));
+    if (to == "login") {
+      navigate("/signin");
+    } else {
+      navigate("/signup");
+    }
+  };
+
   return (
     <>
-      {loading ? (
+      {currentUser == null ? (
+        <Box padding={2}>
+          <Typography
+            sx={{
+              textAlign: "center",
+              mb: 1.5,
+            }}
+            variant="body1"
+          >
+            Please first login to your account or create a new one
+          </Typography>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              columnGap: 2,
+            }}
+          >
+            <Button
+              variant="contained"
+              onClick={() => {
+                handleNavigate("login");
+              }}
+              size="small"
+            >
+              Login
+            </Button>
+            <Button
+              variant="contained"
+              onClick={() => {
+                handleNavigate("signup");
+              }}
+              size="small"
+            >
+              Sign up
+            </Button>
+          </Box>
+        </Box>
+      ) : loading ? (
         <main
           style={{
             textAlign: "center",

@@ -17,15 +17,11 @@ import {
   CardMedia,
 } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
-import {
-  NavLink,
-  Outlet,
-  useSearchParams,
-  useNavigate,
-} from "react-router-dom";
+import { NavLink, useSearchParams, useNavigate } from "react-router-dom";
 import { BLACK, GRAY, LIGHTGRAY } from "../../COLOR";
 import { useSelector } from "react-redux";
 import profilePicture from "../assets/profile.png";
+import { useTheme } from "@emotion/react";
 const navItems = [
   {
     name: "Home",
@@ -56,7 +52,8 @@ const Navbar = () => {
   const renderCount = useRef(0);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchTerm, setSearcTerm] = useState("");
-  const user = useSelector((store) => store.user.userInfo);
+  const user = useSelector((store) => store.persistData.user.userInfo);
+  const theme = useTheme();
   // console.log(user);
 
   const handleDrawerToggle = () => {
@@ -180,7 +177,7 @@ const Navbar = () => {
       <Box>
         <Box sx={{ display: "flex" }}>
           <AppBar
-            position="sticky"
+            position="fixed"
             component="nav"
             sx={{
               backgroundColor: LIGHTGRAY,

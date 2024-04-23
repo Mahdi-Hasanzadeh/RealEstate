@@ -3,13 +3,14 @@ import { userReducer } from "./userSlice";
 import storage from "redux-persist/lib/storage";
 import { persistReducer, persistStore } from "redux-persist";
 import counterReducer from "./counterSlice";
+import { userLocationHistoryReducer } from "./userLocationHistory";
 
 const rootReducer = combineReducers({
   user: userReducer,
   counter: counterReducer,
 });
 
-const persistReducer1 = persistReducer(
+const persistData = persistReducer(
   {
     // these are persist config
     key: "root",
@@ -20,7 +21,10 @@ const persistReducer1 = persistReducer(
 );
 
 export const store = configureStore({
-  reducer: persistReducer1,
+  reducer: {
+    persistData,
+    locationHistory: userLocationHistoryReducer,
+  },
 
   // check the definition of this middleware
   middleware: (getDefaultMiddlerware) =>

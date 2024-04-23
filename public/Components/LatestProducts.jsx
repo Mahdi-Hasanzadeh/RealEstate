@@ -12,9 +12,15 @@ const LatestProducts = ({ title, loading, error, listings, query }) => {
       : query == "sell"
       ? "type=sell"
       : null;
+
   return (
     <>
-      <Container maxWidth="lg">
+      <Container
+        maxWidth="lg"
+        sx={{
+          py: 2,
+        }}
+      >
         <Typography variant="h5" color={BLACK}>
           {title}
         </Typography>
@@ -27,6 +33,7 @@ const LatestProducts = ({ title, loading, error, listings, query }) => {
             justifyContent: "space-between",
             flexWrap: "wrap",
             rowGap: 3,
+            columnGap: 1,
             mt: 2,
             mb: 2,
           }}

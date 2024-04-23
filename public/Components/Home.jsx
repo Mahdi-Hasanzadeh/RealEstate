@@ -47,6 +47,7 @@ const sale = "sell";
 const offerQuery = `limit=${numberOfListings}&offer=${offer}`;
 const rentQuery = `limit=${numberOfListings}&type=${rent}`;
 const saleQuery = `limit=${numberOfListings}&type=${sale}`;
+
 const Home = () => {
   const theme = useTheme();
   const isLaptop = useMediaQuery(theme.breakpoints.up("md"));
@@ -67,11 +68,7 @@ const Home = () => {
   const fetchRecentOffers = async () => {
     try {
       setLoadingOffer(true);
-      const response = await axios.get(`${URL}api/listing/get?${offerQuery}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      });
+      const response = await axios.get(`${URL}api/listing/get?${offerQuery}`);
 
       if (response.data.success == false) {
         setErrorOffer(response.data.message);

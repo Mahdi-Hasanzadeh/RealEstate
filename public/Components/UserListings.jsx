@@ -7,7 +7,7 @@ import { LIGHTGRAY } from "../../COLOR";
 import { Link, useNavigate } from "react-router-dom";
 
 const UserListings = () => {
-  const currentUser = useSelector((store) => store.user.userInfo);
+  const currentUser = useSelector((store) => store.persistData.user.userInfo);
   const [listings, setListings] = useState([]);
   const navigate = useNavigate();
 
