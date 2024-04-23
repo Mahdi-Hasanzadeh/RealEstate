@@ -24,7 +24,6 @@ import { URL } from "../../PortConfig";
 import { useNavigate, useParams } from "react-router-dom";
 
 const EditListing = () => {
-  const navigate = useNavigate();
   const [file, setFile] = useState([]);
   const [uploadError, setUploadError] = useState();
   const [uploading, setUploading] = useState(false);
@@ -75,6 +74,7 @@ const EditListing = () => {
     fetchUserListing();
   }, []);
 
+  // update the user listing
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -111,7 +111,6 @@ const EditListing = () => {
           },
         }
       );
-      console.log(response.data);
       if (response.data.succeess == false) {
         console.log(response.data.message);
         setUploadError(response.data.message);
