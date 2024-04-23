@@ -46,7 +46,6 @@ const CreateListing = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // console.log(accessToken);
     if (
       !formData.name ||
       !formData.description ||
@@ -200,7 +199,14 @@ const CreateListing = () => {
   };
   return (
     <>
-      <Container maxWidth="md">
+      <Container
+        maxWidth="md"
+        sx={{
+          position: "relative",
+          top: 50,
+          mb: 20,
+        }}
+      >
         <Wave title={"Create list"} />
 
         <Grid

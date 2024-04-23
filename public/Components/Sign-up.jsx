@@ -145,7 +145,13 @@ const signUp = ({ url }) => {
   }
   return (
     <>
-      <Container maxWidth="md">
+      <Container
+        maxWidth="md"
+        sx={{
+          position: "relative",
+          top: 50,
+        }}
+      >
         <Typography variant={isMobile ? "body1" : "h6"}>
           {url === "signup" ? (
             <Wave title="Sign Up" />
