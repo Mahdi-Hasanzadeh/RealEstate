@@ -14,37 +14,34 @@ import {
   ListItemText,
   TextField,
   InputAdornment,
-  CardMedia,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import { NavLink, useSearchParams, useNavigate } from "react-router-dom";
 import { BLACK, GRAY, LIGHTGRAY } from "../../COLOR";
 import { useSelector } from "react-redux";
 import profilePicture from "../assets/profile.png";
-import { useTheme } from "@emotion/react";
+
 const navItems = [
   {
     name: "Home",
     link: "/",
+  },
+
+  {
+    name: "Sign in",
+    link: "/signin",
   },
   {
     name: "About",
     link: "/about",
   },
   {
-    name: "Sign in",
-    link: "/signin",
-  },
-  {
     name: "profile",
     link: "/profile",
   },
-  {
-    name: "Counter",
-    link: "/counter",
-  },
 ];
-const drawerWidth = 240;
 
 const Navbar = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -54,6 +51,7 @@ const Navbar = () => {
   const [searchTerm, setSearcTerm] = useState("");
   const user = useSelector((store) => store.persistData.user.userInfo);
   const theme = useTheme();
+  const md = useMediaQuery(theme.breakpoints.down("md"));
   // console.log(user);
 
   const handleDrawerToggle = () => {
@@ -79,8 +77,14 @@ const Navbar = () => {
   }, [location.search]);
   // console.log(user);
 
+  useEffect(() => {
+    if (md) {
+      setMobileOpen(false);
+    }
+  }, [md]);
+
   const drawer = (
-    <Box onClick={handleDrawerToggle} sx={{ textAlign: "center" }}>
+    <Box onClick={handleDrawerToggle} ml={2}>
       <Typography variant="body1" sx={{ my: 2 }}>
         HASANZADEH
         <Typography variant="body1" component={"span"} color={GRAY}>
@@ -88,12 +92,83 @@ const Navbar = () => {
         </Typography>
       </Typography>
       <Divider />
-      <List
+      <Box
         sx={{
           display: "flex",
           flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
+          gap: 1,
+          alignItems: "flex-start",
+          mt: 2,
+        }}
+      >
+        {navItems.map((item, index) => {
+          if (item.name === "Sign in") {
+            if (user === null) {
+              return (
+                <NavLink
+                  style={({ isActive }) => {
+                    return {
+                      color: isActive ? "blue" : BLACK,
+                    };
+                  }}
+                  to={item.link}
+                  key={index}
+                  className={"Navlink"}
+                >
+                  <Button sx={{ color: "#334155" }}>{item.name}</Button>
+                </NavLink>
+              );
+            }
+          } else if (item.name === "profile") {
+            if (user !== null) {
+              return (
+                <NavLink
+                  key={index}
+                  style={({ isActive }) => {
+                    return {
+                      color: isActive ? "blue" : BLACK,
+                    };
+                  }}
+                  to={item.link}
+                  className={"Navlink"}
+                >
+                  {/* <Button sx={{ color: "#334155" }}>{item.name}</Button> */}
+                  <img
+                    srcSet={user.avatar ? user.avatar : profilePicture}
+                    alt={user.username}
+                    // title={"profile"}
+                    style={{
+                      width: "30px",
+                      borderRadius: 15,
+                      objectFit: "cover",
+                    }}
+                  />
+                </NavLink>
+              );
+            }
+          } else {
+            return (
+              <NavLink
+                style={({ isActive }) => {
+                  return {
+                    color: isActive ? "blue !important" : BLACK,
+                  };
+                }}
+                to={item.link}
+                key={index}
+                className={"Navlink"}
+              >
+                <Button sx={{ color: "#334155" }}>{item.name}</Button>
+              </NavLink>
+            );
+          }
+        })}
+      </Box>
+      {/* <List
+        sx={{
+          display: "flex",
+          margin: "0 auto",
+          flexDirection: "column",
         }}
       >
         {navItems.map((item, index) => {
@@ -101,12 +176,17 @@ const Navbar = () => {
             if (user === null) {
               return (
                 <ListItem key={index} disablePadding>
-                  <NavLink style={{}} to={item.link} className="Link">
-                    <ListItemButton
-                      sx={{
+                  <NavLink
+                    style={({ isActive }) => {
+                      return {
+                        color: isActive ? "blue" : BLACK,
+                        textDecoration: "none",
                         textAlign: "center",
-                      }}
-                    >
+                      };
+                    }}
+                    to={item.link}
+                  >
+                    <ListItemButton>
                       <ListItemText primary={item.name} />
                     </ListItemButton>
                   </NavLink>
@@ -116,23 +196,18 @@ const Navbar = () => {
           } else if (item.name === "profile") {
             if (user !== null) {
               return (
-                <ListItem
-                  sx={{
-                    justifyContent: "center",
-                    flexGrow: 1,
-                  }}
-                  key={index}
-                  disablePadding
-                >
-                  <NavLink to={item.link} className="Link">
-                    <ListItemButton
-                      sx={{
-                        textAlign: "center",
-                        backgroundColor: "green",
-                        width: 1,
-                      }}
-                    >
-                      {/* <img
+                <ListItem key={index} disablePadding>
+                  <NavLink
+                    style={({ isActive }) => {
+                      return {
+                        color: isActive ? "blue" : BLACK,
+                        textDecoration: "none",
+                      };
+                    }}
+                    to={item.link}
+                  >
+                    <ListItemButton> */}
+      {/* <img
                         srcSet={user.avatar}
                         title={"profile"}
                         style={{
@@ -140,7 +215,7 @@ const Navbar = () => {
                           borderRadius: 15,
                         }}
                       /> */}
-                      <ListItemText primary={item.name} />
+      {/* <ListItemText primary={item.name} />
                     </ListItemButton>
                   </NavLink>
                 </ListItem>
@@ -148,28 +223,25 @@ const Navbar = () => {
             }
           } else {
             return (
-              <ListItem
-                sx={{
-                  width: "100%",
-                }}
-                key={index}
-                disablePadding
-              >
-                <NavLink to={item.link} className="Link">
+              <ListItem key={index} disablePadding>
+                <NavLink
+                  to={item.link}
+                  style={({ isActive }) => {
+                    return {
+                      color: isActive ? "blue" : BLACK,
+                      textDecoration: "none",
+                    };
+                  }}
+                >
                   <ListItemButton sx={{ textAlign: "center" }}>
-                    <ListItemText
-                      sx={{
-                        color: "red",
-                      }}
-                      primary={item.name}
-                    />
+                    <ListItemText sx={{}} primary={item.name} />
                   </ListItemButton>
                 </NavLink>
               </ListItem>
             );
           }
         })}
-      </List>
+      </List> */}
     </Box>
   );
   return (
@@ -299,12 +371,12 @@ const Navbar = () => {
                 keepMounted: true, // Better open performance on mobile.
               }}
               sx={{
-                display: { xs: "block" },
+                display: { xs: "block", md: "none" },
                 "& .MuiDrawer-paper": {
                   boxSizing: "border-box",
                   backgroundColor: LIGHTGRAY,
                   borderRadius: 1,
-                  width: "50%",
+                  width: "75%",
                 },
               }}
             >
