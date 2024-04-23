@@ -123,7 +123,6 @@ const UserListings = () => {
                       width={"250px"}
                       height={"200px"}
                       style={{
-                        objectFit: "cover",
                         objectPosition: "center",
                         objectFit: "fill",
                         borderRadius: "5px",
