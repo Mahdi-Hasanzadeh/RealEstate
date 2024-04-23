@@ -2,7 +2,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { URL } from "../../PortConfig";
 import { useSelector } from "react-redux";
-import { Box, Button } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import { LIGHTGRAY } from "../../COLOR";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -64,85 +64,108 @@ const UserListings = () => {
   }, []);
   // console.log("use listing");
   return (
-    <Box
-      sx={{
-        margin: "0 auto",
-        width: "100%",
-        py: 1,
-      }}
-    >
+    <Box>
       <h2
         style={{
           color: "green",
         }}
       >
-        Your Listings
+        Your Listings({listings.length})
       </h2>
-      {listings.length > 0 &&
-        listings.map((item, index) => {
-          return (
-            <Box
-              key={index}
-              sx={{
-                display: "flex",
-                flexDirection: { xs: "column", sm: "row" },
-                justifyContent: "space-between",
-                alignItems: "center",
-                padding: 2,
-                backgroundColor: LIGHTGRAY,
-                borderRadius: 3,
-                gap: 1.5,
-                flexWrap: { xs: "wrap", sm: "nowrap" },
-                mb: 10,
-              }}
-            >
-              <div>
-                <Link className="" to={`/listing/${item._id}`}>
-                  <img
-                    srcSet={item.imageURLs[0]}
-                    alt={item.name}
-                    style={{
-                      width: "100%",
-                      objectFit: "contain",
-                      borderRadius: "5px",
-                    }}
-                  />
-                </Link>
-              </div>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-around",
+          flexWrap: "wrap",
+          rowGap: 3,
+        }}
+      >
+        {listings.length > 0 &&
+          listings.map((item, index) => {
+            return (
               <Box
+                key={index}
                 sx={{
+                  maxWidth: 400,
+                  width: 400,
+                  heigth: 400,
                   display: "flex",
-                  flexDirection: { xs: "row", sm: "column" },
-                  columnGap: { xs: 2, sm: 0 },
-                  rowGap: { xs: 0, sm: 2 },
-
-                  mt: 1,
+                  flexDirection: { xs: "column", sm: "row" },
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  padding: 2,
+                  backgroundColor: LIGHTGRAY,
+                  borderRadius: 3,
+                  gap: 1.5,
+                  flexWrap: { xs: "wrap", sm: "nowrap" },
                 }}
               >
-                <Button
-                  onClick={() => {
-                    deleteListing(item._id);
+                <Box
+                  sx={{
+                    width: 250,
+                    height: 250,
                   }}
-                  color="error"
-                  type="button"
-                  variant="contained"
                 >
-                  Delete
-                </Button>
-                <Button
-                  onClick={() => {
-                    updateListing(item._id);
+                  <Typography variant="body1" mb={1}>
+                    {item.name}
+                  </Typography>
+                  <Link
+                    style={{
+                      padding: 0,
+                      margin: 0,
+                    }}
+                    to={`/listing/${item._id}`}
+                  >
+                    <img
+                      className="cardImage"
+                      srcSet={item.imageURLs[0]}
+                      alt={item.name}
+                      width={"250px"}
+                      height={"200px"}
+                      style={{
+                        objectFit: "cover",
+                        objectPosition: "center",
+                        objectFit: "fill",
+                        borderRadius: "5px",
+                      }}
+                    />
+                  </Link>
+                </Box>
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: { xs: "row", sm: "column" },
+                    columnGap: { xs: 2, sm: 0 },
+                    rowGap: { xs: 0, sm: 2 },
+
+                    mt: 1,
                   }}
-                  color="primary"
-                  type="button"
-                  variant="contained"
                 >
-                  Edit
-                </Button>
+                  <Button
+                    onClick={() => {
+                      deleteListing(item._id);
+                    }}
+                    color="error"
+                    type="button"
+                    variant="contained"
+                  >
+                    Delete
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      updateListing(item._id);
+                    }}
+                    color="primary"
+                    type="button"
+                    variant="contained"
+                  >
+                    Edit
+                  </Button>
+                </Box>
               </Box>
-            </Box>
-          );
-        })}
+            );
+          })}
+      </Box>
     </Box>
   );
 };

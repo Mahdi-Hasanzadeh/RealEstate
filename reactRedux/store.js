@@ -4,6 +4,7 @@ import storage from "redux-persist/lib/storage";
 import { persistReducer, persistStore } from "redux-persist";
 import counterReducer from "./counterSlice";
 import { userLocationHistoryReducer } from "./userLocationHistory";
+import { showListingsReducer } from "./showListings";
 
 const rootReducer = combineReducers({
   user: userReducer,
@@ -24,6 +25,7 @@ export const store = configureStore({
   reducer: {
     persistData,
     locationHistory: userLocationHistoryReducer,
+    showListings: showListingsReducer,
   },
 
   // check the definition of this middleware
