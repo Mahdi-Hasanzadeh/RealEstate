@@ -24,7 +24,6 @@ import { URL } from "../../PortConfig";
 import { useNavigate, useParams } from "react-router-dom";
 
 const EditListing = () => {
-  const navigate = useNavigate();
   const [file, setFile] = useState([]);
   const [uploadError, setUploadError] = useState();
   const [uploading, setUploading] = useState(false);
@@ -75,9 +74,10 @@ const EditListing = () => {
     fetchUserListing();
   }, []);
 
+  // update the user listing
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // console.log(accessToken);
+
     if (
       !formData.name ||
       !formData.description ||
@@ -87,11 +87,20 @@ const EditListing = () => {
       console.log("Fill out the form");
       return;
     }
+    if (parseInt(formData.discountPrice) >= parseInt(formData.regularPrice)) {
+      console.log(formData.discountPrice, formData.regularPrice);
+      console.log(
+        "Discount price can not be bigger than or equal to regular price"
+      );
+      return;
+    }
+
     const accessToken = localStorage.getItem("accessToken");
     try {
       setUploading(true);
-      const response = await axios.post(
-        `${URL}api/listing/create`,
+      console.table(formData);
+      const response = await axios.put(
+        `${URL}api/listing/${formData._id}`,
         {
           ...formData,
           discountPrice: formData.offer ? formData.discountPrice : 0,
@@ -102,14 +111,15 @@ const EditListing = () => {
           },
         }
       );
-      console.log(response.data);
       if (response.data.succeess == false) {
         console.log(response.data.message);
         setUploadError(response.data.message);
         return;
       }
-      console.log("naviagte");
-      navigate(`/listing/${response.data._id}`);
+
+      // console.log("listing is updated");react toastify
+      setFormData(response.data.updatedListing);
+      setError(null);
     } catch (error) {
       console.log(error);
     } finally {
@@ -225,7 +235,14 @@ const EditListing = () => {
   };
   return (
     <>
-      <Container maxWidth="md">
+      <Container
+        maxWidth="md"
+        sx={{
+          position: "relative",
+          top: 50,
+          mb: 20,
+        }}
+      >
         <Wave title={"Edit List"} />
 
         {loading ? (

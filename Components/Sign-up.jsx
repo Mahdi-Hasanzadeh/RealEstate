@@ -9,40 +9,35 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { BLACK } from "../../COLOR";
 import { useState } from "react";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import axios from "axios";
 import { GoogleAuth } from "./ComponentsReturn";
 import { useSelector, useDispatch } from "react-redux";
-import {
-  signInFailed,
-  signInStart,
-  signInSuccess,
-} from "../../reactRedux/userSlice";
+import { signInFailed, signInSuccess } from "../../reactRedux/userSlice";
 import Wave from "../styleComponents/Wave";
 import { URL } from "../../PortConfig";
+import { addLocationHistory } from "../../reactRedux/userLocationHistory";
 
 const signUp = ({ url }) => {
   const theme = useTheme();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  const userInfo = useSelector((store) => store.user);
-
-  // console.log(userInfo);
+  const userInfo = useSelector((store) => store.persistData.user.userInfo);
+  const userLocationHistory = useSelector(
+    (store) => store.locationHistory.locationHistory
+  );
 
   const [loading, setLoading] = useState(false);
-
   const [formData, setFormData] = useState({
     username: "",
     email: "",
     password: "",
   });
-
   const [errorMessage, setErrorMessage] = useState("");
-
   const [visibility, setVisibility] = useState(false);
 
   const handleVisibility = () => {
@@ -69,22 +64,33 @@ const signUp = ({ url }) => {
       }
       try {
         setLoading(true);
+        // create account for the user
         const res = await axios.post(URL + "api/user/signup", formData);
-        console.log(res.data);
-        navigate("/signin");
+
+        // login the user after creatting the account
+        const response = await axios.post(`${URL}api/user/signin`, formData);
+        localStorage.setItem("accessToken", response.data.accessToken);
+
+        dispatch(
+          signInSuccess({
+            ...response.data,
+            email: formData.email,
+          })
+        );
+
+        if (userLocationHistory) {
+          navigate(userLocationHistory);
+        } else {
+          navigate("/");
+        }
+        // user login finished
+
         setErrorMessage("");
         setFormData({
           username: "",
           email: "",
           password: "",
         });
-        //   const res = await fetch("http://localhost:8000/api/user/signup", {
-        //     method: "POST",
-        //     headers: {
-        //       "Content-Type": "application/json",
-        //     },
-        //     body: JSON.stringify(formData),
-        //   });
       } catch (error) {
         console.log(error.message);
         console.log(error.response.data.message);
@@ -100,18 +106,25 @@ const signUp = ({ url }) => {
       }
       try {
         setLoading(true);
+        // login the user
         const res = await axios.post(`${URL}api/user/signin`, formData);
         localStorage.setItem("accessToken", res.data.accessToken);
-        console.log("res", res.data);
+
         dispatch(
           signInSuccess({
             ...res.data,
             email: formData.email,
           })
         );
-        navigate("/");
+        if (userLocationHistory) {
+          navigate(userLocationHistory);
+        } else {
+          navigate("/");
+        }
+
+        //login finished
       } catch (error) {
-        if (error.response.data.message) {
+        if (error.response?.data?.message) {
           console.log(error?.response?.data?.message);
           setErrorMessage(error.response.data.message);
 
@@ -127,9 +140,18 @@ const signUp = ({ url }) => {
     }
   };
 
+  if (userInfo) {
+    return <Navigate to={userLocationHistory ? userLocationHistory : "/"} />;
+  }
   return (
     <>
-      <Container maxWidth="md">
+      <Container
+        maxWidth="md"
+        sx={{
+          position: "relative",
+          top: 50,
+        }}
+      >
         <Typography variant={isMobile ? "body1" : "h6"}>
           {url === "signup" ? (
             <Wave title="Sign Up" />

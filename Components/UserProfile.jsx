@@ -35,6 +35,7 @@ import { deleteUser, updateUser } from "../../reactRedux/userSlice";
 import Wave from "../styleComponents/Wave.jsx";
 import UserListings from "./UserListings.jsx";
 import { URL } from "../../PortConfig.js";
+import { setShowListings } from "../../reactRedux/showListings.js";
 // import { jwtDecode } from "jwt-decode";
 const Transition = forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -43,7 +44,7 @@ const Transition = forwardRef(function Transition(props, ref) {
 const Profile = () => {
   const [visibility, setVisibility] = useState(false);
   const [loading, setLoading] = useState(false);
-  const currentUser = useSelector((store) => store.user.userInfo);
+  const currentUser = useSelector((store) => store.persistData.user.userInfo);
   const theme = useTheme();
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -61,7 +62,8 @@ const Profile = () => {
   };
 
   const [open, setOpen] = useState(false);
-  const [showListings, setShowListings] = useState(false);
+  // const [showListings, setShowListings] = useState(false);
+  const showListings = useSelector((store) => store.showListings.show);
 
   const handleOpen = () => {
     setOpen(true);
@@ -72,12 +74,13 @@ const Profile = () => {
   };
 
   const handleShowListing = () => {
-    setShowListings(!showListings);
+    dispatch(setShowListings(!showListings));
   };
 
   const handleSignOutUser = () => {
     // first we remove access token from the local storage
     localStorage.removeItem("accessToken");
+    localStorage.removeItem("persist:root");
 
     navigate("/signin");
     // then we delete the user from state of application
@@ -97,6 +100,8 @@ const Profile = () => {
       );
       if (response.data) {
         console.log("user deleted");
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("persist:root");
         setOpen(false);
         navigate("/signup");
         dispatch(deleteUser());
@@ -108,7 +113,6 @@ const Profile = () => {
     }
   };
 
-  // console.log("Form Data: ", formData);
   const handleSubmit = async (event) => {
     setLoading(true);
     try {
@@ -290,6 +294,7 @@ const Profile = () => {
         maxWidth="md"
         sx={{
           textAlign: "center",
+          mt: 5,
         }}
       >
         {<Wave title={"Profile"} />}
@@ -463,10 +468,9 @@ const Profile = () => {
           </Box>
           <Box display="flex" justifyContent={"center"} width={"100%"}>
             <Button onClick={handleShowListing} variant="text" type="button">
-              Show Listings
+              {showListings ? "Close listings" : "Show Listings"}
             </Button>
           </Box>
-          {showListings && <UserListings />}
           {updateError && (
             <Typography
               sx={{
@@ -518,6 +522,7 @@ const Profile = () => {
           </DialogActions>
         </Dialog>
       </Container>
+      <Container maxWidth={"lg"}>{showListings && <UserListings />}</Container>
     </>
   );
 };

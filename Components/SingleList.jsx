@@ -1,11 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { URL } from "../../PortConfig";
-
-import image1 from "../assets/house1.jpg";
-import image2 from "../assets/house4.jpg";
-import ProductsSlider from "./ProductsSlider";
 import {
   Box,
   Button,
@@ -13,6 +9,7 @@ import {
   Typography,
   useTheme,
   useMediaQuery,
+  Paper,
 } from "@mui/material";
 import {
   BathroomRounded,
@@ -22,32 +19,27 @@ import {
   LocationCityRounded,
 } from "@mui/icons-material";
 
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { addLocationHistory } from "../../reactRedux/userLocationHistory";
 import ContactUser from "./ContactUser";
+
 import { formatDistanceToNow } from "date-fns";
-import { BLACK } from "../../COLOR";
+import { BLACK, LIGHTGRAY } from "../../COLOR";
+import MobileStepper from "@mui/material/MobileStepper";
 
-// const listings = {
-//   userRef: "6605354eef735ae7fe854a7f",
-//   offer: true,
-//   type: "sell",
-//   parking: true,
-//   furnished: true,
-//   bedrooms: 1,
-//   address: "Herat",
-//   bath: 2,
-//   description: "this is a good house",
-//   regularPrice: 100,
-//   discountPrice: 90,
-//   name: "Hotel Hasanzadeh",
-//   imageURLs: [image1, image2],
-// };
-
+import { autoPlay } from "react-swipeable-views-utils";
+import KeyboardArrowLeft from "@mui/icons-material/KeyboardArrowLeft";
+import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
+import SwipeableViews from "react-swipeable-views";
+const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
 const SingleList = () => {
+  const [activeStep, setActiveStep] = useState(0);
   const { listingId } = useParams();
-  const currentUser = useSelector((store) => store.user.userInfo);
-  // console.log("currentUser: ", currentUser);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const currentUser = useSelector((store) => store.persistData.user.userInfo);
   const [listings, setListing] = useState(null);
+  const maxSteps = listings?.imageURLs?.length || 0;
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [show, setShow] = useState(true);
@@ -55,8 +47,13 @@ const SingleList = () => {
   const isSmall = useMediaQuery(theme.breakpoints.down("sm"));
 
   const fetchUserListing = async () => {
+    if (currentUser == null) {
+      console.log("Please login");
+      return;
+    }
     setLoading(true);
     try {
+      // dispatch(addLocationHistory(null));
       const response = await axios.get(
         `${URL}api/listing/userListing/${listingId}`,
         {
@@ -93,11 +90,84 @@ const SingleList = () => {
     fetchUserListing();
   }, []);
 
+  const handleNavigate = (to) => {
+    // getting the user location
+    const location =
+      "/" + window.location.pathname.split("/").slice(2).join("/");
+
+    dispatch(addLocationHistory(location));
+
+    // console.log(location.pathname.split("/").slice(2).join("/"));
+    if (to == "login") {
+      navigate("/signin");
+    } else {
+      navigate("/signup");
+    }
+  };
+
+  const handleNext = () => {
+    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+  };
+
+  const handleBack = () => {
+    setActiveStep((prevActiveStep) => prevActiveStep - 1);
+  };
+
+  const handleStepChange = (step) => {
+    setActiveStep(step);
+  };
+
   return (
     <>
-      {loading ? (
+      {currentUser == null ? (
+        <Box
+          sx={{
+            position: "relative",
+            top: 30,
+          }}
+          padding={2}
+        >
+          <Typography
+            sx={{
+              textAlign: "center",
+              mb: 1.5,
+            }}
+            variant="body1"
+          >
+            Please first login to your account or create a new one
+          </Typography>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              columnGap: 2,
+            }}
+          >
+            <Button
+              variant="contained"
+              onClick={() => {
+                handleNavigate("login");
+              }}
+              size="small"
+            >
+              Login
+            </Button>
+            <Button
+              variant="contained"
+              onClick={() => {
+                handleNavigate("signup");
+              }}
+              size="small"
+            >
+              Sign up
+            </Button>
+          </Box>
+        </Box>
+      ) : loading ? (
         <main
           style={{
+            position: "relative",
+            top: 50,
             textAlign: "center",
           }}
         >
@@ -109,14 +179,86 @@ const SingleList = () => {
         listings && (
           <main>
             <div>
-              <ProductsSlider
-                images={listings?.imageURLs.map((item) => {
-                  return {
-                    label: listings?.name,
-                    imgPath: item,
-                  };
-                })}
-              />
+              <Container
+                maxWidth="lg"
+                sx={{
+                  mt: 4,
+                }}
+              >
+                <Paper
+                  square
+                  elevation={1}
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    height: 50,
+                    pl: 2,
+                    bgcolor: LIGHTGRAY,
+                    mt: 10,
+                  }}
+                >
+                  <Typography>{listings.name}</Typography>
+                </Paper>
+                <AutoPlaySwipeableViews
+                  axis={theme.direction === "rtl" ? "x-reverse" : "x"}
+                  index={activeStep}
+                  onChangeIndex={handleStepChange}
+                  enableMouseEvents
+                >
+                  {listings?.imageURLs.map((step, index) => (
+                    <div key={index}>
+                      {Math.abs(activeStep - index) <= 2 ? (
+                        <Box
+                          component="img"
+                          sx={{
+                            height: { sm: 450, md: 500 },
+                            display: "block",
+                            width: "100%",
+                            overflow: "hidden",
+                            objectFit: { xs: "contain", sm: "cover" },
+                            objectPosition: "center",
+                          }}
+                          src={step}
+                          alt={step}
+                        />
+                      ) : null}
+                    </div>
+                  ))}
+                </AutoPlaySwipeableViews>
+                <MobileStepper
+                  steps={maxSteps}
+                  position="static"
+                  activeStep={activeStep}
+                  nextButton={
+                    <Button
+                      size="small"
+                      onClick={handleNext}
+                      disabled={activeStep === maxSteps - 1}
+                    >
+                      Next
+                      {theme.direction === "rtl" ? (
+                        <KeyboardArrowLeft />
+                      ) : (
+                        <KeyboardArrowRight />
+                      )}
+                    </Button>
+                  }
+                  backButton={
+                    <Button
+                      size="small"
+                      onClick={handleBack}
+                      disabled={activeStep === 0}
+                    >
+                      {theme.direction === "rtl" ? (
+                        <KeyboardArrowRight />
+                      ) : (
+                        <KeyboardArrowLeft />
+                      )}
+                      Back
+                    </Button>
+                  }
+                />
+              </Container>
             </div>
             <Container
               maxWidth="lg"

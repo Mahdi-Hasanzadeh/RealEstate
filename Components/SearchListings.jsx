@@ -1,7 +1,6 @@
 import {
   Box,
   Button,
-  Card,
   Checkbox,
   FormControlLabel,
   Grid,
@@ -39,6 +38,8 @@ const orderValues = [
     value: "regularPrice_desc",
   },
 ];
+
+var delay = 0;
 
 const SearchListings = () => {
   const [formData, setFormData] = useState({
@@ -143,9 +144,9 @@ const SearchListings = () => {
       sort: sort == null ? "desc" : sort,
       offer: offer == null || offer == "false" ? false : true,
     });
+    delay = 0;
     fetchListings();
   }, [location.search]);
-
   const handleSearch = () => {
     searchParams.set("searchTerm", formData.searchTerm);
     searchParams.set("type", formData.type);
@@ -173,7 +174,7 @@ const SearchListings = () => {
         },
       }
     );
-
+    delay = 0;
     setListings([...listings, ...response.data.listings]);
     if (response.data.listings.length < 9) {
       setShowMore(false);
@@ -202,10 +203,16 @@ const SearchListings = () => {
             >
               <Grid
                 sx={{
+                  position: md ? "static" : "fixed",
+                  top: 70,
+                  left: 0,
+                  bottom: 0,
+                  width: "100%",
+                  overflowY: "auto", // Allow vertical scrolling if content exceeds height
+                  paddingRight: theme.spacing(2),
                   padding: md ? 0.5 : 2,
                   borderRight: md ? "0px" : "1px solid gray",
                   minHeight: md ? 0 : "91.2vh",
-                  overflowY: "hidden",
                 }}
                 item
                 xs={12}
@@ -380,7 +387,8 @@ const SearchListings = () => {
                   <Select
                     id="demo-simple-select"
                     name="sort_order"
-                    defaultValue={orderValues[0].value}
+                    defaultValue={`createdAt_desc`}
+                    value={`${formData.order}_${formData.sort}`}
                     size="small"
                     fullWidth
                     onChange={handleFormData}
@@ -407,7 +415,7 @@ const SearchListings = () => {
             <Button
               size="small"
               sx={{
-                mt: 1,
+                mt: showFilterSection ? 0 : 10,
                 color: showFilterSection ? "red" : "green",
               }}
               onClick={() => {
@@ -420,7 +428,19 @@ const SearchListings = () => {
             </Button>
           )}
           {/* Filter listing section */}
-          <Grid item xs={12} md={9}>
+          <Grid
+            sx={{
+              position: md ? "static" : "relative",
+              top: 70,
+              marginLeft: "auto", // Ensure content doesn't overlap with fixed section
+              paddingLeft: md ? 0 : theme.spacing(3), // Add left padding to align with fixed section
+              width: "100%",
+              overflowY: "auto",
+            }}
+            item
+            xs={12}
+            md={9}
+          >
             <Box>
               {loading ? (
                 <Typography>Loading...</Typography>
@@ -449,9 +469,14 @@ const SearchListings = () => {
                   >
                     {listings.length > 0 &&
                       listings.map((listing, index) => {
+                        delay = delay + 20;
                         return (
                           <Fragment key={index}>
-                            <CardItem listing={listing} />
+                            <CardItem
+                              listing={listing}
+                              transition={true}
+                              delay={delay}
+                            />
                           </Fragment>
                         );
                       })}
