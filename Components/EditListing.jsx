@@ -22,7 +22,9 @@ import Wave from "../styleComponents/Wave";
 import axios from "axios";
 import { URL } from "../../PortConfig";
 import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "react-toastify";
 
+const autoCloseTime = 3000;
 const EditListing = () => {
   const [file, setFile] = useState([]);
   const [uploadError, setUploadError] = useState();
@@ -60,11 +62,17 @@ const EditListing = () => {
       if (response.data.success === false) {
         console.log(response.data.message);
         setError(response.data.message);
+        toast.error(response.data.message, {
+          autoClose: autoCloseTime,
+        });
         return;
       }
       setFormData(response.data);
     } catch (error) {
       console.log(error.message);
+      toast.error(error.message, {
+        autoClose: autoCloseTime,
+      });
       setError(error.message);
     } finally {
       setLoading(false);
@@ -85,12 +93,17 @@ const EditListing = () => {
       formData.imageURLs.length === 0
     ) {
       console.log("Fill out the form");
+      toast.error("Please fill out the form", {
+        autoClose: autoCloseTime,
+      });
       return;
     }
     if (parseInt(formData.discountPrice) >= parseInt(formData.regularPrice)) {
-      console.log(formData.discountPrice, formData.regularPrice);
-      console.log(
-        "Discount price can not be bigger than or equal to regular price"
+      toast.success(
+        "Discount price can not be bigger than or equal to regular price",
+        {
+          autoClose: autoCloseTime,
+        }
       );
       return;
     }
@@ -98,7 +111,6 @@ const EditListing = () => {
     const accessToken = localStorage.getItem("accessToken");
     try {
       setUploading(true);
-      console.table(formData);
       const response = await axios.put(
         `${URL}api/listing/${formData._id}`,
         {
@@ -114,14 +126,21 @@ const EditListing = () => {
       if (response.data.succeess == false) {
         console.log(response.data.message);
         setUploadError(response.data.message);
+        toast.error(response.data.succeess, {
+          autoClose: autoCloseTime,
+        });
         return;
       }
 
       // console.log("listing is updated");react toastify
+      toast.success("Listing updated successfully");
       setFormData(response.data.updatedListing);
       setError(null);
     } catch (error) {
-      console.log(error);
+      console.log(error.message);
+      toast.error(error.message, {
+        autoClose: autoCloseTime,
+      });
     } finally {
       setUploading(false);
     }
@@ -177,6 +196,8 @@ const EditListing = () => {
   const handleUpload = () => {
     if (file.length > 0 && file.length + formData.imageURLs.length < 7) {
       const promises = [];
+      console.log("upload photo");
+      setUploading(true);
       for (var i = 0; i < file.length; i++) {
         promises.push(storeImage(file[i]));
       }
@@ -188,12 +209,16 @@ const EditListing = () => {
               imageURLs: formData.imageURLs.concat(urls),
             };
           });
+          setUploading(true);
         })
         .then(() => {
           setUploadError(false);
         })
         .catch((error) => {
-          setUploadError("image Upload failed.Image should be 2mb ");
+          // setUploadError("image Upload failed.Image should be 2mb ");
+          toast.error("image Upload failed.Image should be 2mb ", {
+            autoClose: autoCloseTime,
+          });
           console.log(error.message);
         })
         .finally(() => {
@@ -201,12 +226,14 @@ const EditListing = () => {
         });
     } else {
       setUploadError("Please choose only six images for every list");
+      toast.error("Please choose only six images for every list", {
+        autoClose: autoCloseTime,
+      });
     }
   };
 
   const storeImage = async (file) => {
     return new Promise((resolve, reject) => {
-      setUploading(true);
       const storage = getStorage(app);
       const filename = file.name + new Date().getTime();
       const storageRef = ref(storage, filename);
@@ -220,19 +247,25 @@ const EditListing = () => {
           console.log("Upload is " + Math.round(progress) + "% done");
         },
         (error) => {
-          reject(error);
+          console.log("eroro upload");
+          toast.error(error.message, {
+            autoClose: autoCloseTime,
+          });
+          console.log(error);
           setUploading(false);
+          reject(error);
         },
         () => {
+          console.log("down url");
           getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
             resolve(downloadURL);
             console.log(downloadURL);
-            setUploading(false);
           });
         }
       );
     });
   };
+
   return (
     <>
       <Container

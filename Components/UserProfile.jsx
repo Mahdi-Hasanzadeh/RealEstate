@@ -36,10 +36,13 @@ import Wave from "../styleComponents/Wave.jsx";
 import UserListings from "./UserListings.jsx";
 import { URL } from "../../PortConfig.js";
 import { setShowListings } from "../../reactRedux/showListings.js";
-// import { jwtDecode } from "jwt-decode";
+import { setWelcomeToast } from "../../reactRedux/showToast.js";
+import { toast } from "react-toastify";
 const Transition = forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
+
+const autoCloseTime = 3000;
 
 const Profile = () => {
   const [visibility, setVisibility] = useState(false);
@@ -54,8 +57,7 @@ const Profile = () => {
   const [uploadPercentage, setUploadPercentage] = useState(0);
   const [uploadingError, setUploadingError] = useState("");
   const [formData, setFormData] = useState({});
-  const [updateError, setUpdateError] = useState(null);
-  const [updateSuccess, setUpdateSuccess] = useState(null);
+
   const [signOut, setSingOut] = useState(false);
   const handleVisibility = () => {
     setVisibility(!visibility);
@@ -81,12 +83,12 @@ const Profile = () => {
     // first we remove access token from the local storage
     localStorage.removeItem("accessToken");
     localStorage.removeItem("persist:root");
-
     navigate("/signin");
     // then we delete the user from state of application
+    dispatch(setWelcomeToast(false));
     dispatch(deleteUser());
   };
-
+  // delete user profile
   const handleDeleteUser = async () => {
     try {
       const accessToken = localStorage.getItem("accessToken");
@@ -99,20 +101,27 @@ const Profile = () => {
         }
       );
       if (response.data) {
-        console.log("user deleted");
+        toast.success("User deleted Successfully", {
+          autoClose: 3000,
+        });
         localStorage.removeItem("accessToken");
         localStorage.removeItem("persist:root");
         setOpen(false);
         navigate("/signup");
+        dispatch(setWelcomeToast(false));
         dispatch(deleteUser());
       } else {
-        console.log("user not deleted,please try again later");
+        toast.error("user not deleted", {
+          autoClose: 3000,
+        });
       }
     } catch (error) {
-      console.log(error.message);
+      toast.error(error.message, {
+        autoClose: 3000,
+      });
     }
   };
-
+  // update user profile
   const handleSubmit = async (event) => {
     setLoading(true);
     try {
@@ -136,16 +145,29 @@ const Profile = () => {
           ...formData,
         })
       );
-      setUpdateError("");
-      setUpdateSuccess("Updated Successfully");
+      // setUpdateError("");
+      // setUpdateSuccess("");
+      toast.success("Profile Updated Successfully", {
+        autoClose: 3000,
+      });
+      setUploadPercentage(0);
     } catch (error) {
-      console.log(error.response.data.message);
-      if (error.response.data.message) {
-        setUpdateError(error.response.data.message);
-        setUpdateSuccess("");
+      toast.error(error?.response?.data.message, {
+        autoClose: autoCloseTime,
+      });
+      // console.log(error.response.data.message);
+      if (error?.response?.data?.message) {
+        toast.error(error?.response?.data.message, {
+          autoClose: 3000,
+        });
+        // setUpdateError(error.response.data.message);
+        // setUpdateSuccess("");
       } else {
-        setUpdateError(error.message);
-        setUpdateSuccess("");
+        toast.error(error.message, {
+          autoClose: 3000,
+        });
+        // setUpdateError(error.message);
+        // setUpdateSuccess("");
       }
     } finally {
       setLoading(false);
@@ -175,6 +197,7 @@ const Profile = () => {
     }
   }, [file]);
 
+  // upload user image
   const handleFileUpload = (file) => {
     const storage = getStorage(app);
     const fileName = new Date().getTime() + file.name; // create a randomName to avoid duplicatio.
@@ -211,6 +234,9 @@ const Profile = () => {
       },
       (error) => {
         // Handle unsuccessful uploads
+        toast.error(error.message, {
+          autoClose: autoCloseTime,
+        });
         setUploadingError(error.message);
         setLoading(false);
       },
@@ -219,7 +245,7 @@ const Profile = () => {
         // For instance, get the download URL: https://firebasestorage.googleapis.com/...
         // console.log("get Download URL");
         getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
-          console.log("File available at", downloadURL);
+          // console.log("File available at", downloadURL);
           // console.log("CurrentUser: ", currentUser.id);
           setFormData((prevData) => {
             return {
@@ -471,7 +497,7 @@ const Profile = () => {
               {showListings ? "Close listings" : "Show Listings"}
             </Button>
           </Box>
-          {updateError && (
+          {/* {updateError && (
             <Typography
               sx={{
                 color: "red",
@@ -490,7 +516,7 @@ const Profile = () => {
             >
               {updateSuccess}
             </Typography>
-          )}
+          )} */}
         </Box>
         <Dialog
           open={open}

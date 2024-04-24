@@ -7,7 +7,8 @@ import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { URL } from "../../PortConfig";
-import { addLocationHistory } from "../../reactRedux/userLocationHistory";
+import { toast } from "react-toastify";
+import { setWelcomeToast } from "../../reactRedux/showToast";
 
 const GoogleAuth = ({ isMobile }) => {
   const dispatch = useDispatch();
@@ -15,7 +16,6 @@ const GoogleAuth = ({ isMobile }) => {
   const locationHistory = useSelector(
     (store) => store.locationHistory.locationHistory
   );
-  console.log(locationHistory);
   const handleGoogleAuth = async () => {
     try {
       const provider = new GoogleAuthProvider();
@@ -41,11 +41,14 @@ const GoogleAuth = ({ isMobile }) => {
 
       if (locationHistory) {
         // toast container redirecting
+        toast.info(`Welcome ${response.data.username}`);
+        dispatch(setWelcomeToast(true));
         navigate(locationHistory);
       } else {
         navigate("/");
       }
     } catch (error) {
+      toast.error(error.message);
       console.log(error.message);
     }
   };

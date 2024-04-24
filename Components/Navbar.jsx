@@ -82,7 +82,6 @@ const Navbar = () => {
       setMobileOpen(false);
     }
   }, [md]);
-
   const drawer = (
     <Box onClick={handleDrawerToggle} ml={2}>
       <Typography variant="body1" sx={{ my: 2 }}>

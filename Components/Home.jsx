@@ -10,6 +10,9 @@ import img3 from "../assets/house3.jpg";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { URL } from "../../PortConfig";
+import { useDispatch, useSelector } from "react-redux";
+import { toast, Zoom, Slide, Bounce, Flip } from "react-toastify";
+import { setWelcomeToast } from "../../reactRedux/showToast";
 
 // import image from "../../assets/house1.jpg";
 const images = [
@@ -53,6 +56,12 @@ const Home = () => {
   const theme = useTheme();
   const isLaptop = useMediaQuery(theme.breakpoints.up("md"));
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const userInfo = useSelector((store) => store.persistData.user.userInfo);
+  const showWelcomeToast = useSelector(
+    (store) => store.showWelcomeToast.userAlreadySeeWelcomeToast
+  );
+
+  const dispatch = useDispatch();
 
   const [specialListings, setSpecialListings] = useState([]);
   const [recentOffers, setRecentOffers] = useState([]);
@@ -160,6 +169,17 @@ const Home = () => {
   useEffect(() => {
     fetchSpecialListings();
   }, []);
+
+  useEffect(() => {
+    if (showWelcomeToast) return;
+    if (userInfo) {
+      toast.success(`Welcome ${userInfo.username}`, {
+        autoClose: 2500,
+        transition: Slide,
+      });
+      dispatch(setWelcomeToast(true));
+    }
+  }, [userInfo]);
 
   return (
     <>
