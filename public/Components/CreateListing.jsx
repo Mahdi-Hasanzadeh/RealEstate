@@ -22,7 +22,8 @@ import Wave from "../styleComponents/Wave";
 import axios from "axios";
 import { URL } from "../../PortConfig";
 import { useNavigate } from "react-router-dom";
-
+import { toast } from "react-toastify";
+const autoCloseTime = 3000;
 const CreateListing = () => {
   const navigate = useNavigate();
   const [file, setFile] = useState([]);
@@ -53,13 +54,18 @@ const CreateListing = () => {
       formData.imageURLs.length === 0
     ) {
       console.log("Fill out the form");
+      toast.error("Please fill out the form", {
+        autoClose: autoCloseTime,
+      });
       return;
     }
 
     if (parseInt(formData.discountPrice) >= parseInt(formData.regularPrice)) {
-      console.log(formData.discountPrice, formData.regularPrice);
-      console.log(
-        "Discount price can not be bigger than or equal to regular price"
+      toast.error(
+        "Discount price can not be bigger than or equal to regular price",
+        {
+          autoClose: autoCloseTime,
+        }
       );
       return;
     }
@@ -78,14 +84,21 @@ const CreateListing = () => {
           },
         }
       );
-      if (response.data.succeess == false) {
+      if (response?.data?.succeess == false) {
         console.log(response.data.message);
+        toast.error(response.data.message, {
+          autoClose: autoCloseTime,
+        });
         setUploadError(response.data.message);
         return;
       }
+      toast.success("Your listing created successfully");
       navigate(`/listing/${response.data._id}`);
     } catch (error) {
-      console.log(error);
+      console.log(error.message);
+      toast.error(error.message, {
+        autoClose: autoCloseTime,
+      });
     } finally {
       setUploading(false);
     }
@@ -141,6 +154,8 @@ const CreateListing = () => {
   const handleUpload = () => {
     if (file.length > 0 && file.length + formData.imageURLs.length < 7) {
       const promises = [];
+      console.log("upload photo");
+      setUploading(true);
       for (var i = 0; i < file.length; i++) {
         promises.push(storeImage(file[i]));
       }
@@ -152,12 +167,16 @@ const CreateListing = () => {
               imageURLs: formData.imageURLs.concat(urls),
             };
           });
+          setUploading(true);
         })
         .then(() => {
           setUploadError(false);
         })
         .catch((error) => {
-          setUploadError("image Upload failed.Image should be 2mb ");
+          // setUploadError("image Upload failed.Image should be 2mb ");
+          toast.error("image Upload failed.Image should be 2mb ", {
+            autoClose: autoCloseTime,
+          });
           console.log(error.message);
         })
         .finally(() => {
@@ -165,12 +184,14 @@ const CreateListing = () => {
         });
     } else {
       setUploadError("Please choose only six images for every list");
+      toast.error("Please choose only six images for every list", {
+        autoClose: autoCloseTime,
+      });
     }
   };
 
   const storeImage = async (file) => {
     return new Promise((resolve, reject) => {
-      setUploading(true);
       const storage = getStorage(app);
       const filename = file.name + new Date().getTime();
       const storageRef = ref(storage, filename);
@@ -184,19 +205,25 @@ const CreateListing = () => {
           console.log("Upload is " + Math.round(progress) + "% done");
         },
         (error) => {
-          reject(error);
+          console.log("eroro upload");
+          toast.error(error.message, {
+            autoClose: autoCloseTime,
+          });
+          console.log(error);
           setUploading(false);
+          reject(error);
         },
         () => {
+          console.log("down url");
           getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
             resolve(downloadURL);
             console.log(downloadURL);
-            setUploading(false);
           });
         }
       );
     });
   };
+
   return (
     <>
       <Container

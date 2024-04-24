@@ -123,7 +123,7 @@ const SingleList = () => {
         <Box
           sx={{
             position: "relative",
-            top: 30,
+            top: 50,
           }}
           padding={2}
         >

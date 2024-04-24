@@ -1,15 +1,36 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useState, forwardRef } from "react";
 import { URL } from "../../PortConfig";
 import { useSelector } from "react-redux";
-import { Box, Button, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Slide,
+  Typography,
+  Zoom,
+} from "@mui/material";
 import { LIGHTGRAY } from "../../COLOR";
 import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
+const Transition = forwardRef(function Transition(props, ref) {
+  return <Zoom ref={ref} {...props} />;
+});
+const autoCloseTime = 3000;
 const UserListings = () => {
   const currentUser = useSelector((store) => store.persistData.user.userInfo);
   const [listings, setListings] = useState([]);
+  const [listingToDelete, setListingToDelete] = useState({});
   const navigate = useNavigate();
+  const [open, setOpen] = useState(false);
+  const handleClose = () => {
+    setOpen(false);
+  };
 
   const fetchUserListing = async () => {
     try {
@@ -21,18 +42,24 @@ const UserListings = () => {
 
       if (response.data.succeess === false) {
         console.log(response.data.message);
+        toast.error(response?.data?.message, {
+          autoClose: autoCloseTime,
+        });
         return;
       }
       //   console.table(response.data);
       setListings(response.data);
-    } catch (error) {}
+    } catch (error) {
+      toast.error(error.message, {
+        autoClose: autoCloseTime,
+      });
+    }
   };
 
   // console.log(listings);
 
   const deleteListing = async (id) => {
     try {
-      console.log("start deleting");
       const response = await axios.delete(`${URL}api/listing/${id}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -40,11 +67,16 @@ const UserListings = () => {
       });
 
       if (response.data.success == false) {
-        console.log(response.data.success);
+        console.log(response.data.message);
+        toast.error(response?.data?.message, {
+          autoClose: autoCloseTime,
+        });
         return;
       }
-      console.log("Listing Deleted");
-
+      // console.log("Listing Deleted");
+      toast.error("Listing Deleted", {
+        autoClose: autoCloseTime,
+      });
       // instead of fetching database, we just update the state of app
       // fetchUserListing();
       setListings((prevData) => {
@@ -52,6 +84,9 @@ const UserListings = () => {
       });
     } catch (error) {
       console.log(error.message);
+      toast.error(error.message, {
+        autoClose: autoCloseTime,
+      });
     }
   };
 
@@ -142,7 +177,8 @@ const UserListings = () => {
                 >
                   <Button
                     onClick={() => {
-                      deleteListing(item._id);
+                      setOpen(true);
+                      setListingToDelete({ id: item._id, name: item.name });
                     }}
                     color="error"
                     type="button"
@@ -165,6 +201,30 @@ const UserListings = () => {
             );
           })}
       </Box>
+      <Dialog
+        open={open}
+        TransitionComponent={Transition}
+        keepMounted
+        onClose={handleClose}
+      >
+        <DialogTitle>Warning</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            {`Are you sure to delete listing (${listingToDelete?.name})?`}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose}>Disagree</Button>
+          <Button
+            onClick={() => {
+              deleteListing(listingToDelete?.id);
+              setOpen(false);
+            }}
+          >
+            Agree
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

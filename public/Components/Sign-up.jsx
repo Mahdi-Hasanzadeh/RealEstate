@@ -19,8 +19,9 @@ import { useSelector, useDispatch } from "react-redux";
 import { signInFailed, signInSuccess } from "../../reactRedux/userSlice";
 import Wave from "../styleComponents/Wave";
 import { URL } from "../../PortConfig";
-import { addLocationHistory } from "../../reactRedux/userLocationHistory";
-
+import { toast } from "react-toastify";
+import { setWelcomeToast } from "../../reactRedux/showToast";
+const autoCloseTime = 3000;
 const signUp = ({ url }) => {
   const theme = useTheme();
   const dispatch = useDispatch();
@@ -59,7 +60,9 @@ const signUp = ({ url }) => {
     if (url === "signup") {
       if (!formData.username || !formData.email || !formData.password) {
         // toastContainer
-        console.log("Please provide credentials");
+        toast.error("Please provide credentials", {
+          autoClose: autoCloseTime,
+        });
         return;
       }
       try {
@@ -67,7 +70,7 @@ const signUp = ({ url }) => {
         // create account for the user
         const res = await axios.post(URL + "api/user/signup", formData);
 
-        // login the user after creatting the account
+        // login the user after creating the account
         const response = await axios.post(`${URL}api/user/signin`, formData);
         localStorage.setItem("accessToken", response.data.accessToken);
 
@@ -77,24 +80,34 @@ const signUp = ({ url }) => {
             email: formData.email,
           })
         );
-
+        toast.success("Account created successfully", {
+          autoClose: autoCloseTime,
+        });
         if (userLocationHistory) {
+          toast.info(`Welcome ${response.data.username}`);
+          dispatch(setWelcomeToast(true));
           navigate(userLocationHistory);
         } else {
           navigate("/");
         }
         // user login finished
-
-        setErrorMessage("");
         setFormData({
           username: "",
           email: "",
           password: "",
         });
       } catch (error) {
+        if (error?.response?.data?.message) {
+          toast.error(error.response.data.message, {
+            autoClose: autoCloseTime,
+          });
+        } else {
+          toast.error(error.message, {
+            autoClose: autoCloseTime,
+          });
+        }
         console.log(error.message);
         console.log(error.response.data.message);
-        setErrorMessage(error.response.data.message);
       } finally {
         setLoading(false);
       }
@@ -102,6 +115,9 @@ const signUp = ({ url }) => {
       if (!formData.email || !formData.password) {
         // toastContainer
         console.log("Please provide credentials");
+        toast.error("Please provide credentials", {
+          autoClose: autoCloseTime,
+        });
         return;
       }
       try {
@@ -117,6 +133,8 @@ const signUp = ({ url }) => {
           })
         );
         if (userLocationHistory) {
+          toast.info(`Welcome ${res.data.username}`);
+          dispatch(setWelcomeToast(true));
           navigate(userLocationHistory);
         } else {
           navigate("/");
@@ -126,12 +144,17 @@ const signUp = ({ url }) => {
       } catch (error) {
         if (error.response?.data?.message) {
           console.log(error?.response?.data?.message);
-          setErrorMessage(error.response.data.message);
+          toast.error(error.response.data.message, {
+            autoClose: autoCloseTime,
+          });
 
           dispatch(signInFailed(error.response.data.message));
         } else {
-          console.log(error.message);
-          setErrorMessage(error.message);
+          toast.error(error.message, {
+            autoClose: autoCloseTime,
+          });
+          // console.log(error.message);
+          // setErrorMessage(error.message);
           dispatch(signInFailed(error.message));
         }
       } finally {
@@ -219,11 +242,7 @@ const signUp = ({ url }) => {
               ),
             }}
           />
-          {errorMessage ? (
-            <Typography color="red" variant={isMobile ? "body2" : "body1"}>
-              {errorMessage}
-            </Typography>
-          ) : null}
+
           <Button
             fullWidth
             size={isMobile ? "small" : "medium"}

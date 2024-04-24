@@ -14,6 +14,7 @@ import Counter from "../public/Components/counter";
 import SingleList from "../public/Components/SingleList";
 import EditListing from "../public/Components/EditListing";
 import SearchListings from "../public/Components/SearchListings";
+import { Slide, ToastContainer } from "react-toastify";
 const App = () => {
   const BasicLayout = () => {
     return (
@@ -58,6 +59,20 @@ const App = () => {
           </Route>
         </Routes>
       </BrowserRouter>
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+        transition={Slide}
+        limit={1}
+      />
     </>
   );
 };
