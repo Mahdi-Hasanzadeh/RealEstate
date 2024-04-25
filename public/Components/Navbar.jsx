@@ -1,4 +1,9 @@
-import { Menu, SearchRounded } from "@mui/icons-material";
+import {
+  ArrowDropDownRounded,
+  ArrowDropUpRounded,
+  Menu,
+  SearchRounded,
+} from "@mui/icons-material";
 import {
   AppBar,
   Box,
@@ -55,7 +60,6 @@ const Navbar = () => {
   const user = useSelector((store) => store.persistData.user.userInfo);
   const theme = useTheme();
   const md = useMediaQuery(theme.breakpoints.down("md"));
-  // console.log(user);
 
   const Listing = () => {
     return (
@@ -69,14 +73,26 @@ const Navbar = () => {
           width: 110,
         }}
       >
-        <Link className={`${Styles.tooltipLink}`} to="/create-list">
+        <Link
+          onClick={md ? handleDrawerToggle : null}
+          className={`${Styles.tooltipLink}`}
+          to="/create-list"
+        >
           New Listing
         </Link>
-        <Link className={`${Styles.tooltipLink}`} to="#">
+        <Link
+          onClick={md ? handleDrawerToggle : null}
+          className={`${Styles.tooltipLink}`}
+          to="#"
+        >
           Your Listings
         </Link>
       </Box>
     );
+  };
+
+  const handleTooltipToggle = () => {
+    setOpenTooltip(!openTooltip);
   };
 
   const handleMouseEnter = () => {
@@ -108,16 +124,25 @@ const Navbar = () => {
       setSearcTerm(term);
     }
   }, [location.search]);
-  // console.log(user);
 
   useEffect(() => {
     if (md) {
       setMobileOpen(false);
     }
+    setOpenTooltip(false);
   }, [md]);
+
+  // drawer content
   const drawer = (
-    <Box onClick={handleDrawerToggle} ml={2}>
-      <Typography variant="body1" sx={{ my: 2 }}>
+    <Box ml={2}>
+      <Typography
+        onClick={() => {
+          setMobileOpen(false);
+          navigate("/");
+        }}
+        variant="body1"
+        sx={{ my: 2, cursor: "pointer" }}
+      >
         HASANZADEH
         <Typography variant="body1" component={"span"} color={GRAY}>
           ESTATE
@@ -138,6 +163,7 @@ const Navbar = () => {
             if (user === null) {
               return (
                 <NavLink
+                  onClick={handleDrawerToggle}
                   style={({ isActive }) => {
                     return {
                       color: isActive ? "blue" : BLACK,
@@ -155,6 +181,7 @@ const Navbar = () => {
             if (user !== null) {
               return (
                 <NavLink
+                  onClick={handleDrawerToggle}
                   key={index}
                   style={({ isActive }) => {
                     return {
@@ -178,9 +205,47 @@ const Navbar = () => {
                 </NavLink>
               );
             }
+          } else if (item.name === "Listings") {
+            if (user !== null) {
+              return (
+                <Box
+                  key={index}
+                  sx={{
+                    position: "relative",
+                  }}
+                >
+                  <IconButton
+                    onClick={handleTooltipToggle}
+                    size="small"
+                    sx={{
+                      fontSize: "15px",
+                      color: "#334155",
+                      "&:hover": {
+                        borderRadius: 1,
+                      },
+                    }}
+                  >
+                    LISTINGS
+                    {openTooltip ? (
+                      <ArrowDropUpRounded />
+                    ) : (
+                      <ArrowDropDownRounded />
+                    )}
+                  </IconButton>
+                  <MyTooltip
+                    show={openTooltip}
+                    mouseEnter={handleMouseEnter}
+                    mouseLeave={handleMouseLeave}
+                    content={<Listing />}
+                    position={"rigth"}
+                  />
+                </Box>
+              );
+            }
           } else {
             return (
               <NavLink
+                onClick={handleDrawerToggle}
                 style={({ isActive }) => {
                   return {
                     color: isActive ? "blue !important" : BLACK,
@@ -276,6 +341,7 @@ const Navbar = () => {
       </List> */}
     </Box>
   );
+
   return (
     <>
       <Box>
@@ -296,6 +362,7 @@ const Navbar = () => {
                 margin: "0 10px",
               }}
             >
+              {/* Menu icon for screen sizes */}
               <IconButton
                 color="inherit"
                 aria-label="open drawer"
@@ -305,12 +372,17 @@ const Navbar = () => {
               >
                 <Menu />
               </IconButton>
+              {/* Website name */}
               <Typography
+                onClick={() => {
+                  navigate("/");
+                }}
                 variant="h6"
                 component="div"
                 sx={{
                   display: { xs: "none", sm: "block" },
                   color: BLACK,
+                  cursor: "pointer",
                 }}
               >
                 HASANZADEH
@@ -373,7 +445,6 @@ const Navbar = () => {
                                 user.avatar ? user.avatar : profilePicture
                               }
                               alt={user.username}
-                              // title={"profile"}
                               style={{
                                 width: "30px",
                                 borderRadius: 15,
@@ -434,6 +505,7 @@ const Navbar = () => {
               </Box>
             </Toolbar>
           </AppBar>
+          {/* drawer in mobile size */}
           <nav>
             <Drawer
               variant="temporary"
@@ -448,7 +520,7 @@ const Navbar = () => {
                   boxSizing: "border-box",
                   backgroundColor: LIGHTGRAY,
                   borderRadius: 1,
-                  width: "75%",
+                  width: { xs: "90%", sm: "50%" },
                 },
               }}
             >

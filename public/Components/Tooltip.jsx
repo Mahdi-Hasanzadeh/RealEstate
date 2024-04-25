@@ -17,6 +17,8 @@ const Tooltip = ({
           ? styles.top
           : position === "left"
           ? styles.left
+          : position === "rigth"
+          ? styles.rigth
           : styles.bottom
       }`}
     >

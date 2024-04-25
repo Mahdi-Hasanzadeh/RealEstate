@@ -32,6 +32,11 @@
   left: 50%;
   transform: translate(-80%);
 }
+.rigth {
+  top: 100%;
+  left: 100%;
+  transform: translate(1%, -25%);
+}
 
 .tooltipLink {
   text-decoration: none;
