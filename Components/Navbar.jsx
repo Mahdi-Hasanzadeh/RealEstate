@@ -18,15 +18,25 @@ import {
   useMediaQuery,
   useTheme,
   Tooltip,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Slide,
 } from "@mui/material";
-import { useEffect, useState } from "react";
+import { forwardRef, useEffect, useState } from "react";
 import { NavLink, useSearchParams, useNavigate, Link } from "react-router-dom";
 import { BLACK, GRAY, LIGHTGRAY } from "../../COLOR";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import profilePicture from "../assets/profile.png";
 import MyTooltip from "../Components/Tooltip";
 import Styles from "../../src/style.module.css";
-
+import { setWelcomeToast } from "../../reactRedux/showToast";
+import { deleteUser } from "../../reactRedux/userSlice";
+const Transition = forwardRef(function Transition(props, ref) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
 const navItems = [
   {
     name: "Home",
@@ -54,8 +64,11 @@ const navItems = [
 const Navbar = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [openTooltip, setOpenTooltip] = useState(false);
+  const [openProfileTooltip, setOpenProfileTooltip] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
   const [searchTerm, setSearcTerm] = useState("");
   const user = useSelector((store) => store.persistData.user.userInfo);
   const theme = useTheme();
@@ -74,21 +87,67 @@ const Navbar = () => {
         }}
       >
         <Link
-          onClick={md ? handleDrawerToggle : null}
+          onClick={md ? handleDrawerToggle : handleMouseLeave}
           className={`${Styles.tooltipLink}`}
           to="/create-list"
         >
           New Listing
         </Link>
         <Link
-          onClick={md ? handleDrawerToggle : null}
+          onClick={md ? handleDrawerToggle : handleMouseLeave}
           className={`${Styles.tooltipLink}`}
-          to="#"
+          to="/userListings"
         >
           Your Listings
         </Link>
       </Box>
     );
+  };
+
+  const ProfileTooltip = () => {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "flex-start",
+          padding: 1,
+          rowGap: 2,
+          width: 110,
+        }}
+      >
+        <Link
+          onClick={md ? handleDrawerToggle : handleProfileTooltipMouseLeave}
+          className={`${Styles.tooltipLink}`}
+          to="/profile"
+        >
+          Account
+        </Link>
+        <Link
+          onClick={
+            md
+              ? handleDrawerToggle
+              : () => {
+                  setOpenDialog(true);
+                  handleProfileTooltipMouseLeave();
+                }
+          }
+          className={`${Styles.tooltipLink}`}
+        >
+          Sign-out
+        </Link>
+      </Box>
+    );
+  };
+
+  const signoutUser = () => {
+    // first we remove access token from the local storage
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("persist:root");
+    navigate("/signin");
+    // then we delete the user from state of application
+    dispatch(setWelcomeToast(false));
+    dispatch(deleteUser());
   };
 
   const handleTooltipToggle = () => {
@@ -101,6 +160,14 @@ const Navbar = () => {
 
   const handleMouseLeave = () => {
     setOpenTooltip(false);
+  };
+
+  const handleProfileTooltipMouseEnter = () => {
+    setOpenProfileTooltip(true);
+  };
+
+  const handleProfileTooltipMouseLeave = () => {
+    setOpenProfileTooltip(false);
   };
 
   const handleDrawerToggle = () => {
@@ -181,8 +248,8 @@ const Navbar = () => {
             if (user !== null) {
               return (
                 <NavLink
-                  onClick={handleDrawerToggle}
                   key={index}
+                  onClick={handleDrawerToggle}
                   style={({ isActive }) => {
                     return {
                       color: isActive ? "blue" : BLACK,
@@ -437,22 +504,47 @@ const Navbar = () => {
                   } else if (item.name === "profile") {
                     if (user !== null) {
                       return (
-                        <Tooltip key={index} title={item.name}>
-                          <NavLink to={item.link} className={"Navlink"}>
-                            {/* <Button sx={{ color: "#334155" }}>{item.name}</Button> */}
-                            <img
-                              srcSet={
-                                user.avatar ? user.avatar : profilePicture
-                              }
-                              alt={user.username}
-                              style={{
-                                width: "30px",
-                                borderRadius: 15,
-                                objectFit: "cover",
-                              }}
-                            />
-                          </NavLink>
-                        </Tooltip>
+                        <Box
+                          key={index}
+                          sx={{
+                            position: "relative",
+                          }}
+                        >
+                          <IconButton
+                            onMouseEnter={handleProfileTooltipMouseEnter}
+                            onMouseLeave={handleProfileTooltipMouseLeave}
+                            size="small"
+                            sx={{
+                              fontSize: "15px",
+                              color: "#334155",
+                              "&:hover": {
+                                borderRadius: 1,
+                              },
+                            }}
+                          >
+                            <NavLink to={item.link} className={"Navlink"}>
+                              {/* <Button sx={{ color: "#334155" }}>{item.name}</Button> */}
+                              <img
+                                srcSet={
+                                  user.avatar ? user.avatar : profilePicture
+                                }
+                                alt={user.username}
+                                style={{
+                                  width: "30px",
+                                  borderRadius: 15,
+                                  objectFit: "cover",
+                                }}
+                              />
+                            </NavLink>
+                          </IconButton>
+                          <MyTooltip
+                            show={openProfileTooltip}
+                            mouseEnter={handleProfileTooltipMouseEnter}
+                            mouseLeave={handleProfileTooltipMouseLeave}
+                            content={<ProfileTooltip />}
+                            position={"bottom"}
+                          />
+                        </Box>
                       );
                     }
                   } else if (item.name === "Listings") {
@@ -528,6 +620,31 @@ const Navbar = () => {
             </Drawer>
           </nav>
         </Box>
+        <Dialog
+          open={openDialog}
+          TransitionComponent={Transition}
+          keepMounted
+          onClose={() => {
+            setOpenDialog(!openDialog);
+          }}
+        >
+          <DialogTitle>Warning</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              "Are your to sign out from your account"
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              onClick={() => {
+                setOpenDialog(false);
+              }}
+            >
+              Disagree
+            </Button>
+            <Button onClick={signoutUser}>Agree</Button>
+          </DialogActions>
+        </Dialog>
       </Box>
     </>
   );

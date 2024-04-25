@@ -32,6 +32,7 @@ import KeyboardArrowLeft from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
 import SwipeableViews from "react-swipeable-views";
 const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
+
 const SingleList = () => {
   const [activeStep, setActiveStep] = useState(0);
   const { listingId } = useParams();
