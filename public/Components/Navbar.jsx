@@ -74,16 +74,16 @@ const Navbar = () => {
         }}
       >
         <Link
-          onClick={md ? handleDrawerToggle : null}
+          onClick={md ? handleDrawerToggle : handleMouseLeave}
           className={`${Styles.tooltipLink}`}
           to="/create-list"
         >
           New Listing
         </Link>
         <Link
-          onClick={md ? handleDrawerToggle : null}
+          onClick={md ? handleDrawerToggle : handleMouseLeave}
           className={`${Styles.tooltipLink}`}
-          to="#"
+          to="/userListings"
         >
           Your Listings
         </Link>

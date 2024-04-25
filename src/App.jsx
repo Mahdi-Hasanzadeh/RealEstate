@@ -1,6 +1,5 @@
 // import { Suspense, lazy } from "react";
 import { BrowserRouter, Outlet, Route, Routes } from "react-router-dom";
-
 import {
   Navbar,
   Home,
@@ -15,6 +14,7 @@ import SingleList from "../public/Components/SingleList";
 import EditListing from "../public/Components/EditListing";
 import SearchListings from "../public/Components/SearchListings";
 import { Slide, ToastContainer } from "react-toastify";
+import YourListings from "../public/Components/YourListings";
 const App = () => {
   const BasicLayout = () => {
     return (
@@ -37,6 +37,11 @@ const App = () => {
             <Route path="signup" element={<Signup url="signup" />} />
             <Route path="signin" element={<Signup url="signin" />} />
             <Route
+              path="userListings"
+              element={<YourListings />}
+              lazy={() => import("../public/Components/YourListings.jsx")}
+            />
+            <Route
               path="profile"
               element={
                 <ProtectedRoute>
@@ -54,7 +59,6 @@ const App = () => {
             />
             <Route path="listing/:listingId" element={<SingleList />} />
             <Route path="listing/update/:listingId" element={<EditListing />} />
-            <Route path="counter" element={<Counter />} />
             <Route path="*" element={<h1>No route match</h1>} />
           </Route>
         </Routes>
