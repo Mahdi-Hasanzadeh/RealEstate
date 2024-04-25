@@ -424,7 +424,7 @@ const SingleList = () => {
                 </Typography>
               </Box>
 
-              <Suspense fallback={Fallback}>
+              <Suspense fallback={<Fallback />}>
                 {!show && (
                   <Box
                     sx={{

@@ -326,7 +326,7 @@ const Profile = () => {
           mt: 5,
         }}
       >
-        <Suspense fallback={Fallback}>
+        <Suspense fallback={<Fallback />}>
           <Wave title={"Profile"} />
         </Suspense>
 

@@ -471,15 +471,13 @@ const SearchListings = () => {
                       listings.map((listing, index) => {
                         delay = delay + 20;
                         return (
-                          <Fragment key={index}>
-                            <Suspense fallback={Fallback}>
-                              <CardItem
-                                listing={listing}
-                                transition={true}
-                                delay={delay}
-                              />
-                            </Suspense>
-                          </Fragment>
+                          <Suspense key={index} fallback={<Fallback />}>
+                            <CardItem
+                              listing={listing}
+                              transition={true}
+                              delay={delay}
+                            />
+                          </Suspense>
                         );
                       })}
                   </Box>

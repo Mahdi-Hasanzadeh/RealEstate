@@ -1,8 +1,9 @@
 import { Box, Container, Typography } from "@mui/material";
 import { BLACK } from "../../../COLOR";
-import { Card } from "./ComponentsReturn";
 import { Link } from "react-router-dom";
-
+import { Suspense, lazy } from "react";
+import Fallback from "./Fallback.jsx";
+const Card = lazy(() => import("./Card.jsx"));
 const LatestProducts = ({ title, loading, error, listings, query }) => {
   const queryaString =
     query == "offer"
@@ -46,7 +47,11 @@ const LatestProducts = ({ title, loading, error, listings, query }) => {
             listings?.length > 0 &&
             error == null &&
             listings.map((item, index) => {
-              return <Card key={index} listing={item} />;
+              return (
+                <Suspense key={index} fallback={<Fallback />}>
+                  <Card listing={item} />;
+                </Suspense>
+              );
             })
           )}
         </Box>
