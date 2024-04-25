@@ -78,7 +78,7 @@ const Profile = () => {
   const handleShowListing = () => {
     dispatch(setShowListings(!showListings));
   };
-
+  // sign out user
   const handleSignOutUser = () => {
     // first we remove access token from the local storage
     localStorage.removeItem("accessToken");
