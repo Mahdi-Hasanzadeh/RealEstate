@@ -14,7 +14,6 @@ import { BLACK } from "../../../COLOR";
 import { Suspense, lazy, useState } from "react";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import axios from "axios";
-import { GoogleAuth } from "./ComponentsReturn";
 import { useSelector, useDispatch } from "react-redux";
 import { signInFailed, signInSuccess } from "../../../reactRedux/userSlice";
 import { URL } from "../../../PortConfig";
@@ -22,6 +21,7 @@ import { toast } from "react-toastify";
 import { setWelcomeToast } from "../../../reactRedux/showToast";
 import Fallback from "./Fallback.jsx";
 
+const GoogleAuth = lazy(() => import("./GoogleAuth.jsx"));
 const Wave = lazy(() => import("../styleComponents/Wave.jsx"));
 const autoCloseTime = 3000;
 
@@ -267,7 +267,9 @@ const signUp = ({ url }) => {
           >
             {loading ? "Loading..." : url === "signin" ? "SIGN IN" : "SIGN UP"}
           </Button>
-          <GoogleAuth isMobile={isMobile} />
+          <Suspense fallback={<Fallback />}>
+            <GoogleAuth isMobile={isMobile} />
+          </Suspense>
 
           {url === "signup" ? (
             <Typography variant={isMobile ? "body2" : "h6"}>
