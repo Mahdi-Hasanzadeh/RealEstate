@@ -1,5 +1,5 @@
-import { Box, Typography } from "@mui/material";
-import styles from "../../src/style.module.css";
+import { Box } from "@mui/material";
+import styles from "../../style.module.css";
 const Tooltip = ({
   show,
   content,

@@ -1,14 +1,14 @@
 import { Button } from "@mui/material";
 import { GoogleAuthProvider, getAuth, signInWithPopup } from "firebase/auth";
-import { app } from "../../src/firebase";
-import { signInSuccess } from "../../reactRedux/userSlice";
+import { app } from "../../firebase";
+import { signInSuccess } from "../../../reactRedux/userSlice";
 
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { URL } from "../../PortConfig";
+import { URL } from "../../../PortConfig";
 import { toast } from "react-toastify";
-import { setWelcomeToast } from "../../reactRedux/showToast";
+import { setWelcomeToast } from "../../../reactRedux/showToast";
 
 const GoogleAuth = ({ isMobile }) => {
   const dispatch = useDispatch();

@@ -9,20 +9,22 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import { useEffect, useState } from "react";
-import { BLACK, LIGHTGRAY } from "../../COLOR";
+import { Suspense, lazy, useEffect, useState } from "react";
+import { BLACK, LIGHTGRAY } from "../../../COLOR";
 import {
   getDownloadURL,
   getStorage,
   ref,
   uploadBytesResumable,
 } from "firebase/storage";
-import { app } from "../../src/firebase";
-import Wave from "../styleComponents/Wave";
+import { app } from "../../firebase";
 import axios from "axios";
-import { URL } from "../../PortConfig";
-import { useNavigate, useParams } from "react-router-dom";
+import { URL } from "../../../PortConfig";
+import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
+import Fallback from "./Fallback.jsx";
+
+const Wave = lazy(() => import("../styleComponents/Wave.jsx"));
 
 const autoCloseTime = 3000;
 const EditListing = () => {
@@ -276,7 +278,9 @@ const EditListing = () => {
           mb: 20,
         }}
       >
-        <Wave title={"Edit List"} />
+        <Suspense fallback={<Fallback />}>
+          <Wave title={"Edit List"} />
+        </Suspense>
 
         {loading ? (
           <h2>Loading...</h2>

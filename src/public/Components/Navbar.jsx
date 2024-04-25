@@ -27,13 +27,13 @@ import {
 } from "@mui/material";
 import { forwardRef, useEffect, useState } from "react";
 import { NavLink, useSearchParams, useNavigate, Link } from "react-router-dom";
-import { BLACK, GRAY, LIGHTGRAY } from "../../COLOR";
+import { BLACK, GRAY, LIGHTGRAY } from "../../../COLOR";
 import { useDispatch, useSelector } from "react-redux";
 import profilePicture from "../assets/profile.png";
 import MyTooltip from "../Components/Tooltip";
-import Styles from "../../src/style.module.css";
-import { setWelcomeToast } from "../../reactRedux/showToast";
-import { deleteUser } from "../../reactRedux/userSlice";
+import Styles from "../../style.module.css";
+import { setWelcomeToast } from "../../../reactRedux/showToast";
+import { deleteUser } from "../../../reactRedux/userSlice";
 const Transition = forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });

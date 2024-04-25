@@ -19,9 +19,9 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import profilePicture from "../assets/profile.png";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import { BLACK } from "../../COLOR";
+import { BLACK } from "../../../COLOR";
 import { Link, useNavigate } from "react-router-dom";
-import { forwardRef, useEffect, useRef, useState } from "react";
+import { Suspense, forwardRef, lazy, useEffect, useRef, useState } from "react";
 
 import {
   getDownloadURL,
@@ -29,15 +29,18 @@ import {
   ref,
   uploadBytesResumable,
 } from "firebase/storage";
-import { app } from "../../src/firebase";
+import { app } from "../../firebase";
 import axios from "axios";
-import { deleteUser, updateUser } from "../../reactRedux/userSlice";
-import Wave from "../styleComponents/Wave.jsx";
-import UserListings from "./UserListings.jsx";
-import { URL } from "../../PortConfig.js";
-import { setShowListings } from "../../reactRedux/showListings.js";
-import { setWelcomeToast } from "../../reactRedux/showToast.js";
+import { deleteUser, updateUser } from "../../../reactRedux/userSlice";
+import { URL } from "../../../PortConfig.js";
+import { setShowListings } from "../../../reactRedux/showListings.js";
+import { setWelcomeToast } from "../../../reactRedux/showToast.js";
 import { toast } from "react-toastify";
+import Fallback from "./Fallback.jsx";
+
+const UserListings = lazy(() => import("./UserListings.jsx"));
+const Wave = lazy(() => import("../styleComponents/Wave.jsx"));
+
 const Transition = forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
@@ -323,7 +326,9 @@ const Profile = () => {
           mt: 5,
         }}
       >
-        {<Wave title={"Profile"} />}
+        <Suspense fallback={Fallback}>
+          <Wave title={"Profile"} />
+        </Suspense>
 
         <input
           onChange={getFile}
@@ -548,7 +553,12 @@ const Profile = () => {
           </DialogActions>
         </Dialog>
       </Container>
-      <Container maxWidth={"lg"}>{showListings && <UserListings />}</Container>
+
+      <Container maxWidth={"lg"}>
+        <Suspense fallback={<Fallback />}>
+          {showListings && <UserListings />}
+        </Suspense>
+      </Container>
     </>
   );
 };

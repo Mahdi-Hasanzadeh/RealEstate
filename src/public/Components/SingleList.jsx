@@ -1,7 +1,7 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { Suspense, lazy, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { URL } from "../../PortConfig";
+import { URL } from "../../../PortConfig";
 import {
   Box,
   Button,
@@ -20,17 +20,19 @@ import {
 } from "@mui/icons-material";
 
 import { useDispatch, useSelector } from "react-redux";
-import { addLocationHistory } from "../../reactRedux/userLocationHistory";
-import ContactUser from "./ContactUser";
+import { addLocationHistory } from "../../../reactRedux/userLocationHistory";
 
 import { formatDistanceToNow } from "date-fns";
-import { BLACK, LIGHTGRAY } from "../../COLOR";
+import { BLACK, LIGHTGRAY } from "../../../COLOR";
 import MobileStepper from "@mui/material/MobileStepper";
 
 import { autoPlay } from "react-swipeable-views-utils";
 import KeyboardArrowLeft from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
 import SwipeableViews from "react-swipeable-views";
+import Fallback from "./Fallback";
+
+const ContactUser = lazy(() => import("./ContactUser.jsx"));
 const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
 
 const SingleList = () => {
@@ -422,37 +424,41 @@ const SingleList = () => {
                 </Typography>
               </Box>
 
-              {!show && (
-                <Box
-                  sx={{
-                    mt: 2.5,
-                  }}
-                >
-                  <ContactUser
-                    userRef={listings.userRef}
-                    name={listings.name}
-                    isSmall={isSmall}
-                  />
-                </Box>
-              )}
-
-              {currentUser.id !== listings.userRef && show && (
-                <Box>
-                  <Button
-                    onClick={toggle}
-                    variant="contained"
-                    fullWidth
-                    size={isSmall ? "small" : "medium"}
+              <Suspense fallback={Fallback}>
+                {!show && (
+                  <Box
                     sx={{
-                      backgroundColor: "GrayText",
-                      width: "50%",
-                      mt: 3,
+                      mt: 2.5,
                     }}
                   >
-                    Contact Landlord
-                  </Button>
-                </Box>
-              )}
+                    <ContactUser
+                      userRef={listings.userRef}
+                      name={listings.name}
+                      isSmall={isSmall}
+                    />
+                  </Box>
+                )}
+              </Suspense>
+
+              <Suspense fallback={<Fallback />}>
+                {currentUser.id !== listings.userRef && show && (
+                  <Box>
+                    <Button
+                      onClick={toggle}
+                      variant="contained"
+                      fullWidth
+                      size={isSmall ? "small" : "medium"}
+                      sx={{
+                        backgroundColor: "GrayText",
+                        width: "50%",
+                        mt: 3,
+                      }}
+                    >
+                      Contact Landlord
+                    </Button>
+                  </Box>
+                )}
+              </Suspense>
             </Container>
           </main>
         )

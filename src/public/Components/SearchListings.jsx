@@ -4,10 +4,8 @@ import {
   Checkbox,
   FormControlLabel,
   Grid,
-  Grow,
   MenuItem,
   Select,
-  Slide,
   TextField,
   Typography,
   Zoom,
@@ -15,10 +13,12 @@ import {
   useTheme,
 } from "@mui/material";
 import axios from "axios";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, Suspense, lazy, useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { URL } from "../../PortConfig";
-import CardItem from "./Card";
+import { URL } from "../../../PortConfig";
+import Fallback from "./Fallback.jsx";
+
+const CardItem = lazy(() => import("./Card.jsx"));
 
 const orderValues = [
   {
@@ -472,11 +472,13 @@ const SearchListings = () => {
                         delay = delay + 20;
                         return (
                           <Fragment key={index}>
-                            <CardItem
-                              listing={listing}
-                              transition={true}
-                              delay={delay}
-                            />
+                            <Suspense fallback={Fallback}>
+                              <CardItem
+                                listing={listing}
+                                transition={true}
+                                delay={delay}
+                              />
+                            </Suspense>
                           </Fragment>
                         );
                       })}

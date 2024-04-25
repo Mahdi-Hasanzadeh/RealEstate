@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useEffect, useState, forwardRef } from "react";
-import { URL } from "../../PortConfig";
+import { URL } from "../../../PortConfig";
 import { useSelector } from "react-redux";
 import {
   Box,
@@ -10,11 +10,10 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-  Slide,
   Typography,
   Zoom,
 } from "@mui/material";
-import { LIGHTGRAY } from "../../COLOR";
+import { LIGHTGRAY } from "../../../COLOR";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 

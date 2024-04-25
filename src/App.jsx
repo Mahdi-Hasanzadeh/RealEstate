@@ -1,27 +1,35 @@
-// import { Suspense, lazy } from "react";
+import { Suspense, lazy } from "react";
 import { BrowserRouter, Outlet, Route, Routes } from "react-router-dom";
-import {
-  Navbar,
-  Home,
-  About,
-  Signup,
-  UserProfile,
-  ProtectedRoute,
-  CreateListing,
-} from "../public/Components/ComponentsReturn";
-import Counter from "../public/Components/counter";
-import SingleList from "../public/Components/SingleList";
-import EditListing from "../public/Components/EditListing";
-import SearchListings from "../public/Components/SearchListings";
+import { Navbar } from "./public/Components/ComponentsReturn";
 import { Slide, ToastContainer } from "react-toastify";
-import YourListings from "../public/Components/YourListings";
+import Fallback from "./public/Components/Fallback.jsx";
+
+const Home = lazy(() => import("./public/Components/Home.jsx"));
+const About = lazy(() => import("./public/Components/About.jsx"));
+const Signup = lazy(() => import("./public/Components/Sign-up.jsx"));
+const UserProfile = lazy(() => import("./public/Components/UserProfile.jsx"));
+const SingleList = lazy(() => import("./public/Components/SingleList.jsx"));
+const EditListing = lazy(() => import("./public/Components/EditListing.jsx"));
+const SearchListings = lazy(() =>
+  import("./public/Components/SearchListings.jsx")
+);
+const YourListings = lazy(() => import("./public/Components/YourListings.jsx"));
+const ProtectedRoute = lazy(() =>
+  import("./public/Components/ProtectedRoute.jsx")
+);
+const CreateListing = lazy(() =>
+  import("./public/Components/CreateListing.jsx")
+);
+
 const App = () => {
   const BasicLayout = () => {
     return (
       <>
         <div>
           <Navbar />
-          <Outlet />
+          <Suspense fallback={<Fallback />}>
+            <Outlet />
+          </Suspense>
         </div>
       </>
     );
@@ -36,11 +44,7 @@ const App = () => {
             <Route path="search" element={<SearchListings />} />
             <Route path="signup" element={<Signup url="signup" />} />
             <Route path="signin" element={<Signup url="signin" />} />
-            <Route
-              path="userListings"
-              element={<YourListings />}
-              lazy={() => import("../public/Components/YourListings.jsx")}
-            />
+            <Route path="userListings" element={<YourListings />} />
             <Route
               path="profile"
               element={
@@ -75,9 +79,15 @@ const App = () => {
         pauseOnHover
         theme="colored"
         transition={Slide}
-        limit={1}
+        limit={2}
       />
     </>
   );
 };
 export default App;
+
+const wait = (value) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(resolve, value);
+  });
+};

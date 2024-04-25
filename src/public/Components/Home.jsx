@@ -1,48 +1,18 @@
 import { Box, Container, Typography } from "@mui/material";
-import { BLACK, CAPTIONLIGHTGRAY, GRAY } from "../../COLOR";
+import { BLACK, CAPTIONLIGHTGRAY, GRAY } from "../../../COLOR";
 import { useTheme, useMediaQuery } from "@mui/material";
 import { Link } from "react-router-dom";
-import { ProductsSlider, LatestProducts } from "./ComponentsReturn";
-
-import img1 from "../assets/house1.jpg";
-import img2 from "../assets/house2.jpg";
-import img3 from "../assets/house3.jpg";
-import { useEffect, useState } from "react";
+import { Suspense, lazy, useEffect, useState } from "react";
 import axios from "axios";
-import { URL } from "../../PortConfig";
+import { URL } from "../../../PortConfig";
 import { useDispatch, useSelector } from "react-redux";
-import { toast, Zoom, Slide, Bounce, Flip } from "react-toastify";
-import { setWelcomeToast } from "../../reactRedux/showToast";
+import { toast, Slide } from "react-toastify";
+import { setWelcomeToast } from "../../../reactRedux/showToast";
+import Fallback from "./Fallback";
 
-// import image from "../../assets/house1.jpg";
-const images = [
-  {
-    label: "LUXURY HOUSE",
-    // imgPath: "./assets/house1.jpg",
-    // imgPath: "../../assets/house1.jpg",
-    imgPath: img1,
-  },
-  {
-    label: "LUXURY HOUSE",
-    imgPath: img2,
-  },
-  {
-    label: "Bali, Indonesia",
-    imgPath: img3,
-  },
-  {
-    label: "Goč, Serbia",
-    imgPath: img2,
-  },
-  {
-    label: "Goč, Serbia",
-    imgPath: img1,
-  },
-  {
-    label: "Goč, Serbia",
-    imgPath: img3,
-  },
-];
+const ProductsSlider = lazy(() => import("./ProductsSlider"));
+const LatestProducts = lazy(() => import("./LatestProducts"));
+
 const numberOfListings = 4;
 const offer = true;
 const rent = "rent";
@@ -261,35 +231,43 @@ const Home = () => {
         </Box>
       </Container>
       {/* Slider */}
-      <ProductsSlider
-        loading={specialListingsLoading}
-        error={specialError}
-        listings={specialListings}
-      />
+      <Suspense fallback={<Fallback />}>
+        <ProductsSlider
+          loading={specialListingsLoading}
+          error={specialError}
+          listings={specialListings}
+        />
+      </Suspense>
 
       {/* Recent Offers */}
+      <Suspense fallback={<Fallback />}>
+        <LatestProducts
+          query={"offer"}
+          title="Recent Offers"
+          loading={loadingOffer}
+          error={errorOffer}
+          listings={recentOffers}
+        />
+      </Suspense>
+      <Suspense fallback={<Fallback />}>
+        <LatestProducts
+          query={"rent"}
+          title="Recent Places For Rent"
+          loading={loadingRent}
+          error={errorRent}
+          listings={recentRent}
+        />
+      </Suspense>
+      <Suspense fallback={<Fallback />}>
+        <LatestProducts
+          query={"sell"}
+          title="Recent Places For Sale"
+          loading={loadingSale}
+          error={errorSale}
+          listings={recentSale}
+        />
+      </Suspense>
 
-      <LatestProducts
-        query={"offer"}
-        title="Recent Offers"
-        loading={loadingOffer}
-        error={errorOffer}
-        listings={recentOffers}
-      />
-      <LatestProducts
-        query={"rent"}
-        title="Recent Places For Rent"
-        loading={loadingRent}
-        error={errorRent}
-        listings={recentRent}
-      />
-      <LatestProducts
-        query={"sell"}
-        title="Recent Places For Sale"
-        loading={loadingSale}
-        error={errorSale}
-        listings={recentSale}
-      />
       {/* <RecentProductsSection title="Recent places for rent" />
       <RecentProductsSection title="Recent places for sale" /> */}
     </>

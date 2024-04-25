@@ -1,8 +1,9 @@
 import { Typography, TextField, Box, Button } from "@mui/material";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { URL } from "../../PortConfig";
+import { URL } from "../../../PortConfig";
 import { Link } from "react-router-dom";
+
 const ContactUser = ({ userRef, name, isSmall }) => {
   const [userInfo, setUserInfo] = useState();
   const [error, setError] = useState(null);

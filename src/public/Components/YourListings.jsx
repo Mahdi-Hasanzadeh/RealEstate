@@ -1,5 +1,8 @@
 import { Container } from "@mui/material";
-import UserListings from "./UserListings";
+import { Suspense, lazy } from "react";
+import Fallback from "./Fallback.jsx";
+
+const UserListings = lazy(() => import("./UserListings.jsx"));
 
 const YourListings = () => {
   return (
@@ -10,7 +13,9 @@ const YourListings = () => {
         top: 50,
       }}
     >
-      <UserListings />
+      <Suspense fallback={<Fallback />}>
+        <UserListings />
+      </Suspense>
     </Container>
   );
 };

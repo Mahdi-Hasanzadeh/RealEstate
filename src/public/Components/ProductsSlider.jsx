@@ -11,7 +11,7 @@ import KeyboardArrowLeft from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
 import SwipeableViews from "react-swipeable-views";
 import { autoPlay } from "react-swipeable-views-utils";
-import { LIGHTGRAY } from "../../COLOR";
+import { LIGHTGRAY } from "../../../COLOR";
 import { useNavigate } from "react-router-dom";
 const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
 

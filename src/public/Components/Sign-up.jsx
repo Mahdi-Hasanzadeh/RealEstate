@@ -10,18 +10,21 @@ import {
   useTheme,
 } from "@mui/material";
 import { Link, Navigate, useNavigate } from "react-router-dom";
-import { BLACK } from "../../COLOR";
-import { useState } from "react";
+import { BLACK } from "../../../COLOR";
+import { Suspense, lazy, useState } from "react";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import axios from "axios";
 import { GoogleAuth } from "./ComponentsReturn";
 import { useSelector, useDispatch } from "react-redux";
-import { signInFailed, signInSuccess } from "../../reactRedux/userSlice";
-import Wave from "../styleComponents/Wave";
-import { URL } from "../../PortConfig";
+import { signInFailed, signInSuccess } from "../../../reactRedux/userSlice";
+import { URL } from "../../../PortConfig";
 import { toast } from "react-toastify";
-import { setWelcomeToast } from "../../reactRedux/showToast";
+import { setWelcomeToast } from "../../../reactRedux/showToast";
+import Fallback from "./Fallback.jsx";
+
+const Wave = lazy(() => import("../styleComponents/Wave.jsx"));
 const autoCloseTime = 3000;
+
 const signUp = ({ url }) => {
   const theme = useTheme();
   const dispatch = useDispatch();
@@ -177,9 +180,13 @@ const signUp = ({ url }) => {
       >
         <Typography variant={isMobile ? "body1" : "h6"}>
           {url === "signup" ? (
-            <Wave title="Sign Up" />
+            <Suspense fallback={<Fallback />}>
+              <Wave title="Sign Up" />
+            </Suspense>
           ) : (
-            <Wave title="Sign in" />
+            <Suspense fallback={<Fallback />}>
+              <Wave title="Sign in" />
+            </Suspense>
           )}
         </Typography>
         <Box

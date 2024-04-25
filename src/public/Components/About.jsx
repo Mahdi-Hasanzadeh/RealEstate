@@ -1,5 +1,4 @@
-import { Box, Container, Typography } from "@mui/material";
-import { GRAY } from "../../COLOR";
+import { Container, Typography } from "@mui/material";
 
 const About = () => {
   return (

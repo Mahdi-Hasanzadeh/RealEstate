@@ -9,21 +9,23 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import { useState } from "react";
-import { BLACK, LIGHTGRAY } from "../../COLOR";
+import { Suspense, lazy, useState } from "react";
+import { BLACK, LIGHTGRAY } from "../../../COLOR";
 import {
   getDownloadURL,
   getStorage,
   ref,
   uploadBytesResumable,
 } from "firebase/storage";
-import { app } from "../../src/firebase";
-import Wave from "../styleComponents/Wave";
+import { app } from "../../firebase";
 import axios from "axios";
-import { URL } from "../../PortConfig";
+import { URL } from "../../../PortConfig";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import Fallback from "./Fallback.jsx";
+const Wave = lazy(() => import("../styleComponents/Wave.jsx"));
 const autoCloseTime = 3000;
+
 const CreateListing = () => {
   const navigate = useNavigate();
   const [file, setFile] = useState([]);
@@ -234,7 +236,9 @@ const CreateListing = () => {
           mb: 20,
         }}
       >
-        <Wave title={"Create list"} />
+        <Suspense fallback={<Fallback />}>
+          <Wave title={"Create list"} />
+        </Suspense>
 
         <Grid
           container

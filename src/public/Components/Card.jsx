@@ -1,4 +1,4 @@
-import { LocationCityRounded, LocationOnRounded } from "@mui/icons-material";
+import { LocationOnRounded } from "@mui/icons-material";
 import {
   Box,
   Card,
@@ -8,9 +8,8 @@ import {
   Zoom,
 } from "@mui/material";
 import { Link } from "react-router-dom";
-import { BLACK, CAPTIONLIGHTGRAY } from "../../COLOR";
+import { BLACK } from "../../../COLOR";
 import { formatDistanceToNow } from "date-fns";
-import { useState } from "react";
 
 const CardItem = ({ listing, transition, delay }) => {
   return (

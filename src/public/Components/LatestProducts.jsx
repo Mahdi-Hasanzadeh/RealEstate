@@ -1,5 +1,5 @@
 import { Box, Container, Typography } from "@mui/material";
-import { BLACK } from "../../COLOR";
+import { BLACK } from "../../../COLOR";
 import { Card } from "./ComponentsReturn";
 import { Link } from "react-router-dom";
 
