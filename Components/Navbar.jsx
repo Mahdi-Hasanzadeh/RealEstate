@@ -144,10 +144,10 @@ const Navbar = () => {
     // first we remove access token from the local storage
     localStorage.removeItem("accessToken");
     localStorage.removeItem("persist:root");
-    navigate("/signin");
     // then we delete the user from state of application
     dispatch(setWelcomeToast(false));
     dispatch(deleteUser());
+    navigate("/signin");
   };
 
   const handleTooltipToggle = () => {
@@ -642,7 +642,14 @@ const Navbar = () => {
             >
               Disagree
             </Button>
-            <Button onClick={signoutUser}>Agree</Button>
+            <Button
+              onClick={() => {
+                setOpenDialog(false);
+                signoutUser();
+              }}
+            >
+              Agree
+            </Button>
           </DialogActions>
         </Dialog>
       </Box>
