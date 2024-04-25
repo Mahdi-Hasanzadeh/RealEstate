@@ -1,4 +1,9 @@
-import { Menu, SearchRounded } from "@mui/icons-material";
+import {
+  ArrowDropDownRounded,
+  ArrowDropUpRounded,
+  Menu,
+  SearchRounded,
+} from "@mui/icons-material";
 import {
   AppBar,
   Box,
@@ -8,20 +13,19 @@ import {
   Toolbar,
   Typography,
   Divider,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemText,
   TextField,
   InputAdornment,
   useMediaQuery,
   useTheme,
+  Tooltip,
 } from "@mui/material";
-import { useEffect, useRef, useState } from "react";
-import { NavLink, useSearchParams, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { NavLink, useSearchParams, useNavigate, Link } from "react-router-dom";
 import { BLACK, GRAY, LIGHTGRAY } from "../../COLOR";
 import { useSelector } from "react-redux";
 import profilePicture from "../assets/profile.png";
+import MyTooltip from "../Components/Tooltip";
+import Styles from "../../src/style.module.css";
 
 const navItems = [
   {
@@ -32,6 +36,10 @@ const navItems = [
   {
     name: "Sign in",
     link: "/signin",
+  },
+  {
+    name: "Listings",
+    link: "#",
   },
   {
     name: "About",
@@ -45,14 +53,55 @@ const navItems = [
 
 const Navbar = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const [openTooltip, setOpenTooltip] = useState(false);
   const navigate = useNavigate();
-  const renderCount = useRef(0);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchTerm, setSearcTerm] = useState("");
   const user = useSelector((store) => store.persistData.user.userInfo);
   const theme = useTheme();
   const md = useMediaQuery(theme.breakpoints.down("md"));
-  // console.log(user);
+
+  const Listing = () => {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "flex-start",
+          padding: 1,
+          rowGap: 2,
+          width: 110,
+        }}
+      >
+        <Link
+          onClick={md ? handleDrawerToggle : null}
+          className={`${Styles.tooltipLink}`}
+          to="/create-list"
+        >
+          New Listing
+        </Link>
+        <Link
+          onClick={md ? handleDrawerToggle : null}
+          className={`${Styles.tooltipLink}`}
+          to="#"
+        >
+          Your Listings
+        </Link>
+      </Box>
+    );
+  };
+
+  const handleTooltipToggle = () => {
+    setOpenTooltip(!openTooltip);
+  };
+
+  const handleMouseEnter = () => {
+    setOpenTooltip(true);
+  };
+
+  const handleMouseLeave = () => {
+    setOpenTooltip(false);
+  };
 
   const handleDrawerToggle = () => {
     setMobileOpen((prevState) => !prevState);
@@ -75,16 +124,25 @@ const Navbar = () => {
       setSearcTerm(term);
     }
   }, [location.search]);
-  // console.log(user);
 
   useEffect(() => {
     if (md) {
       setMobileOpen(false);
     }
+    setOpenTooltip(false);
   }, [md]);
+
+  // drawer content
   const drawer = (
-    <Box onClick={handleDrawerToggle} ml={2}>
-      <Typography variant="body1" sx={{ my: 2 }}>
+    <Box ml={2}>
+      <Typography
+        onClick={() => {
+          setMobileOpen(false);
+          navigate("/");
+        }}
+        variant="body1"
+        sx={{ my: 2, cursor: "pointer" }}
+      >
         HASANZADEH
         <Typography variant="body1" component={"span"} color={GRAY}>
           ESTATE
@@ -105,6 +163,7 @@ const Navbar = () => {
             if (user === null) {
               return (
                 <NavLink
+                  onClick={handleDrawerToggle}
                   style={({ isActive }) => {
                     return {
                       color: isActive ? "blue" : BLACK,
@@ -122,6 +181,7 @@ const Navbar = () => {
             if (user !== null) {
               return (
                 <NavLink
+                  onClick={handleDrawerToggle}
                   key={index}
                   style={({ isActive }) => {
                     return {
@@ -145,9 +205,47 @@ const Navbar = () => {
                 </NavLink>
               );
             }
+          } else if (item.name === "Listings") {
+            if (user !== null) {
+              return (
+                <Box
+                  key={index}
+                  sx={{
+                    position: "relative",
+                  }}
+                >
+                  <IconButton
+                    onClick={handleTooltipToggle}
+                    size="small"
+                    sx={{
+                      fontSize: "15px",
+                      color: "#334155",
+                      "&:hover": {
+                        borderRadius: 1,
+                      },
+                    }}
+                  >
+                    LISTINGS
+                    {openTooltip ? (
+                      <ArrowDropUpRounded />
+                    ) : (
+                      <ArrowDropDownRounded />
+                    )}
+                  </IconButton>
+                  <MyTooltip
+                    show={openTooltip}
+                    mouseEnter={handleMouseEnter}
+                    mouseLeave={handleMouseLeave}
+                    content={<Listing />}
+                    position={"rigth"}
+                  />
+                </Box>
+              );
+            }
           } else {
             return (
               <NavLink
+                onClick={handleDrawerToggle}
                 style={({ isActive }) => {
                   return {
                     color: isActive ? "blue !important" : BLACK,
@@ -243,6 +341,7 @@ const Navbar = () => {
       </List> */}
     </Box>
   );
+
   return (
     <>
       <Box>
@@ -263,6 +362,7 @@ const Navbar = () => {
                 margin: "0 10px",
               }}
             >
+              {/* Menu icon for screen sizes */}
               <IconButton
                 color="inherit"
                 aria-label="open drawer"
@@ -272,12 +372,17 @@ const Navbar = () => {
               >
                 <Menu />
               </IconButton>
+              {/* Website name */}
               <Typography
+                onClick={() => {
+                  navigate("/");
+                }}
                 variant="h6"
                 component="div"
                 sx={{
                   display: { xs: "none", sm: "block" },
                   color: BLACK,
+                  cursor: "pointer",
                 }}
               >
                 HASANZADEH
@@ -307,11 +412,12 @@ const Navbar = () => {
                   variant="outlined"
                 />
               </Box>
-
+              {/* Navbar in medium size */}
               <Box
                 sx={{
                   display: { xs: "none", md: "flex" },
                   alignItems: "center",
+                  justifyContent: "space-around",
                   gap: 1,
                 }}
               >
@@ -319,6 +425,72 @@ const Navbar = () => {
                   if (item.name === "Sign in") {
                     if (user === null) {
                       return (
+                        <Tooltip key={index} title={item.name}>
+                          <NavLink to={item.link} className={"Navlink"}>
+                            <Button sx={{ color: "#334155" }}>
+                              {item.name}
+                            </Button>
+                          </NavLink>
+                        </Tooltip>
+                      );
+                    }
+                  } else if (item.name === "profile") {
+                    if (user !== null) {
+                      return (
+                        <Tooltip key={index} title={item.name}>
+                          <NavLink to={item.link} className={"Navlink"}>
+                            {/* <Button sx={{ color: "#334155" }}>{item.name}</Button> */}
+                            <img
+                              srcSet={
+                                user.avatar ? user.avatar : profilePicture
+                              }
+                              alt={user.username}
+                              style={{
+                                width: "30px",
+                                borderRadius: 15,
+                                objectFit: "cover",
+                              }}
+                            />
+                          </NavLink>
+                        </Tooltip>
+                      );
+                    }
+                  } else if (item.name === "Listings") {
+                    if (user !== null) {
+                      return (
+                        <Box
+                          key={index}
+                          sx={{
+                            position: "relative",
+                          }}
+                        >
+                          <IconButton
+                            onMouseEnter={handleMouseEnter}
+                            onMouseLeave={handleMouseLeave}
+                            size="small"
+                            sx={{
+                              fontSize: "15px",
+                              color: "#334155",
+                              "&:hover": {
+                                borderRadius: 1,
+                              },
+                            }}
+                          >
+                            LISTINGS
+                          </IconButton>
+                          <MyTooltip
+                            show={openTooltip}
+                            mouseEnter={handleMouseEnter}
+                            mouseLeave={handleMouseLeave}
+                            content={<Listing />}
+                            position={"bottom"}
+                          />
+                        </Box>
+                      );
+                    }
+                  } else {
+                    return (
+                      <Tooltip key={index} title={item.name}>
                         <NavLink
                           to={item.link}
                           key={index}
@@ -326,41 +498,14 @@ const Navbar = () => {
                         >
                           <Button sx={{ color: "#334155" }}>{item.name}</Button>
                         </NavLink>
-                      );
-                    }
-                  } else if (item.name === "profile") {
-                    if (user !== null) {
-                      return (
-                        <NavLink
-                          to={item.link}
-                          key={index}
-                          className={"Navlink"}
-                        >
-                          {/* <Button sx={{ color: "#334155" }}>{item.name}</Button> */}
-                          <img
-                            srcSet={user.avatar ? user.avatar : profilePicture}
-                            alt={user.username}
-                            // title={"profile"}
-                            style={{
-                              width: "30px",
-                              borderRadius: 15,
-                              objectFit: "cover",
-                            }}
-                          />
-                        </NavLink>
-                      );
-                    }
-                  } else {
-                    return (
-                      <NavLink to={item.link} key={index} className={"Navlink"}>
-                        <Button sx={{ color: "#334155" }}>{item.name}</Button>
-                      </NavLink>
+                      </Tooltip>
                     );
                   }
                 })}
               </Box>
             </Toolbar>
           </AppBar>
+          {/* drawer in mobile size */}
           <nav>
             <Drawer
               variant="temporary"
@@ -375,7 +520,7 @@ const Navbar = () => {
                   boxSizing: "border-box",
                   backgroundColor: LIGHTGRAY,
                   borderRadius: 1,
-                  width: "75%",
+                  width: { xs: "90%", sm: "50%" },
                 },
               }}
             >
