@@ -80,7 +80,7 @@ const ProductsSlider = ({ loading, error, listings }) => {
                         display: "block",
                         width: "100%",
                         overflow: "hidden",
-                        objectFit: { xs: "contain", sm: "cover" },
+                        objectFit: { xs: "fill", sm: "fill" },
                         objectPosition: "center",
                         cursor: "pointer",
                       }}

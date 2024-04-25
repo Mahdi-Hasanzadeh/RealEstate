@@ -216,7 +216,7 @@ const SingleList = () => {
                             display: "block",
                             width: "100%",
                             overflow: "hidden",
-                            objectFit: { xs: "contain", sm: "cover" },
+                            objectFit: { xs: "contain", sm: "fill" },
                             objectPosition: "center",
                           }}
                           src={step}
