@@ -36,7 +36,13 @@ const ProductsSlider = ({ loading, error, listings }) => {
   return (
     <>
       {loading ? (
-        <h3>Loading...</h3>
+        <h3
+          style={{
+            textAlign: "center",
+          }}
+        >
+          Loading...
+        </h3>
       ) : error ? (
         <h2>{error}</h2>
       ) : (

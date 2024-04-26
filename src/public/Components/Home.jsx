@@ -267,9 +267,6 @@ const Home = () => {
           listings={recentSale}
         />
       </Suspense>
-
-      {/* <RecentProductsSection title="Recent places for rent" />
-      <RecentProductsSection title="Recent places for sale" /> */}
     </>
   );
 };

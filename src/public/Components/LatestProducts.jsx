@@ -49,7 +49,7 @@ const LatestProducts = ({ title, loading, error, listings, query }) => {
             listings.map((item, index) => {
               return (
                 <Suspense key={index} fallback={<Fallback />}>
-                  <Card listing={item} />;
+                  <Card listing={item} />
                 </Suspense>
               );
             })

@@ -25,18 +25,20 @@ import {
   DialogActions,
   Slide,
 } from "@mui/material";
-import { forwardRef, useEffect, useState } from "react";
+import { Suspense, forwardRef, lazy, useEffect, useState } from "react";
 import { NavLink, useSearchParams, useNavigate, Link } from "react-router-dom";
 import { BLACK, GRAY, LIGHTGRAY } from "../../../COLOR";
 import { useDispatch, useSelector } from "react-redux";
 import profilePicture from "../assets/profile.png";
-import MyTooltip from "../Components/Tooltip";
 import Styles from "../../style.module.css";
 import { setWelcomeToast } from "../../../reactRedux/showToast";
 import { deleteUser } from "../../../reactRedux/userSlice";
 const Transition = forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
+import MyTooltip from "./Tooltip.jsx";
+import Fallback from "./Fallback.jsx";
+
 const navItems = [
   {
     name: "Home",
@@ -150,10 +152,6 @@ const Navbar = () => {
     navigate("/signin");
   };
 
-  const handleTooltipToggle = () => {
-    setOpenTooltip(!openTooltip);
-  };
-
   const handleMouseEnter = () => {
     setOpenTooltip(true);
   };
@@ -199,41 +197,133 @@ const Navbar = () => {
     setOpenTooltip(false);
   }, [md]);
 
+  const LazyDrawer = lazy(() => Promise.resolve({ default: drawer }));
+
   // drawer content
-  const drawer = (
-    <Box ml={2}>
-      <Typography
-        onClick={() => {
-          setMobileOpen(false);
-          navigate("/");
-        }}
-        variant="body1"
-        sx={{ my: 2, cursor: "pointer" }}
-      >
-        HASANZADEH
-        <Typography variant="body1" component={"span"} color={GRAY}>
-          ESTATE
+  const drawer = () => {
+    const handleTooltipToggle = () => {
+      setOpenTooltip(!openTooltip);
+    };
+
+    return (
+      <Box ml={2}>
+        <Typography
+          onClick={() => {
+            setMobileOpen(false);
+            navigate("/");
+          }}
+          variant="body1"
+          sx={{ my: 2, cursor: "pointer" }}
+        >
+          HASANZADEH
+          <Typography variant="body1" component={"span"} color={GRAY}>
+            ESTATE
+          </Typography>
         </Typography>
-      </Typography>
-      <Divider />
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          gap: 1,
-          alignItems: "flex-start",
-          mt: 2,
-        }}
-      >
-        {navItems.map((item, index) => {
-          if (item.name === "Sign in") {
-            if (user === null) {
+        <Divider />
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 1,
+            alignItems: "flex-start",
+            mt: 2,
+          }}
+        >
+          {navItems.map((item, index) => {
+            if (item.name === "Sign in") {
+              if (user === null) {
+                return (
+                  <NavLink
+                    // handle is ok
+                    onClick={handleDrawerToggle}
+                    style={({ isActive }) => {
+                      return {
+                        color: isActive ? "blue" : BLACK,
+                      };
+                    }}
+                    to={item.link}
+                    key={index}
+                    className={"Navlink"}
+                  >
+                    <Button sx={{ color: "#334155" }}>{item.name}</Button>
+                  </NavLink>
+                );
+              }
+            } else if (item.name === "profile") {
+              if (user !== null) {
+                return (
+                  <NavLink
+                    key={index}
+                    onClick={handleDrawerToggle}
+                    style={({ isActive }) => {
+                      return {
+                        color: isActive ? "blue" : BLACK,
+                      };
+                    }}
+                    to={item.link}
+                    className={"Navlink"}
+                  >
+                    {/* <Button sx={{ color: "#334155" }}>{item.name}</Button> */}
+                    <img
+                      srcSet={user.avatar ? user.avatar : profilePicture}
+                      alt={user.username}
+                      // title={"profile"}
+                      style={{
+                        width: "30px",
+                        borderRadius: 15,
+                        objectFit: "cover",
+                      }}
+                    />
+                  </NavLink>
+                );
+              }
+            } else if (item.name === "Listings") {
+              {
+                user !== null && (
+                  <Box
+                    key={index}
+                    sx={{
+                      position: "relative",
+                    }}
+                  >
+                    <IconButton
+                      // handle tooltip toogle is ok
+                      onClick={handleTooltipToggle}
+                      size="small"
+                      sx={{
+                        fontSize: "15px",
+                        color: "#334155",
+                        "&:hover": {
+                          borderRadius: 1,
+                        },
+                      }}
+                    >
+                      LISTINGS
+                      {openTooltip ? (
+                        <ArrowDropUpRounded />
+                      ) : (
+                        <ArrowDropDownRounded />
+                      )}
+                    </IconButton>
+
+                    <MyTooltip
+                      show={openTooltip}
+                      mouseEnter={handleMouseEnter}
+                      mouseLeave={handleMouseLeave}
+                      content={<Listing />}
+                      position={"rigth"}
+                    />
+                  </Box>
+                );
+              }
+            } else {
               return (
                 <NavLink
                   onClick={handleDrawerToggle}
                   style={({ isActive }) => {
                     return {
-                      color: isActive ? "blue" : BLACK,
+                      color: isActive ? "blue !important" : BLACK,
                     };
                   }}
                   to={item.link}
@@ -244,170 +334,11 @@ const Navbar = () => {
                 </NavLink>
               );
             }
-          } else if (item.name === "profile") {
-            if (user !== null) {
-              return (
-                <NavLink
-                  key={index}
-                  onClick={handleDrawerToggle}
-                  style={({ isActive }) => {
-                    return {
-                      color: isActive ? "blue" : BLACK,
-                    };
-                  }}
-                  to={item.link}
-                  className={"Navlink"}
-                >
-                  {/* <Button sx={{ color: "#334155" }}>{item.name}</Button> */}
-                  <img
-                    srcSet={user.avatar ? user.avatar : profilePicture}
-                    alt={user.username}
-                    // title={"profile"}
-                    style={{
-                      width: "30px",
-                      borderRadius: 15,
-                      objectFit: "cover",
-                    }}
-                  />
-                </NavLink>
-              );
-            }
-          } else if (item.name === "Listings") {
-            if (user !== null) {
-              return (
-                <Box
-                  key={index}
-                  sx={{
-                    position: "relative",
-                  }}
-                >
-                  <IconButton
-                    onClick={handleTooltipToggle}
-                    size="small"
-                    sx={{
-                      fontSize: "15px",
-                      color: "#334155",
-                      "&:hover": {
-                        borderRadius: 1,
-                      },
-                    }}
-                  >
-                    LISTINGS
-                    {openTooltip ? (
-                      <ArrowDropUpRounded />
-                    ) : (
-                      <ArrowDropDownRounded />
-                    )}
-                  </IconButton>
-                  <MyTooltip
-                    show={openTooltip}
-                    mouseEnter={handleMouseEnter}
-                    mouseLeave={handleMouseLeave}
-                    content={<Listing />}
-                    position={"rigth"}
-                  />
-                </Box>
-              );
-            }
-          } else {
-            return (
-              <NavLink
-                onClick={handleDrawerToggle}
-                style={({ isActive }) => {
-                  return {
-                    color: isActive ? "blue !important" : BLACK,
-                  };
-                }}
-                to={item.link}
-                key={index}
-                className={"Navlink"}
-              >
-                <Button sx={{ color: "#334155" }}>{item.name}</Button>
-              </NavLink>
-            );
-          }
-        })}
+          })}
+        </Box>
       </Box>
-      {/* <List
-        sx={{
-          display: "flex",
-          margin: "0 auto",
-          flexDirection: "column",
-        }}
-      >
-        {navItems.map((item, index) => {
-          if (item.name === "Sign in") {
-            if (user === null) {
-              return (
-                <ListItem key={index} disablePadding>
-                  <NavLink
-                    style={({ isActive }) => {
-                      return {
-                        color: isActive ? "blue" : BLACK,
-                        textDecoration: "none",
-                        textAlign: "center",
-                      };
-                    }}
-                    to={item.link}
-                  >
-                    <ListItemButton>
-                      <ListItemText primary={item.name} />
-                    </ListItemButton>
-                  </NavLink>
-                </ListItem>
-              );
-            }
-          } else if (item.name === "profile") {
-            if (user !== null) {
-              return (
-                <ListItem key={index} disablePadding>
-                  <NavLink
-                    style={({ isActive }) => {
-                      return {
-                        color: isActive ? "blue" : BLACK,
-                        textDecoration: "none",
-                      };
-                    }}
-                    to={item.link}
-                  >
-                    <ListItemButton> */}
-      {/* <img
-                        srcSet={user.avatar}
-                        title={"profile"}
-                        style={{
-                          width: "33px",
-                          borderRadius: 15,
-                        }}
-                      /> */}
-      {/* <ListItemText primary={item.name} />
-                    </ListItemButton>
-                  </NavLink>
-                </ListItem>
-              );
-            }
-          } else {
-            return (
-              <ListItem key={index} disablePadding>
-                <NavLink
-                  to={item.link}
-                  style={({ isActive }) => {
-                    return {
-                      color: isActive ? "blue" : BLACK,
-                      textDecoration: "none",
-                    };
-                  }}
-                >
-                  <ListItemButton sx={{ textAlign: "center" }}>
-                    <ListItemText sx={{}} primary={item.name} />
-                  </ListItemButton>
-                </NavLink>
-              </ListItem>
-            );
-          }
-        })}
-      </List> */}
-    </Box>
-  );
+    );
+  };
 
   return (
     <>
@@ -537,6 +468,7 @@ const Navbar = () => {
                               />
                             </NavLink>
                           </IconButton>
+
                           <MyTooltip
                             show={openProfileTooltip}
                             mouseEnter={handleProfileTooltipMouseEnter}
@@ -570,6 +502,7 @@ const Navbar = () => {
                           >
                             LISTINGS
                           </IconButton>
+
                           <MyTooltip
                             show={openTooltip}
                             mouseEnter={handleMouseEnter}
@@ -616,10 +549,15 @@ const Navbar = () => {
                 },
               }}
             >
-              {drawer}
+              {md && (
+                <Suspense fallback={<Fallback />}>
+                  <LazyDrawer />
+                </Suspense>
+              )}
             </Drawer>
           </nav>
         </Box>
+
         <Dialog
           open={openDialog}
           TransitionComponent={Transition}
