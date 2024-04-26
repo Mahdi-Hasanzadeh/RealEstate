@@ -5,9 +5,7 @@ import { Link } from "react-router-dom";
 import { Suspense, lazy, useEffect, useState } from "react";
 import axios from "axios";
 import { URL } from "../../../PortConfig";
-import { useDispatch, useSelector } from "react-redux";
-import { toast, Slide } from "react-toastify";
-import { setWelcomeToast } from "../../../reactRedux/showToast";
+
 import Fallback from "./Fallback";
 
 const ProductsSlider = lazy(() => import("./ProductsSlider"));
@@ -26,12 +24,6 @@ const Home = () => {
   const theme = useTheme();
   const isLaptop = useMediaQuery(theme.breakpoints.up("md"));
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  const userInfo = useSelector((store) => store.persistData.user.userInfo);
-  const showWelcomeToast = useSelector(
-    (store) => store.persistData.showWelcomeToast.userAlreadySeeWelcomeToast
-  );
-
-  const dispatch = useDispatch();
 
   const [specialListings, setSpecialListings] = useState([]);
   const [recentOffers, setRecentOffers] = useState([]);
@@ -213,7 +205,13 @@ const Home = () => {
               mt: 1,
             }}
           >
-            <Link className="Link" to="/search">
+            <Link
+              style={{
+                fontSize: "1.5em",
+              }}
+              className="Link"
+              to="/search"
+            >
               Let's Start Now...
             </Link>
           </Box>

@@ -1,9 +1,4 @@
-import {
-  ArrowDropDownRounded,
-  ArrowDropUpRounded,
-  Menu,
-  SearchRounded,
-} from "@mui/icons-material";
+import { Menu, SearchRounded } from "@mui/icons-material";
 import {
   AppBar,
   Box,
@@ -39,37 +34,19 @@ const Transition = forwardRef(function Transition(props, ref) {
 import MyTooltip from "./Tooltip.jsx";
 import Fallback from "./Fallback.jsx";
 
-const navItems = [
-  {
-    name: "Home",
-    link: "/",
-  },
+const MobileDrawer = lazy(() => import("./MobileDrawer.jsx"));
 
-  {
-    name: "Sign in",
-    link: "/signin",
-  },
-  {
-    name: "Listings",
-    link: "#",
-  },
-  {
-    name: "About",
-    link: "/about",
-  },
-  {
-    name: "profile",
-    link: "/profile",
-  },
-];
+import { navItems } from "../utility.js";
 
 const Navbar = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [openTooltip, setOpenTooltip] = useState(false);
   const [openProfileTooltip, setOpenProfileTooltip] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const [mobileOpen, setMobileOpen] = useState(false);
+
   const [openDialog, setOpenDialog] = useState(false);
   const [searchTerm, setSearcTerm] = useState("");
   const user = useSelector((store) => store.persistData.user.userInfo);
@@ -89,14 +66,21 @@ const Navbar = () => {
         }}
       >
         <Link
-          onClick={md ? handleDrawerToggle : handleMouseLeave}
+          onClick={handleMouseLeave}
           className={`${Styles.tooltipLink}`}
           to="/create-list"
         >
           New Listing
         </Link>
         <Link
-          onClick={md ? handleDrawerToggle : handleMouseLeave}
+          onClick={handleMouseLeave}
+          className={`${Styles.tooltipLink}`}
+          to="/search"
+        >
+          Search Listings
+        </Link>
+        <Link
+          onClick={handleMouseLeave}
           className={`${Styles.tooltipLink}`}
           to="/userListings"
         >
@@ -119,21 +103,17 @@ const Navbar = () => {
         }}
       >
         <Link
-          onClick={md ? handleDrawerToggle : handleProfileTooltipMouseLeave}
+          onClick={handleProfileTooltipMouseLeave}
           className={`${Styles.tooltipLink}`}
           to="/profile"
         >
           Account
         </Link>
         <Link
-          onClick={
-            md
-              ? handleDrawerToggle
-              : () => {
-                  setOpenDialog(true);
-                  handleProfileTooltipMouseLeave();
-                }
-          }
+          onClick={() => {
+            setOpenDialog(true);
+            handleProfileTooltipMouseLeave();
+          }}
           className={`${Styles.tooltipLink}`}
         >
           Sign-out
@@ -168,10 +148,6 @@ const Navbar = () => {
     setOpenProfileTooltip(false);
   };
 
-  const handleDrawerToggle = () => {
-    setMobileOpen((prevState) => !prevState);
-  };
-
   const handleSearchTerm = (event) => {
     setSearcTerm(event.target.value);
   };
@@ -197,147 +173,8 @@ const Navbar = () => {
     setOpenTooltip(false);
   }, [md]);
 
-  const LazyDrawer = lazy(() => Promise.resolve({ default: drawer }));
-
-  // drawer content
-  const drawer = () => {
-    const handleTooltipToggle = () => {
-      setOpenTooltip(!openTooltip);
-    };
-
-    return (
-      <Box ml={2}>
-        <Typography
-          onClick={() => {
-            setMobileOpen(false);
-            navigate("/");
-          }}
-          variant="body1"
-          sx={{ my: 2, cursor: "pointer" }}
-        >
-          HASANZADEH
-          <Typography variant="body1" component={"span"} color={GRAY}>
-            ESTATE
-          </Typography>
-        </Typography>
-        <Divider />
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 1,
-            alignItems: "flex-start",
-            mt: 2,
-          }}
-        >
-          {navItems.map((item, index) => {
-            if (item.name === "Sign in") {
-              if (user === null) {
-                return (
-                  <NavLink
-                    // handle is ok
-                    onClick={handleDrawerToggle}
-                    style={({ isActive }) => {
-                      return {
-                        color: isActive ? "blue" : BLACK,
-                      };
-                    }}
-                    to={item.link}
-                    key={index}
-                    className={"Navlink"}
-                  >
-                    <Button sx={{ color: "#334155" }}>{item.name}</Button>
-                  </NavLink>
-                );
-              }
-            } else if (item.name === "profile") {
-              if (user !== null) {
-                return (
-                  <NavLink
-                    key={index}
-                    onClick={handleDrawerToggle}
-                    style={({ isActive }) => {
-                      return {
-                        color: isActive ? "blue" : BLACK,
-                      };
-                    }}
-                    to={item.link}
-                    className={"Navlink"}
-                  >
-                    {/* <Button sx={{ color: "#334155" }}>{item.name}</Button> */}
-                    <img
-                      srcSet={user.avatar ? user.avatar : profilePicture}
-                      alt={user.username}
-                      // title={"profile"}
-                      style={{
-                        width: "30px",
-                        borderRadius: 15,
-                        objectFit: "cover",
-                      }}
-                    />
-                  </NavLink>
-                );
-              }
-            } else if (item.name === "Listings") {
-              {
-                user !== null && (
-                  <Box
-                    key={index}
-                    sx={{
-                      position: "relative",
-                    }}
-                  >
-                    <IconButton
-                      // handle tooltip toogle is ok
-                      onClick={handleTooltipToggle}
-                      size="small"
-                      sx={{
-                        fontSize: "15px",
-                        color: "#334155",
-                        "&:hover": {
-                          borderRadius: 1,
-                        },
-                      }}
-                    >
-                      LISTINGS
-                      {openTooltip ? (
-                        <ArrowDropUpRounded />
-                      ) : (
-                        <ArrowDropDownRounded />
-                      )}
-                    </IconButton>
-
-                    <MyTooltip
-                      show={openTooltip}
-                      mouseEnter={handleMouseEnter}
-                      mouseLeave={handleMouseLeave}
-                      content={<Listing />}
-                      position={"rigth"}
-                    />
-                  </Box>
-                );
-              }
-            } else {
-              return (
-                <NavLink
-                  onClick={handleDrawerToggle}
-                  style={({ isActive }) => {
-                    return {
-                      color: isActive ? "blue !important" : BLACK,
-                    };
-                  }}
-                  to={item.link}
-                  key={index}
-                  className={"Navlink"}
-                >
-                  <Button sx={{ color: "#334155" }}>{item.name}</Button>
-                </NavLink>
-              );
-            }
-          })}
-        </Box>
-      </Box>
-    );
+  const handleDrawerToggle = () => {
+    setMobileOpen((prevState) => !prevState);
   };
 
   return (
@@ -454,7 +291,6 @@ const Navbar = () => {
                             }}
                           >
                             <NavLink to={item.link} className={"Navlink"}>
-                              {/* <Button sx={{ color: "#334155" }}>{item.name}</Button> */}
                               <img
                                 srcSet={
                                   user.avatar ? user.avatar : profilePicture
@@ -532,29 +368,16 @@ const Navbar = () => {
           </AppBar>
           {/* drawer in mobile size */}
           <nav>
-            <Drawer
-              variant="temporary"
-              open={mobileOpen}
-              onClose={handleDrawerToggle}
-              ModalProps={{
-                keepMounted: true, // Better open performance on mobile.
-              }}
-              sx={{
-                display: { xs: "block", md: "none" },
-                "& .MuiDrawer-paper": {
-                  boxSizing: "border-box",
-                  backgroundColor: LIGHTGRAY,
-                  borderRadius: 1,
-                  width: { xs: "90%", sm: "50%" },
-                },
-              }}
-            >
-              {md && (
-                <Suspense fallback={<Fallback />}>
-                  <LazyDrawer />
-                </Suspense>
-              )}
-            </Drawer>
+            {md && (
+              <Suspense fallback={<Fallback />}>
+                <MobileDrawer
+                  mobileOpen={mobileOpen}
+                  handleDrawerToggle={handleDrawerToggle}
+                  setMobileOpen={setMobileOpen}
+                  user={user}
+                />
+              </Suspense>
+            )}
           </nav>
         </Box>
 
