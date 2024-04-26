@@ -13,12 +13,13 @@ import {
   useTheme,
 } from "@mui/material";
 import axios from "axios";
-import { Fragment, Suspense, lazy, useEffect, useState } from "react";
+import { Suspense, lazy, useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { URL } from "../../../PortConfig";
 import Fallback from "./Fallback.jsx";
 
 const CardItem = lazy(() => import("./Card.jsx"));
+const NotFound = lazy(() => import("./InfoComponents/NotFound.jsx"));
 
 const orderValues = [
   {
@@ -186,7 +187,6 @@ const SearchListings = () => {
       setShowFilterSection(true);
     }
   }, [md]);
-  // console.log("length", listings.length);
   return (
     <>
       <Box>
@@ -446,16 +446,10 @@ const SearchListings = () => {
                 <Typography>Loading...</Typography>
               ) : error !== null ? (
                 <Typography>{error}</Typography>
-              ) : listings.length === 0 ? (
-                <Box
-                  sx={{
-                    padding: 3,
-                  }}
-                >
-                  <Typography variant="h4" color={"red"} textAlign={"center"}>
-                    No result found
-                  </Typography>
-                </Box>
+              ) : listings.length == 0 ? (
+                <Suspense fallback={<Fallback />}>
+                  <NotFound />
+                </Suspense>
               ) : (
                 <>
                   <Box
