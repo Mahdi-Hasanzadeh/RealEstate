@@ -45,6 +45,7 @@ const CreateListing = () => {
     bath: 1,
     regularPrice: 1,
     discountPrice: 1,
+    mobile: "",
   });
 
   const handleSubmit = async (e) => {
@@ -53,6 +54,7 @@ const CreateListing = () => {
       !formData.name ||
       !formData.description ||
       !formData.address ||
+      !formData.mobile ||
       formData.imageURLs.length === 0
     ) {
       console.log("Fill out the form");
@@ -290,6 +292,17 @@ const CreateListing = () => {
                   variant="outlined"
                   name="address"
                   value={formData?.address || ""}
+                  onChange={handleFormData}
+                  required
+                  size={md ? "small" : "medium"}
+                />
+                <TextField
+                  fullWidth
+                  type="text"
+                  label="mobile"
+                  variant="outlined"
+                  name="mobile"
+                  value={formData?.mobile || ""}
                   onChange={handleFormData}
                   required
                   size={md ? "small" : "medium"}

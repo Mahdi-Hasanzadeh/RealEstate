@@ -59,17 +59,15 @@ const Profile = () => {
   const [file, setFile] = useState(undefined);
   const [uploadPercentage, setUploadPercentage] = useState(0);
   const [uploadingError, setUploadingError] = useState("");
-  const [formData, setFormData] = useState({});
-
+  const [formData, setFormData] = useState(currentUser);
+  const [mobileNumberError, setMobileNumberError] = useState("");
   const [signOut, setSingOut] = useState(false);
   const handleVisibility = () => {
     setVisibility(!visibility);
   };
-
   const [open, setOpen] = useState(false);
   // const [showListings, setShowListings] = useState(false);
   const showListings = useSelector((store) => store.showListings.show);
-
   const handleOpen = () => {
     setOpen(true);
   };
@@ -124,10 +122,42 @@ const Profile = () => {
       });
     }
   };
+  // console.log(formData);
+  // console.log(currentUser);
   // update user profile
   const handleSubmit = async (event) => {
-    setLoading(true);
+    if (
+      currentUser.username == formData?.username &&
+      currentUser.email == formData?.email &&
+      currentUser.mobileNumber == formData?.mobileNumber &&
+      currentUser.avatar == formData?.avatar &&
+      currentUser.password == formData?.password
+    ) {
+      toast.info("No changes detected");
+      return;
+    }
+    if (!formData?.username || !formData?.email) {
+      toast.error("Username or email is empty");
+      return;
+    }
+    const reg = /^\d+$/;
+    if (!reg.test(formData?.mobileNumber)) {
+      toast.error("error mobile number");
+      setMobileNumberError("Telephone number Should Contain only numbers");
+      return;
+      // errors.telNumber = "Telephone number Should Contain only numbers ";
+    }
+    if (
+      formData?.mobileNumber.length < 10 ||
+      formData?.mobileNumber.length > 10
+    ) {
+      toast.error("error mobile number length");
+      setMobileNumberError("Mobile number should be 10 digits");
+      return;
+    }
+
     try {
+      setLoading(true);
       const accessToken = localStorage.getItem("accessToken");
       const response = await axios.put(
         `${URL}api/user/update/${currentUser.id}`,
@@ -143,9 +173,10 @@ const Profile = () => {
       if (!response.data) {
         throw new Error("Update failed");
       }
+      const { password, ...rest } = formData;
       dispatch(
         updateUser({
-          ...formData,
+          ...rest,
         })
       );
       // setUpdateError("");
@@ -173,16 +204,29 @@ const Profile = () => {
         // setUpdateSuccess("");
       }
     } finally {
+      setMobileNumberError("");
       setLoading(false);
     }
   };
   const handleFormData = (event) => {
-    setFormData((prevData) => {
-      return {
-        ...prevData,
-        [event.target.name]: event.target.value,
-      };
-    });
+    if (event.target.name == "password") {
+      setFormData((prevData) => {
+        return {
+          ...prevData,
+          password:
+            event.target.value == ""
+              ? currentUser.password
+              : event.target.value,
+        };
+      });
+    } else {
+      setFormData((prevData) => {
+        return {
+          ...prevData,
+          [event.target.name]: event.target.value,
+        };
+      });
+    }
   };
 
   const openFile = () => {
@@ -432,6 +476,28 @@ const Profile = () => {
               ),
             }}
           />
+          {!currentUser?.mobileNumber && (
+            <Typography
+              sx={{
+                color: "red",
+              }}
+            >
+              Please Add your mobile number
+            </Typography>
+          )}
+          <TextField
+            error={mobileNumberError ? true : false}
+            type="text"
+            fullWidth
+            size={isMobile ? "small" : "medium"}
+            variant="outlined"
+            label="Mobile Number"
+            defaultValue={currentUser?.mobileNumber || ""}
+            onChange={handleFormData}
+            name="mobileNumber"
+            helperText={mobileNumberError ? mobileNumberError : null}
+          />
+
           <Button
             fullWidth
             size={isMobile ? "small" : "large"}
