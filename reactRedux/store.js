@@ -10,6 +10,7 @@ import { showWelcomeToastReducer } from "./showToast";
 const rootReducer = combineReducers({
   user: userReducer,
   counter: counterReducer,
+  showWelcomeToast: showWelcomeToastReducer,
 });
 
 const persistData = persistReducer(
@@ -27,7 +28,6 @@ export const store = configureStore({
     persistData,
     locationHistory: userLocationHistoryReducer,
     showListings: showListingsReducer,
-    showWelcomeToast: showWelcomeToastReducer,
   },
 
   // check the definition of this middleware

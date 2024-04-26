@@ -28,7 +28,7 @@ const Home = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const userInfo = useSelector((store) => store.persistData.user.userInfo);
   const showWelcomeToast = useSelector(
-    (store) => store.showWelcomeToast.userAlreadySeeWelcomeToast
+    (store) => store.persistData.showWelcomeToast.userAlreadySeeWelcomeToast
   );
 
   const dispatch = useDispatch();
@@ -139,17 +139,6 @@ const Home = () => {
   useEffect(() => {
     fetchSpecialListings();
   }, []);
-
-  useEffect(() => {
-    if (showWelcomeToast) return;
-    if (userInfo) {
-      toast.success(`Welcome ${userInfo.username}`, {
-        autoClose: 2500,
-        transition: Slide,
-      });
-      dispatch(setWelcomeToast(true));
-    }
-  }, [userInfo]);
 
   return (
     <>

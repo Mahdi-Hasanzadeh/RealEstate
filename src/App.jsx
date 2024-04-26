@@ -1,8 +1,10 @@
-import { Suspense, lazy } from "react";
+import { Suspense, lazy, useEffect } from "react";
 import { BrowserRouter, Outlet, Route, Routes } from "react-router-dom";
 import { Navbar } from "./public/Components/ComponentsReturn";
-import { Slide, ToastContainer } from "react-toastify";
+import { Slide, ToastContainer, toast } from "react-toastify";
 import Fallback from "./public/Components/Fallback.jsx";
+import { useDispatch, useSelector } from "react-redux";
+import { setWelcomeToast } from "../reactRedux/showToast.js";
 
 const Home = lazy(() => import("./public/Components/Home.jsx"));
 const About = lazy(() => import("./public/Components/About.jsx"));
@@ -22,6 +24,22 @@ const CreateListing = lazy(() =>
 );
 
 const App = () => {
+  const dispatch = useDispatch();
+  const user = useSelector((store) => store.persistData.user.userInfo);
+  const welcomeToast = useSelector(
+    (store) => store.persistData.showWelcomeToast.userAlreadySeeWelcomeToast
+  );
+
+  useEffect(() => {
+    if (welcomeToast) return;
+    if (user) {
+      toast.info(`Welcome ${user.username}`, {
+        autoClose: 2500,
+        transition: Slide,
+      });
+      dispatch(setWelcomeToast(true));
+    }
+  }, [user]);
   const BasicLayout = () => {
     return (
       <>
@@ -79,15 +97,9 @@ const App = () => {
         pauseOnHover
         theme="colored"
         transition={Slide}
-        limit={2}
+        limit={1}
       />
     </>
   );
 };
 export default App;
-
-const wait = (value) => {
-  return new Promise((resolve, reject) => {
-    setTimeout(resolve, value);
-  });
-};
