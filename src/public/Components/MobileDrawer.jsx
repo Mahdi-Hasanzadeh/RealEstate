@@ -14,6 +14,7 @@ import Styles from "../../style.module.css";
 import { navItems } from "../utility.js";
 import { useState } from "react";
 import { ArrowDropDownRounded, ArrowDropUpRounded } from "@mui/icons-material";
+
 const MobileDrawer = ({
   mobileOpen,
   handleDrawerToggle,
@@ -22,6 +23,7 @@ const MobileDrawer = ({
 }) => {
   const [openTooltip, setOpenTooltip] = useState(false);
   const navigate = useNavigate();
+
   const handleTooltipToggle = () => {
     setOpenTooltip(!openTooltip);
   };
@@ -33,6 +35,7 @@ const MobileDrawer = ({
   const handleMouseLeave = () => {
     setOpenTooltip(false);
   };
+
   const Listing = () => {
     return (
       <Box
@@ -69,6 +72,7 @@ const MobileDrawer = ({
       </Box>
     );
   };
+
   return (
     <Drawer
       variant="temporary"
@@ -149,7 +153,6 @@ const MobileDrawer = ({
                       alt={user.username}
                       // title={"profile"}
                       style={{
-                        marginLeft: "auto",
                         width: "40px",
                         height: "40px",
                         borderRadius: 50,
