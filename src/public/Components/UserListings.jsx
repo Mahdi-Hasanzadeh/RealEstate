@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useEffect, useState, forwardRef } from "react";
+import { useEffect, useState, forwardRef, Suspense, lazy } from "react";
 import { URL } from "../../../PortConfig";
 import { useSelector } from "react-redux";
 import {
@@ -16,10 +16,14 @@ import {
 import { LIGHTGRAY } from "../../../COLOR";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import Fallback from "./Fallback";
 
 const Transition = forwardRef(function Transition(props, ref) {
   return <Zoom ref={ref} {...props} />;
 });
+
+const EmptyListings = lazy(() => import("./InfoComponents/EmptyListings.jsx"));
+
 const autoCloseTime = 3000;
 const UserListings = () => {
   const currentUser = useSelector((store) => store.persistData.user.userInfo);
@@ -102,6 +106,7 @@ const UserListings = () => {
       <h2
         style={{
           color: "green",
+          textAlign: "center",
         }}
       >
         Your Listings({listings.length})
@@ -114,7 +119,12 @@ const UserListings = () => {
           rowGap: 3,
         }}
       >
-        {listings.length > 0 &&
+        {listings.length == 0 ? (
+          <Suspense fallback={<Fallback />}>
+            <EmptyListings />
+          </Suspense>
+        ) : (
+          listings.length > 0 &&
           listings.map((item, index) => {
             return (
               <Box
@@ -198,7 +208,8 @@ const UserListings = () => {
                 </Box>
               </Box>
             );
-          })}
+          })
+        )}
       </Box>
       <Dialog
         open={open}
