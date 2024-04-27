@@ -58,13 +58,13 @@ const App = () => {
         <Routes>
           <Route path="/" element={<BasicLayout />}>
             <Route index element={<Home />} />
-            <Route path="about" element={<About />} />
-            <Route path="search" element={<SearchListings />} />
-            <Route path="signup" element={<Signup url="signup" />} />
-            <Route path="signin" element={<Signup url="signin" />} />
-            <Route path="userListings" element={<YourListings />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/search" element={<SearchListings />} />
+            <Route path="/signup" element={<Signup url="signup" />} />
+            <Route path="/signin" element={<Signup url="signin" />} />
+            <Route path="/userListings" element={<YourListings />} />
             <Route
-              path="profile"
+              path="/profile"
               element={
                 <ProtectedRoute>
                   <UserProfile />
@@ -72,16 +72,30 @@ const App = () => {
               }
             />
             <Route
-              path="create-list"
+              path="/create-list"
               element={
                 <ProtectedRoute>
                   <CreateListing />
                 </ProtectedRoute>
               }
             />
-            <Route path="listing/:listingId" element={<SingleList />} />
-            <Route path="listing/update/:listingId" element={<EditListing />} />
-            <Route path="*" element={<h1>No route match</h1>} />
+            <Route path="/listing/:listingId" element={<SingleList />} />
+            <Route
+              path="/listing/update/:listingId"
+              element={<EditListing />}
+            />
+            <Route
+              path="*"
+              element={
+                <h1
+                  style={{
+                    marginTop: "100px",
+                  }}
+                >
+                  No route match
+                </h1>
+              }
+            />
           </Route>
         </Routes>
       </BrowserRouter>
