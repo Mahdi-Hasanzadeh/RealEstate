@@ -1,4 +1,4 @@
-import{u as n,a as e,j as C}from"./index-DIjzG6Kc.js";const o=({title:t})=>{const a=n(),i=e(a.breakpoints.down("sm"));return C.jsx(C.Fragment,{children:C.jsxs("div",{className:"wave-container",children:[C.jsxs("svg",{width:"75%",height:"100%",id:"svg",viewBox:"0 0 1440 390",xmlns:"http://www.w3.org/2000/svg",className:"transition duration-300 ease-in-out delay-150 wave",children:[C.jsx("style",{children:`
+import{u as n,a as e,j as C}from"./index-CI2nLLvd.js";const o=({title:t})=>{const a=n(),i=e(a.breakpoints.down("sm"));return C.jsx(C.Fragment,{children:C.jsxs("div",{className:"wave-container",children:[C.jsxs("svg",{width:"75%",height:"100%",id:"svg",viewBox:"0 0 1440 390",xmlns:"http://www.w3.org/2000/svg",className:"transition duration-300 ease-in-out delay-150 wave",children:[C.jsx("style",{children:`
           .path-0{
             animation:pathAnim-0 4s;
             animation-timing-function: linear;
