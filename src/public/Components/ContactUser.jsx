@@ -130,6 +130,25 @@ const ContactUser = ({ userRef, name, isSmall }) => {
               </Button>
             </Link>
           </Box>
+          <Box>
+            <Link
+              to={`sms:${afghanistanCodeNumber}${userInfo?.mobileNumber.slice(
+                1
+              )}?&body=${message}`}
+            >
+              <Button
+                size={isSmall ? "small" : "medium"}
+                variant="contained"
+                color="success"
+                sx={{
+                  width: isSmall ? "100%" : "50%",
+                  mt: 3,
+                }}
+              >
+                Send Message
+              </Button>
+            </Link>
+          </Box>
         </>
       )}
     </>
