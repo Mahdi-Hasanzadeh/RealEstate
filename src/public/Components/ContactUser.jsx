@@ -39,7 +39,7 @@ const ContactUser = ({ userRef, name, isSmall }) => {
         <h1>{error}</h1>
       ) : (
         <>
-          {userInfo.mobileNumber && (
+          {userInfo?.mobileNumber && (
             <Box
               sx={{
                 display: "flex",
