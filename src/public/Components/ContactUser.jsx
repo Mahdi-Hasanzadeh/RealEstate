@@ -47,6 +47,7 @@ const ContactUser = ({ userRef, name, isSmall }) => {
                 columnGap: 1,
                 alignItems: "center",
                 mb: 2,
+                justifyContent: { xs: "center", sm: "normal" },
               }}
             >
               <Typography
@@ -58,14 +59,7 @@ const ContactUser = ({ userRef, name, isSmall }) => {
                 {userInfo?.mobileNumber.slice(1)}
               </Typography>
               <Link to={`tel:+93${userInfo?.mobileNumber.slice(1)}`}>
-                <Button
-                  size={"small"}
-                  variant="contained"
-                  color="success"
-                  sx={{
-                    fontSize: "1em",
-                  }}
-                >
+                <Button size={"small"} variant="contained" color="success">
                   Call
                 </Button>
               </Link>
@@ -96,7 +90,6 @@ const ContactUser = ({ userRef, name, isSmall }) => {
               {" "}
               {name || ""}
             </span>{" "}
-            via E-mail
           </Typography>
 
           <TextField
@@ -106,48 +99,57 @@ const ContactUser = ({ userRef, name, isSmall }) => {
             variant="outlined"
             size="small"
             multiline
-            rows={4}
+            rows={5}
             placeholder="Enter your message here..."
             sx={{
               width: isSmall ? "100%" : "50%",
               mt: 0.3,
             }}
           />
-          <Box>
-            <Link
-              to={`mailto:${userInfo?.email}?subject=Regarding ${name}&body=${message}`}
-            >
-              <Button
-                size={isSmall ? "small" : "medium"}
-                variant="contained"
-                color="success"
-                sx={{
-                  width: isSmall ? "100%" : "50%",
-                  mt: 3,
-                }}
+          <Box
+            sx={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: 2,
+              mt: 2,
+            }}
+          >
+            <Box>
+              <Link
+                to={`sms:${afghanistanCodeNumber}${userInfo?.mobileNumber.slice(
+                  1
+                )}?&body=${message}`}
               >
-                Send Message
-              </Button>
-            </Link>
-          </Box>
-          <Box>
-            <Link
-              to={`sms:${afghanistanCodeNumber}${userInfo?.mobileNumber.slice(
-                1
-              )}?&body=${message}`}
-            >
-              <Button
-                size={isSmall ? "small" : "medium"}
-                variant="contained"
-                color="success"
-                sx={{
-                  width: isSmall ? "100%" : "50%",
-                  mt: 3,
-                }}
+                <Button
+                  size={isSmall ? "small" : "medium"}
+                  variant="contained"
+                  color="success"
+                  sx={{
+                    width: isSmall ? "100%" : "100%",
+                  }}
+                >
+                  Send Message via SMS
+                </Button>
+              </Link>
+            </Box>
+
+            <Box>
+              <Link
+                to={`mailto:${userInfo?.email}?subject=Regarding ${name}&body=${message}`}
               >
-                Send Message
-              </Button>
-            </Link>
+                <Button
+                  fullWidth
+                  size={isSmall ? "small" : "medium"}
+                  variant="contained"
+                  color="success"
+                  sx={{
+                    width: isSmall ? "100%" : "100%",
+                  }}
+                >
+                  Send Message via E-mail
+                </Button>
+              </Link>
+            </Box>
           </Box>
         </>
       )}
