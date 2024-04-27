@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { URL } from "../../../PortConfig";
 import { Link } from "react-router-dom";
 
+const afghanistanCodeNumber = "+93";
+
 const ContactUser = ({ userRef, name, isSmall }) => {
   const [userInfo, setUserInfo] = useState();
   const [error, setError] = useState(null);
@@ -37,9 +39,42 @@ const ContactUser = ({ userRef, name, isSmall }) => {
         <h1>{error}</h1>
       ) : (
         <>
+          {userInfo.mobileNumber && (
+            <Box
+              sx={{
+                display: "flex",
+                columnGap: 1,
+                alignItems: "center",
+                mb: 2,
+              }}
+            >
+              <Typography
+                variant="body1"
+                fontWeight={"bold"}
+                fontSize={"1.1em"}
+              >
+                Mobile Number: {afghanistanCodeNumber}-
+                {userInfo?.mobileNumber.slice(1)}
+              </Typography>
+              <Link to={`tel:+93${userInfo?.mobileNumber.slice(1)}`}>
+                <Button
+                  size={"small"}
+                  variant="contained"
+                  sx={{
+                    backgroundColor: "green",
+                    fontSize: "1em",
+                  }}
+                >
+                  Call
+                </Button>
+              </Link>
+            </Box>
+          )}
+
           <Typography
             sx={{
               textAlign: "justify",
+              fontSize: "1.1em",
             }}
             variant="body1"
           >
@@ -60,6 +95,7 @@ const ContactUser = ({ userRef, name, isSmall }) => {
               {" "}
               {name || ""}
             </span>{" "}
+            via E-mail
           </Typography>
 
           <TextField

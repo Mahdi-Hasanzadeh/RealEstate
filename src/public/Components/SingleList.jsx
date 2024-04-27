@@ -31,6 +31,7 @@ import KeyboardArrowLeft from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
 import SwipeableViews from "react-swipeable-views";
 import Fallback from "./Fallback";
+import { toast } from "react-toastify";
 
 const ContactUser = lazy(() => import("./ContactUser.jsx"));
 const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
@@ -67,12 +68,15 @@ const SingleList = () => {
       );
       if (response.data.success === false) {
         console.log(response.data.message);
+        toast.error(response.data.message);
         setError(response.data.message);
         return;
       }
       setListing(response.data);
     } catch (error) {
+      console.log(error);
       console.log(error.message);
+      toast.error(error.message);
       setError(error.message);
     } finally {
       setLoading(false);
@@ -82,8 +86,6 @@ const SingleList = () => {
   const toggle = () => {
     setShow(false);
   };
-
-  // console.log(listings);
 
   const priceAfterDiscount = (regularPrice, discountPrice) => {
     return regularPrice - discountPrice;
@@ -167,7 +169,7 @@ const SingleList = () => {
           </Box>
         </Box>
       ) : loading ? (
-        <main
+        <div
           style={{
             position: "relative",
             top: 50,
@@ -175,9 +177,17 @@ const SingleList = () => {
           }}
         >
           <h2>Loading...</h2>
-        </main>
+        </div>
       ) : error ? (
-        <h2>{error}</h2>
+        <div
+          style={{
+            position: "relative",
+            top: 50,
+            textAlign: "center",
+          }}
+        >
+          <h2>{error}</h2>
+        </div>
       ) : (
         listings && (
           <main>
@@ -281,10 +291,9 @@ const SingleList = () => {
                   {listings?.name}{" "}
                 </Typography>
                 <Typography variant="h5" fontWeight={"bold"}>
-                  {priceAfterDiscount(
-                    listings?.regularPrice,
-                    listings?.discountPrice
-                  )}{" "}
+                  {listings?.discountPrice == 0
+                    ? listings?.regularPrice
+                    : listings?.discountPrice}{" "}
                   {listings?.type === "rent" ? "/ month" : null}
                 </Typography>
               </Box>
@@ -334,7 +343,11 @@ const SingleList = () => {
                       borderRadius: 5,
                     }}
                   >
-                    {"AFG" + listings?.discountPrice}
+                    {"AFG " +
+                      priceAfterDiscount(
+                        listings?.regularPrice,
+                        listings?.discountPrice
+                      )}
                   </Typography>
                 )}
               </Box>

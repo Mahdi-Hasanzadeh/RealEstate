@@ -341,17 +341,6 @@ const EditListing = () => {
                     required
                     size={md ? "small" : "medium"}
                   />
-                  <TextField
-                    fullWidth
-                    type="text"
-                    label="mobile"
-                    variant="outlined"
-                    name="mobile"
-                    value={formData?.address || ""}
-                    onChange={handleFormData}
-                    required
-                    size={md ? "small" : "medium"}
-                  />
                 </Box>
                 {/* property type: sell or rent */}
                 <Box

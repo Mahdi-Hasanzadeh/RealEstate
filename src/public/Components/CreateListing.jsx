@@ -23,16 +23,20 @@ import { URL } from "../../../PortConfig";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import Fallback from "./Fallback.jsx";
+import { useDispatch, useSelector } from "react-redux";
+import { updateUser } from "../../../reactRedux/userSlice.js";
 const Wave = lazy(() => import("../styleComponents/Wave.jsx"));
 const autoCloseTime = 3000;
 
 const CreateListing = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [file, setFile] = useState([]);
   const [uploadError, setUploadError] = useState();
   const [uploading, setUploading] = useState(false);
   const theme = useTheme();
   const md = useMediaQuery(theme.breakpoints.down("md"));
+  const currentUser = useSelector((store) => store.persistData.user.userInfo);
 
   const [formData, setFormData] = useState({
     type: "rent",
@@ -45,7 +49,7 @@ const CreateListing = () => {
     bath: 1,
     regularPrice: 1,
     discountPrice: 1,
-    mobile: "",
+    mobileNumber: "",
   });
 
   const handleSubmit = async (e) => {
@@ -54,7 +58,6 @@ const CreateListing = () => {
       !formData.name ||
       !formData.description ||
       !formData.address ||
-      !formData.mobile ||
       formData.imageURLs.length === 0
     ) {
       console.log("Fill out the form");
@@ -62,6 +65,21 @@ const CreateListing = () => {
         autoClose: autoCloseTime,
       });
       return;
+    }
+    if (!currentUser.mobileNumber) {
+      const reg = /^\d+$/;
+      if (!reg.test(formData?.mobileNumber)) {
+        toast.error("Telephone number Should Contain only numbers");
+        return;
+        // errors.telNumber = "Telephone number Should Contain only numbers ";
+      }
+      if (
+        formData?.mobileNumber.length < 10 ||
+        formData?.mobileNumber.length > 10
+      ) {
+        toast.error("Mobile number should be 10 digits");
+        return;
+      }
     }
 
     if (parseInt(formData.discountPrice) >= parseInt(formData.regularPrice)) {
@@ -76,6 +94,37 @@ const CreateListing = () => {
     const accessToken = localStorage.getItem("accessToken");
     try {
       setUploading(true);
+
+      if (!currentUser.mobileNumber) {
+        const resp = await axios.put(
+          `${URL}api/user/update/${currentUser.id}`,
+          {
+            mobileNumber: formData.mobileNumber,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          }
+        );
+        if (resp?.data?.succeess == false) {
+          console.log(resp.data.message);
+          toast.error(resp.data.message, {
+            autoClose: autoCloseTime,
+          });
+          setUploadError(resp.data.message);
+          return;
+        }
+        toast.success("Your mobile number updated");
+
+        dispatch(
+          updateUser({
+            ...currentUser,
+            mobileNumber: formData.mobileNumber,
+          })
+        );
+      }
+
       const response = await axios.post(
         `${URL}api/listing/create`,
         {
@@ -296,17 +345,19 @@ const CreateListing = () => {
                   required
                   size={md ? "small" : "medium"}
                 />
-                <TextField
-                  fullWidth
-                  type="text"
-                  label="mobile"
-                  variant="outlined"
-                  name="mobile"
-                  value={formData?.mobile || ""}
-                  onChange={handleFormData}
-                  required
-                  size={md ? "small" : "medium"}
-                />
+                {!currentUser.mobileNumber && (
+                  <TextField
+                    fullWidth
+                    type="text"
+                    label="Mobile"
+                    variant="outlined"
+                    name="mobileNumber"
+                    value={formData?.mobileNumber || ""}
+                    onChange={handleFormData}
+                    required
+                    size={md ? "small" : "medium"}
+                  />
+                )}
               </Box>
               {/* property type: sell or rent */}
               <Box

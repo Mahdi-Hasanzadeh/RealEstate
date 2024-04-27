@@ -158,7 +158,6 @@ const Profile = () => {
 
     try {
       setLoading(true);
-      const accessToken = localStorage.getItem("accessToken");
       const response = await axios.put(
         `${URL}api/user/update/${currentUser.id}`,
         {
@@ -166,7 +165,7 @@ const Profile = () => {
         },
         {
           headers: {
-            Authorization: `Bearer ${accessToken}`,
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },
         }
       );
