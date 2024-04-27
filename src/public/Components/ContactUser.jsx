@@ -43,6 +43,7 @@ const ContactUser = ({ userRef, name, isSmall }) => {
             <Box
               sx={{
                 display: "flex",
+                flexWrap: "wrap",
                 columnGap: 1,
                 alignItems: "center",
                 mb: 2,
@@ -60,8 +61,8 @@ const ContactUser = ({ userRef, name, isSmall }) => {
                 <Button
                   size={"small"}
                   variant="contained"
+                  color="success"
                   sx={{
-                    backgroundColor: "green",
                     fontSize: "1em",
                   }}
                 >
@@ -119,8 +120,8 @@ const ContactUser = ({ userRef, name, isSmall }) => {
               <Button
                 size={isSmall ? "small" : "medium"}
                 variant="contained"
+                color="success"
                 sx={{
-                  backgroundColor: "GrayText",
                   width: isSmall ? "100%" : "50%",
                   mt: 3,
                 }}

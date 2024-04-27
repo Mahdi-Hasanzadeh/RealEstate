@@ -296,7 +296,7 @@ const CreateListing = () => {
           spacing={md ? 0 : 1}
           justifyContent={md ? "normal" : "flex-start"}
         >
-          <Grid item xs={10} md={6}>
+          <Grid item xs={12} md={6}>
             <Box
               component={"form"}
               sx={{
@@ -324,7 +324,7 @@ const CreateListing = () => {
                 <TextField
                   multiline
                   fullWidth
-                  maxRows={2}
+                  maxRows={10}
                   type="text"
                   label="Description"
                   variant="outlined"
@@ -335,7 +335,9 @@ const CreateListing = () => {
                   size={md ? "small" : "medium"}
                 />
                 <TextField
+                  multiline
                   fullWidth
+                  maxRows={10}
                   type="text"
                   label="address"
                   variant="outlined"
@@ -492,7 +494,7 @@ const CreateListing = () => {
           {/* Upload Photo section */}
           <Grid
             item
-            xs={10}
+            xs={12}
             md={6}
             sx={{
               display: "flex",
