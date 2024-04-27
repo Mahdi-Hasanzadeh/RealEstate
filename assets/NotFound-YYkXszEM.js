@@ -1,1 +1,0 @@
-import{j as r,B as o,T as t}from"./index-Dq8bkDyD.js";const n=()=>r.jsx(o,{sx:{padding:3},children:r.jsx(t,{variant:"h4",color:"red",textAlign:"center",children:"No result found"})});export{n as default};
