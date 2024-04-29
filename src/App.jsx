@@ -1,5 +1,5 @@
 import { Suspense, lazy, useEffect } from "react";
-import { BrowserRouter, Outlet, Route, Routes } from "react-router-dom";
+import { Outlet, Route, Routes } from "react-router-dom";
 import { Navbar } from "./public/Components/ComponentsReturn";
 import { Slide, ToastContainer, toast } from "react-toastify";
 import Fallback from "./public/Components/Fallback.jsx";
@@ -40,6 +40,7 @@ const App = () => {
       dispatch(setWelcomeToast(true));
     }
   }, [user]);
+
   const BasicLayout = () => {
     return (
       <>
@@ -52,6 +53,7 @@ const App = () => {
       </>
     );
   };
+
   return (
     <>
       <Routes>

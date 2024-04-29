@@ -5,7 +5,8 @@ import { URL } from "../../../PortConfig";
 import { Link } from "react-router-dom";
 
 const afghanistanCodeNumber = "+93";
-
+const userAgent = navigator.userAgent.toLowerCase();
+let isMobile = /mobile/.test(userAgent);
 const ContactUser = ({ userRef, name, isSmall }) => {
   const [userInfo, setUserInfo] = useState();
   const [error, setError] = useState(null);
@@ -114,24 +115,26 @@ const ContactUser = ({ userRef, name, isSmall }) => {
               mt: 2,
             }}
           >
-            <Box>
-              <Link
-                to={`sms:${afghanistanCodeNumber}${userInfo?.mobileNumber.slice(
-                  1
-                )}?&body=${message}`}
-              >
-                <Button
-                  size={isSmall ? "small" : "medium"}
-                  variant="contained"
-                  color="success"
-                  sx={{
-                    width: isSmall ? "100%" : "100%",
-                  }}
+            {isMobile && (
+              <Box>
+                <Link
+                  to={`sms:${afghanistanCodeNumber}${userInfo?.mobileNumber.slice(
+                    1
+                  )}?&body=${message}`}
                 >
-                  Send Message via SMS
-                </Button>
-              </Link>
-            </Box>
+                  <Button
+                    size={isSmall ? "small" : "medium"}
+                    variant="contained"
+                    color="success"
+                    sx={{
+                      width: isSmall ? "100%" : "100%",
+                    }}
+                  >
+                    Send Message via SMS
+                  </Button>
+                </Link>
+              </Box>
+            )}
 
             <Box>
               <Link
