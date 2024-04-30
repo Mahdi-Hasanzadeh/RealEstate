@@ -21,7 +21,13 @@ import {
   Slide,
 } from "@mui/material";
 import { Suspense, forwardRef, lazy, useEffect, useState } from "react";
-import { NavLink, useSearchParams, useNavigate, Link } from "react-router-dom";
+import {
+  NavLink,
+  useSearchParams,
+  useNavigate,
+  Link,
+  useLocation,
+} from "react-router-dom";
 import { BLACK, GRAY, LIGHTGRAY } from "../../../COLOR";
 import { useDispatch, useSelector } from "react-redux";
 import profilePicture from "../assets/profile.png";
@@ -40,6 +46,7 @@ import { navItems } from "../utility.js";
 
 const Navbar = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
   const [openTooltip, setOpenTooltip] = useState(false);
   const [openProfileTooltip, setOpenProfileTooltip] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -161,9 +168,8 @@ const Navbar = () => {
 
   useEffect(() => {
     const term = searchParams.get("searchTerm");
-    if (term) {
-      setSearcTerm(term);
-    }
+
+    setSearcTerm(term || "");
   }, [location.search]);
 
   useEffect(() => {

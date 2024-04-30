@@ -142,7 +142,7 @@ const Profile = () => {
     }
     const reg = /^\d+$/;
     if (!reg.test(formData?.mobileNumber)) {
-      toast.error("error mobile number");
+      toast.error("Telephone number Should Contain only numbers");
       setMobileNumberError("Telephone number Should Contain only numbers");
       return;
       // errors.telNumber = "Telephone number Should Contain only numbers ";
@@ -151,7 +151,7 @@ const Profile = () => {
       formData?.mobileNumber.length < 10 ||
       formData?.mobileNumber.length > 10
     ) {
-      toast.error("error mobile number length");
+      toast.error("Mobile number should be 10 digits");
       setMobileNumberError("Mobile number should be 10 digits");
       return;
     }

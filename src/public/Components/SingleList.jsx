@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Suspense, lazy, useEffect, useState } from "react";
+import { Suspense, lazy, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { URL } from "../../../PortConfig";
 import {
@@ -10,10 +10,14 @@ import {
   useTheme,
   useMediaQuery,
   Paper,
+  Checkbox,
+  Tooltip,
 } from "@mui/material";
 import {
   BathroomRounded,
   BedroomParentRounded,
+  Bookmark,
+  BookmarkBorder,
   ChairRounded,
   LocalParkingRounded,
   LocationCityRounded,
@@ -32,7 +36,8 @@ import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
 import SwipeableViews from "react-swipeable-views";
 import Fallback from "./Fallback";
 import { toast } from "react-toastify";
-
+import { fetchUserListing } from "../../../reactRedux/userListing.js";
+const autoCloseTime = 3000;
 const ContactUser = lazy(() => import("./ContactUser.jsx"));
 const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
 
@@ -42,44 +47,100 @@ const SingleList = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const currentUser = useSelector((store) => store.persistData.user.userInfo);
-  const [listings, setListing] = useState(null);
-  const maxSteps = listings?.imageURLs?.length || 0;
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const userListing = useSelector((store) => store.userListing);
+
+  const [favoriteChecked, setFavoriteChecked] = useState(null);
+  const [favoriteDisabled, setFavoriteDisabled] = useState(false);
+
   const [show, setShow] = useState(true);
   const theme = useTheme();
   const isSmall = useMediaQuery(theme.breakpoints.down("sm"));
+  const maxSteps = userListing?.data?.imageURLs?.length || 0;
+  // const fetchUserFavorites = async () => {
+  //   try {
+  //     const response = await axios.get(
+  //       `${URL}api/listing/userListing/${userListing._id}`,
+  //       {
+  //         headers: {
+  //           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+  //         },
+  //       }
+  //     );
+  //     if (response.data.success === false) {
+  //       throw new Error(response.data.message);
+  //     }
 
-  const fetchUserListing = async () => {
-    if (currentUser == null) {
-      console.log("Please login");
-      return;
-    }
-    setLoading(true);
+  //     // setListing(response.data);
+  //   } catch (error) {
+  //     toast.error(error.message);
+  //   }
+  // };
+
+  useEffect(() => {
+    dispatch(fetchUserListing({ listingId, currentUserId: currentUser.id }));
+    // fetchUserFavorites();
+  }, []);
+
+  const handleFavoriteChecked = async () => {
+    setFavoriteDisabled(true);
     try {
-      // dispatch(addLocationHistory(null));
-      const response = await axios.get(
-        `${URL}api/listing/userListing/${listingId}`,
+      const response = await axios.put(
+        `${URL}api/user/update/${currentUser.id}`,
+        {
+          favorites: userListing.data._id,
+          removeFavorites: favoriteChecked
+            ? true
+            : favoriteChecked == false
+            ? false
+            : userListing?.data?.favorites.find((item) => item == listingId)
+            ? true
+            : false,
+        },
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },
         }
       );
-      if (response.data.success === false) {
-        console.log(response.data.message);
-        toast.error(response.data.message);
-        setError(response.data.message);
-        return;
+      if (!response.data) {
+        throw new Error("Add to favorites Failed");
       }
-      setListing(response.data);
+      if (favoriteChecked == null) {
+        setFavoriteChecked(
+          userListing?.data?.favorites.find((item) => item == listingId)
+            ? false
+            : true
+        );
+
+        if (
+          userListing?.data?.favorites.find((item) => item == listingId) == true
+        ) {
+          toast.error("Removed from favorites", {
+            autoClose: 2000,
+          });
+          return;
+        }
+        toast.success("Added to favorites", {
+          autoClose: 2000,
+        });
+      } else {
+        setFavoriteChecked(!favoriteChecked);
+        if (favoriteChecked) {
+          toast.error("Removed from favorites", {
+            autoClose: 2000,
+          });
+          return;
+        }
+        toast.success("Added to favorites", {
+          autoClose: 2000,
+        });
+      }
     } catch (error) {
-      console.log(error);
-      console.log(error.message);
-      toast.error(error.message);
-      setError(error.message);
+      toast.error(error?.response?.data.message || error.message, {
+        autoClose: 3000,
+      });
     } finally {
-      setLoading(false);
+      setFavoriteDisabled(false);
     }
   };
 
@@ -90,10 +151,6 @@ const SingleList = () => {
   const priceAfterDiscount = (regularPrice, discountPrice) => {
     return regularPrice - discountPrice;
   };
-
-  useEffect(() => {
-    fetchUserListing();
-  }, []);
 
   const handleNavigate = (to) => {
     // getting the user location
@@ -121,7 +178,7 @@ const SingleList = () => {
   const handleStepChange = (step) => {
     setActiveStep(step);
   };
-
+  // console.log(currentUser.favorites);
   return (
     <>
       {currentUser == null ? (
@@ -168,7 +225,7 @@ const SingleList = () => {
             </Button>
           </Box>
         </Box>
-      ) : loading ? (
+      ) : userListing.loading ? (
         <div
           style={{
             position: "relative",
@@ -178,7 +235,7 @@ const SingleList = () => {
         >
           <h2>Loading...</h2>
         </div>
-      ) : error ? (
+      ) : userListing.success == false ? (
         <div
           style={{
             position: "relative",
@@ -186,10 +243,11 @@ const SingleList = () => {
             textAlign: "center",
           }}
         >
-          <h2>{error}</h2>
+          <h2>{userListing.error}</h2>
         </div>
       ) : (
-        listings && (
+        userListing.success &&
+        userListing.error == false && (
           <main>
             <div>
               <Container
@@ -210,7 +268,7 @@ const SingleList = () => {
                     mt: 10,
                   }}
                 >
-                  <Typography>{listings.name}</Typography>
+                  <Typography>{userListing.data.name}</Typography>
                 </Paper>
                 <AutoPlaySwipeableViews
                   axis={theme.direction === "rtl" ? "x-reverse" : "x"}
@@ -218,7 +276,7 @@ const SingleList = () => {
                   onChangeIndex={handleStepChange}
                   enableMouseEvents
                 >
-                  {listings?.imageURLs.map((step, index) => (
+                  {userListing.data?.imageURLs.map((step, index) => (
                     <div key={index}>
                       {Math.abs(activeStep - index) <= 2 ? (
                         <Box
@@ -288,13 +346,13 @@ const SingleList = () => {
                 }}
               >
                 <Typography variant="h5" fontWeight={"bold"}>
-                  {listings?.name}{" "}
+                  {userListing.data?.name}{" "}
                 </Typography>
                 <Typography variant="h5" fontWeight={"bold"}>
-                  {listings?.discountPrice == 0
-                    ? listings?.regularPrice
-                    : listings?.discountPrice}{" "}
-                  {listings?.type === "rent" ? "/ month" : null}
+                  {userListing.data?.discountPrice == 0
+                    ? userListing.data?.regularPrice
+                    : userListing.data?.discountPrice}{" "}
+                  {userListing.data?.type === "rent" ? "/ month" : null}
                 </Typography>
               </Box>
               {/* Address section */}
@@ -307,7 +365,9 @@ const SingleList = () => {
                     }}
                   />
                 }{" "}
-                <Typography variant="body1">{listings?.address}</Typography>{" "}
+                <Typography variant="body1">
+                  {userListing.data?.address}
+                </Typography>{" "}
               </Box>
               {/* type of property section */}
               <Box
@@ -315,6 +375,7 @@ const SingleList = () => {
                 mb={1}
                 sx={{
                   display: "flex",
+                  alignItems: "center",
                   gap: 1,
                 }}
               >
@@ -329,9 +390,9 @@ const SingleList = () => {
                     borderRadius: 5,
                   }}
                 >
-                  {listings?.type == "rent" ? "Rent" : "Sell"}
+                  {userListing.data?.type == "rent" ? "Rent" : "Sell"}
                 </Typography>
-                {listings?.offer && (
+                {userListing.data?.offer && (
                   <Typography
                     variant="body1"
                     sx={{
@@ -345,10 +406,31 @@ const SingleList = () => {
                   >
                     {"AFG " +
                       priceAfterDiscount(
-                        listings?.regularPrice,
-                        listings?.discountPrice
+                        userListing.data?.regularPrice,
+                        userListing.data?.discountPrice
                       )}
                   </Typography>
+                )}
+                {currentUser.id !== userListing.data.userRef && (
+                  <Tooltip title="Add to Favorites">
+                    <Checkbox
+                      disabled={favoriteDisabled}
+                      icon={<BookmarkBorder />}
+                      checkedIcon={<Bookmark />}
+                      checked={
+                        favoriteChecked == true
+                          ? true
+                          : favoriteChecked == false
+                          ? false
+                          : userListing?.data?.favorites.find(
+                              (item) => item == listingId
+                            )
+                          ? true
+                          : false
+                      }
+                      onClick={handleFavoriteChecked}
+                    />
+                  </Tooltip>
                 )}
               </Box>
 
@@ -369,14 +451,16 @@ const SingleList = () => {
                   >
                     Description -
                   </span>{" "}
-                  {listings?.description}
+                  {userListing.data?.description}
                 </Typography>
               </Box>
               <Box mt={1} mb={1}>
                 <Typography variant="body2" color={BLACK}>
                   {/* {listing?.createdAt.toString()} */}
-                  {listings?.createdAt &&
-                    formatDistanceToNow(new Date(listings?.createdAt))}{" "}
+                  {userListing.data?.createdAt &&
+                    formatDistanceToNow(
+                      new Date(userListing.data?.createdAt)
+                    )}{" "}
                   ago
                 </Typography>
               </Box>
@@ -399,7 +483,8 @@ const SingleList = () => {
                       }}
                     />
                   }{" "}
-                  {listings?.bedrooms} bed{listings?.bedrooms !== 1 && "s"}
+                  {userListing.data?.bedrooms} bed
+                  {userListing.data?.bedrooms !== 1 && "s"}
                 </Typography>
 
                 <Typography color={"green"} variant="body1">
@@ -411,7 +496,8 @@ const SingleList = () => {
                       }}
                     />
                   }{" "}
-                  {listings?.bath} bath{listings?.bath !== 1 && "s"}
+                  {userListing.data?.bath} bath
+                  {userListing.data?.bath !== 1 && "s"}
                 </Typography>
                 <Typography color={"green"} variant="body1">
                   {" "}
@@ -422,7 +508,7 @@ const SingleList = () => {
                       }}
                     />
                   }{" "}
-                  {listings?.parking ? "Parking spot" : "No Parking"}
+                  {userListing.data?.parking ? "Parking spot" : "No Parking"}
                 </Typography>
                 <Typography color={"green"} variant="body1">
                   {" "}
@@ -433,7 +519,7 @@ const SingleList = () => {
                       }}
                     />
                   }{" "}
-                  {listings?.furnished ? "Furnished" : "Unfurnished"}
+                  {userListing.data?.furnished ? "Furnished" : "Unfurnished"}
                 </Typography>
               </Box>
 
@@ -445,8 +531,8 @@ const SingleList = () => {
                     }}
                   >
                     <ContactUser
-                      userRef={listings.userRef}
-                      name={listings.name}
+                      userRef={userListing.data.userRef}
+                      name={userListing.data.name}
                       isSmall={isSmall}
                     />
                   </Box>
@@ -454,7 +540,7 @@ const SingleList = () => {
               </Suspense>
 
               <Suspense fallback={<Fallback />}>
-                {currentUser.id !== listings.userRef && show && (
+                {currentUser.id !== userListing.data.userRef && show && (
                   <Box>
                     <Button
                       onClick={toggle}

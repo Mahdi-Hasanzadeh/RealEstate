@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 import axios from "axios";
 import { Suspense, lazy, useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { URL } from "../../../PortConfig";
 import Fallback from "./Fallback.jsx";
 
@@ -53,10 +53,12 @@ const SearchListings = () => {
     order: "createdAt",
   });
   const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
   const [showMore, setShowMore] = useState(false);
   const [listings, setListings] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
   const [showFilterSection, setShowFilterSection] = useState(false);
   const navigate = useNavigate();
   const theme = useTheme();
@@ -118,6 +120,8 @@ const SearchListings = () => {
       // console.log(response.data.listings);
       if (response.data.listings.length > 8) {
         setShowMore(true);
+      } else {
+        setShowMore(false);
       }
       setListings(response.data.listings);
       setError(null);
@@ -148,6 +152,7 @@ const SearchListings = () => {
     delay = 0;
     fetchListings();
   }, [location.search]);
+
   const handleSearch = () => {
     searchParams.set("searchTerm", formData.searchTerm);
     searchParams.set("type", formData.type);
@@ -187,6 +192,7 @@ const SearchListings = () => {
       setShowFilterSection(true);
     }
   }, [md]);
+
   return (
     <>
       <Box>
@@ -476,7 +482,15 @@ const SearchListings = () => {
                       })}
                   </Box>
                   {showMore && (
-                    <Button onClick={fetchMoreListings}>Show more...</Button>
+                    <Button
+                      variant="outlined"
+                      sx={{
+                        mb: 5,
+                      }}
+                      onClick={fetchMoreListings}
+                    >
+                      Show more...
+                    </Button>
                   )}
                 </>
               )}

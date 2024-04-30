@@ -6,6 +6,7 @@ import counterReducer from "./counterSlice";
 import { userLocationHistoryReducer } from "./userLocationHistory";
 import { showListingsReducer } from "./showListings";
 import { showWelcomeToastReducer } from "./showToast";
+import { userListingReducer } from "./userListing";
 
 const rootReducer = combineReducers({
   user: userReducer,
@@ -28,6 +29,7 @@ export const store = configureStore({
     persistData,
     locationHistory: userLocationHistoryReducer,
     showListings: showListingsReducer,
+    userListing: userListingReducer,
   },
 
   // check the definition of this middleware
