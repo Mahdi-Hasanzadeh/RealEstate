@@ -106,34 +106,31 @@ const SingleList = () => {
         throw new Error("Add to favorites Failed");
       }
       if (favoriteChecked == null) {
+        if (userListing?.data?.favorites.find((item) => item == listingId)) {
+          toast.error("Removed from favorites", {
+            autoClose: 2000,
+          });
+        } else {
+          toast.success("Added to favorites", {
+            autoClose: 2000,
+          });
+        }
         setFavoriteChecked(
           userListing?.data?.favorites.find((item) => item == listingId)
             ? false
             : true
         );
-
-        if (
-          userListing?.data?.favorites.find((item) => item == listingId) == true
-        ) {
-          toast.error("Removed from favorites", {
-            autoClose: 2000,
-          });
-          return;
-        }
-        toast.success("Added to favorites", {
-          autoClose: 2000,
-        });
       } else {
-        setFavoriteChecked(!favoriteChecked);
         if (favoriteChecked) {
           toast.error("Removed from favorites", {
             autoClose: 2000,
           });
-          return;
+        } else {
+          toast.success("Added to favorites", {
+            autoClose: 2000,
+          });
         }
-        toast.success("Added to favorites", {
-          autoClose: 2000,
-        });
+        setFavoriteChecked(!favoriteChecked);
       }
     } catch (error) {
       toast.error(error?.response?.data.message || error.message, {

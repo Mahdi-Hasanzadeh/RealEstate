@@ -29,8 +29,8 @@ export const fetchUserListing = createAsyncThunk(
         throw new Error(response.data.message);
       }
       return {
-        ...response.data,
-        favorites: [...response1.data.favorites],
+        ...response?.data,
+        favorites: [...response1?.data?.favorites],
       };
       // console.log("listing favorite: ", response.data.favorites);
       // console.log("current user: ", currentUser.favorites);
