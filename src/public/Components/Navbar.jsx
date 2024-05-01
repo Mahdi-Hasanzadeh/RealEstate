@@ -93,6 +93,13 @@ const Navbar = () => {
         >
           Your Listings
         </Link>
+        <Link
+          onClick={handleMouseLeave}
+          className={`${Styles.tooltipLink}`}
+          to="/favoriteListings"
+        >
+          Your favorites
+        </Link>
       </Box>
     );
   };

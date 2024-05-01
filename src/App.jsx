@@ -12,6 +12,9 @@ const Signup = lazy(() => import("./public/Components/Sign-up.jsx"));
 const UserProfile = lazy(() => import("./public/Components/UserProfile.jsx"));
 const SingleList = lazy(() => import("./public/Components/SingleList.jsx"));
 const EditListing = lazy(() => import("./public/Components/EditListing.jsx"));
+const FavoritesListing = lazy(() =>
+  import("./public/Components/FavoritesListing.jsx")
+);
 const SearchListings = lazy(() =>
   import("./public/Components/SearchListings.jsx")
 );
@@ -63,7 +66,22 @@ const App = () => {
           <Route path="/search" element={<SearchListings />} />
           <Route path="/signup" element={<Signup url="signup" />} />
           <Route path="/signin" element={<Signup url="signin" />} />
-          <Route path="/userListings" element={<YourListings />} />
+          <Route
+            path="/userListings"
+            element={
+              <ProtectedRoute>
+                <YourListings />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/favoriteListings"
+            element={
+              <ProtectedRoute>
+                <FavoritesListing />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/profile"
             element={
@@ -81,7 +99,15 @@ const App = () => {
             }
           />
           <Route path="/listing/:listingId" element={<SingleList />} />
-          <Route path="/listing/update/:listingId" element={<EditListing />} />
+          <Route
+            path="/listing/update/:listingId"
+            element={
+              <ProtectedRoute>
+                <EditListing />
+              </ProtectedRoute>
+            }
+          />
+
           <Route
             path="*"
             element={

@@ -469,7 +469,7 @@ const SearchListings = () => {
                   >
                     {listings.length > 0 &&
                       listings.map((listing, index) => {
-                        delay = delay + 20;
+                        delay = 500 + index * 100;
                         return (
                           <Suspense key={index} fallback={<Fallback />}>
                             <CardItem

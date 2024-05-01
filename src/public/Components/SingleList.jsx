@@ -1,6 +1,6 @@
 import axios from "axios";
 import { Suspense, lazy, useEffect, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { URL } from "../../../PortConfig";
 import {
   Box,
@@ -43,6 +43,7 @@ const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
 
 const SingleList = () => {
   const [activeStep, setActiveStep] = useState(0);
+  const location = useLocation();
   const { listingId } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -77,7 +78,9 @@ const SingleList = () => {
   // };
 
   useEffect(() => {
-    dispatch(fetchUserListing({ listingId, currentUserId: currentUser.id }));
+    if (currentUser) {
+      dispatch(fetchUserListing({ listingId, currentUserId: currentUser.id }));
+    }
     // fetchUserFavorites();
   }, []);
 
@@ -151,8 +154,8 @@ const SingleList = () => {
 
   const handleNavigate = (to) => {
     // getting the user location
-    const location =
-      "/" + window.location.pathname.split("/").slice(2).join("/");
+    const currentLocation =
+      "/" + location.pathname.split("/").slice(2).join("/");
 
     dispatch(addLocationHistory(location));
 

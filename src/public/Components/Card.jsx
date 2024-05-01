@@ -12,6 +12,7 @@ import { BLACK } from "../../../COLOR";
 import { formatDistanceToNow } from "date-fns";
 
 const CardItem = ({ listing, transition, delay }) => {
+  console.log("delay: ", delay);
   return (
     <>
       <Zoom
