@@ -6,13 +6,7 @@ const UserListings = lazy(() => import("./UserListings.jsx"));
 
 const YourListings = () => {
   return (
-    <Container
-      maxWidth="lg"
-      sx={{
-        position: "relative",
-        top: 50,
-      }}
-    >
+    <Container maxWidth="lg">
       <Suspense fallback={<Fallback />}>
         <UserListings />
       </Suspense>

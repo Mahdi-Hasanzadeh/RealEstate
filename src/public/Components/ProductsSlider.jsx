@@ -98,6 +98,10 @@ const ProductsSlider = ({ loading, error, listings }) => {
               ))}
             </AutoPlaySwipeableViews>
             <MobileStepper
+              style={{
+                background: LIGHTGRAY,
+                borderRadius: "5px",
+              }}
               steps={maxSteps}
               position="static"
               activeStep={activeStep}

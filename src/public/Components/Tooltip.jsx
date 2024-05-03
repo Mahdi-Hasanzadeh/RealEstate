@@ -12,7 +12,9 @@ const Tooltip = ({
     <Box
       onMouseEnter={mouseEnter}
       onMouseLeave={mouseLeave}
-      className={`${styles.tooltip} ${show ? styles.tooltipShow : ""} ${
+      className={`navbarColor ${styles.tooltip} ${
+        show ? styles.tooltipShow : ""
+      } ${
         position === "top"
           ? styles.top
           : position === "left"

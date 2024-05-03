@@ -117,7 +117,7 @@ const signUp = ({ url }) => {
     } else {
       if (!formData.email || !formData.password) {
         // toastContainer
-        console.log("Please provide credentials");
+
         toast.error("Please provide credentials", {
           autoClose: autoCloseTime,
         });
@@ -171,13 +171,7 @@ const signUp = ({ url }) => {
   }
   return (
     <>
-      <Container
-        maxWidth="md"
-        sx={{
-          position: "relative",
-          top: 50,
-        }}
-      >
+      <Container maxWidth="md">
         <Typography variant={isMobile ? "body1" : "h6"}>
           {url === "signup" ? (
             <Suspense fallback={<Fallback />}>

@@ -1,4 +1,4 @@
-import { Box, Button, Card, Container, Typography, Zoom } from "@mui/material";
+import { Box, Container, Typography, Zoom } from "@mui/material";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { URL } from "../../../PortConfig";
@@ -46,7 +46,6 @@ const favoritesListing = () => {
       toast.error(error.message);
     } finally {
       setLoading(false);
-      console.log("finally");
     }
   };
 
@@ -55,23 +54,15 @@ const favoritesListing = () => {
   }, []);
 
   return (
-    <Container
-      maxWidth="xl"
-      sx={{
-        position: "relative",
-        top: 70,
-      }}
-    >
-      <Typography
-        variant="h6"
-        sx={{
+    <Container maxWidth="xl">
+      <h2
+        style={{
+          color: "green",
           textAlign: "center",
-          fontSize: "1.2em",
-          fontWeight: "bold",
         }}
       >
         Your Favorites
-      </Typography>
+      </h2>
       {loading ? (
         <div>
           <h3>Loading...</h3>
@@ -105,6 +96,7 @@ const favoritesListing = () => {
                   }}
                 >
                   <Box
+                    className="color"
                     sx={{
                       maxWidth: 400,
                       width: 400,

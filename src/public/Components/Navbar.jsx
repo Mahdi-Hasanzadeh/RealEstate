@@ -192,241 +192,236 @@ const Navbar = () => {
 
   return (
     <>
-      <Box>
-        <Box sx={{ display: "flex" }}>
-          <AppBar
-            position="fixed"
-            component="nav"
+      <>
+        <AppBar
+          // position="fixed"
+          className="navbarColor"
+          sx={{
+            position: "fixed",
+            top: 0,
+            backgroundColor: LIGHTGRAY,
+          }}
+        >
+          <Toolbar
             sx={{
-              backgroundColor: LIGHTGRAY,
+              display: "flex",
+              justifyContent: { xs: "space-between", md: "space-around" },
+              rowGap: 1,
+              margin: "0 10px",
             }}
           >
-            <Toolbar
+            {/* Menu icon for screen sizes */}
+            <IconButton
+              color="inherit"
+              aria-label="open drawer"
+              edge="start"
+              onClick={handleDrawerToggle}
+              sx={{ mr: 2, display: { md: "none" } }}
+            >
+              <Menu />
+            </IconButton>
+            {/* Website name */}
+            <Typography
+              onClick={() => {
+                navigate("/");
+              }}
+              variant="h6"
+              component="div"
               sx={{
-                display: "flex",
-                justifyContent: { xs: "space-between", md: "space-around" },
-                // flexWrap: "wrap",
-                rowGap: 1,
-                margin: "0 10px",
+                display: { xs: "none", sm: "block" },
+                color: BLACK,
+                cursor: "pointer",
               }}
             >
-              {/* Menu icon for screen sizes */}
-              <IconButton
-                color="inherit"
-                aria-label="open drawer"
-                edge="start"
-                onClick={handleDrawerToggle}
-                sx={{ mr: 2, display: { md: "none" } }}
-              >
-                <Menu />
-              </IconButton>
-              {/* Website name */}
-              <Typography
-                onClick={() => {
-                  navigate("/");
-                }}
-                variant="h6"
-                component="div"
-                sx={{
-                  display: { xs: "none", sm: "block" },
-                  color: BLACK,
-                  cursor: "pointer",
-                }}
-              >
-                HASANZADEH
-                <Typography variant="h6" component={"span"} color={GRAY}>
-                  ESTATE
-                </Typography>
+              HASANZADEH
+              <Typography variant="h6" component={"span"} color={GRAY}>
+                ESTATE
               </Typography>
-              <Box>
-                <TextField
-                  label="Search"
-                  size="small"
-                  sx={{
-                    width: { xs: 150, sm: 250 },
-                  }}
-                  value={searchTerm}
-                  onChange={handleSearchTerm}
-                  placeholder=""
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <IconButton onClick={handleSearch}>
-                          <SearchRounded />
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }}
-                  variant="outlined"
-                />
-              </Box>
-              {/* Navbar in medium size */}
-              <Box
+            </Typography>
+            <Box>
+              <TextField
+                label="Search"
+                size="small"
                 sx={{
-                  display: { xs: "none", md: "flex" },
-                  alignItems: "center",
-                  justifyContent: "space-around",
-                  gap: 1,
+                  width: { xs: 150, sm: 250 },
                 }}
-              >
-                {navItems.map((item, index) => {
-                  if (item.name === "Sign in") {
-                    if (user === null) {
-                      return (
-                        <Tooltip key={index} title={item.name}>
-                          <NavLink to={item.link} className={"Navlink"}>
-                            <Button sx={{ color: "#334155" }}>
-                              {item.name}
-                            </Button>
-                          </NavLink>
-                        </Tooltip>
-                      );
-                    }
-                  } else if (item.name === "profile") {
-                    if (user !== null) {
-                      return (
-                        <Box
-                          key={index}
-                          sx={{
-                            position: "relative",
-                          }}
-                        >
-                          <IconButton
-                            onMouseEnter={handleProfileTooltipMouseEnter}
-                            onMouseLeave={handleProfileTooltipMouseLeave}
-                            size="small"
-                            sx={{
-                              fontSize: "15px",
-                              color: "#334155",
-                              "&:hover": {
-                                borderRadius: 1,
-                              },
-                            }}
-                          >
-                            <NavLink to={item.link} className={"Navlink"}>
-                              <img
-                                srcSet={
-                                  user.avatar ? user.avatar : profilePicture
-                                }
-                                alt={user.username}
-                                style={{
-                                  width: "35px",
-                                  height: "35px",
-                                  borderRadius: 50,
-                                }}
-                              />
-                            </NavLink>
-                          </IconButton>
-
-                          <MyTooltip
-                            show={openProfileTooltip}
-                            mouseEnter={handleProfileTooltipMouseEnter}
-                            mouseLeave={handleProfileTooltipMouseLeave}
-                            content={<ProfileTooltip />}
-                            position={"bottom"}
-                          />
-                        </Box>
-                      );
-                    }
-                  } else if (item.name === "Listings") {
-                    if (user !== null) {
-                      return (
-                        <Box
-                          key={index}
-                          sx={{
-                            position: "relative",
-                          }}
-                        >
-                          <IconButton
-                            onMouseEnter={handleMouseEnter}
-                            onMouseLeave={handleMouseLeave}
-                            size="small"
-                            sx={{
-                              fontSize: "15px",
-                              color: "#334155",
-                              "&:hover": {
-                                borderRadius: 1,
-                              },
-                            }}
-                          >
-                            LISTINGS
-                          </IconButton>
-
-                          <MyTooltip
-                            show={openTooltip}
-                            mouseEnter={handleMouseEnter}
-                            mouseLeave={handleMouseLeave}
-                            content={<Listing />}
-                            position={"bottom"}
-                          />
-                        </Box>
-                      );
-                    }
-                  } else {
+                value={searchTerm}
+                onChange={handleSearchTerm}
+                placeholder=""
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <IconButton onClick={handleSearch}>
+                        <SearchRounded />
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+                variant="outlined"
+              />
+            </Box>
+            {/* Navbar in medium size */}
+            <Box
+              sx={{
+                display: { xs: "none", md: "flex" },
+                alignItems: "center",
+                justifyContent: "space-around",
+                gap: 1,
+              }}
+            >
+              {navItems.map((item, index) => {
+                if (item.name === "Sign in") {
+                  if (user === null) {
                     return (
                       <Tooltip key={index} title={item.name}>
-                        <NavLink
-                          to={item.link}
-                          key={index}
-                          className={"Navlink"}
-                        >
+                        <NavLink to={item.link} className={"Navlink"}>
                           <Button sx={{ color: "#334155" }}>{item.name}</Button>
                         </NavLink>
                       </Tooltip>
                     );
                   }
-                })}
-              </Box>
-            </Toolbar>
-          </AppBar>
-          {/* drawer in mobile size */}
-          <nav>
-            {md && (
-              <Suspense fallback={<Fallback />}>
-                <MobileDrawer
-                  mobileOpen={mobileOpen}
-                  handleDrawerToggle={handleDrawerToggle}
-                  setMobileOpen={setMobileOpen}
-                  user={user}
-                />
-              </Suspense>
-            )}
-          </nav>
-        </Box>
+                } else if (item.name === "profile") {
+                  if (user !== null) {
+                    return (
+                      <Box
+                        key={index}
+                        sx={{
+                          position: "relative",
+                        }}
+                      >
+                        <IconButton
+                          onMouseEnter={handleProfileTooltipMouseEnter}
+                          onMouseLeave={handleProfileTooltipMouseLeave}
+                          size="small"
+                          sx={{
+                            fontSize: "15px",
+                            color: "#334155",
+                            "&:hover": {
+                              borderRadius: 1,
+                            },
+                          }}
+                        >
+                          <NavLink to={item.link} className={"Navlink"}>
+                            <img
+                              srcSet={
+                                user.avatar ? user.avatar : profilePicture
+                              }
+                              alt={user.username}
+                              style={{
+                                width: "35px",
+                                height: "35px",
+                                borderRadius: 50,
+                              }}
+                            />
+                          </NavLink>
+                        </IconButton>
 
-        <Dialog
-          open={openDialog}
-          TransitionComponent={Transition}
-          keepMounted
-          onClose={() => {
-            setOpenDialog(!openDialog);
-          }}
-        >
-          <DialogTitle>Warning</DialogTitle>
-          <DialogContent>
-            <DialogContentText>
-              "Are your to sign out from your account"
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button
-              onClick={() => {
-                setOpenDialog(false);
-              }}
-            >
-              Disagree
-            </Button>
-            <Button
-              onClick={() => {
-                setOpenDialog(false);
-                signoutUser();
-              }}
-            >
-              Agree
-            </Button>
-          </DialogActions>
-        </Dialog>
-      </Box>
+                        <MyTooltip
+                          show={openProfileTooltip}
+                          mouseEnter={handleProfileTooltipMouseEnter}
+                          mouseLeave={handleProfileTooltipMouseLeave}
+                          content={<ProfileTooltip />}
+                          position={"bottom"}
+                        />
+                      </Box>
+                    );
+                  }
+                } else if (item.name === "Listings") {
+                  if (user !== null) {
+                    return (
+                      <Box
+                        key={index}
+                        sx={{
+                          position: "relative",
+                        }}
+                      >
+                        <IconButton
+                          onMouseEnter={handleMouseEnter}
+                          onMouseLeave={handleMouseLeave}
+                          size="small"
+                          sx={{
+                            fontSize: "15px",
+                            color: "#334155",
+                            "&:hover": {
+                              borderRadius: 1,
+                            },
+                          }}
+                        >
+                          LISTINGS
+                        </IconButton>
+
+                        <MyTooltip
+                          show={openTooltip}
+                          mouseEnter={handleMouseEnter}
+                          mouseLeave={handleMouseLeave}
+                          content={<Listing />}
+                          position={"bottom"}
+                        />
+                      </Box>
+                    );
+                  }
+                } else {
+                  return (
+                    <Tooltip key={index} title={item.name}>
+                      <NavLink to={item.link} key={index} className={"Navlink"}>
+                        <Button sx={{ color: "#334155" }}>{item.name}</Button>
+                      </NavLink>
+                    </Tooltip>
+                  );
+                }
+              })}
+            </Box>
+          </Toolbar>
+        </AppBar>
+        <Toolbar />
+      </>
+
+      {/* drawer in mobile size */}
+      <nav>
+        {md && (
+          <Suspense fallback={<Fallback />}>
+            <MobileDrawer
+              mobileOpen={mobileOpen}
+              handleDrawerToggle={handleDrawerToggle}
+              setMobileOpen={setMobileOpen}
+              user={user}
+            />
+          </Suspense>
+        )}
+      </nav>
+
+      <Dialog
+        open={openDialog}
+        TransitionComponent={Transition}
+        keepMounted
+        onClose={() => {
+          setOpenDialog(!openDialog);
+        }}
+      >
+        <DialogTitle>Warning</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            "Are your to sign out from your account"
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => {
+              setOpenDialog(false);
+            }}
+          >
+            Disagree
+          </Button>
+          <Button
+            onClick={() => {
+              setOpenDialog(false);
+              signoutUser();
+            }}
+          >
+            Agree
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 };

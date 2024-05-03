@@ -366,7 +366,6 @@ const Profile = () => {
         maxWidth="md"
         sx={{
           textAlign: "center",
-          mt: 5,
         }}
       >
         <Suspense fallback={<Fallback />}>
@@ -619,7 +618,12 @@ const Profile = () => {
         </Dialog>
       </Container>
 
-      <Container maxWidth={"lg"}>
+      <Container
+        sx={{
+          pb: 5,
+        }}
+        maxWidth={"lg"}
+      >
         <Suspense fallback={<Fallback />}>
           {showListings && <UserListings />}
         </Suspense>

@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import { Suspense, lazy, useEffect, useState } from "react";
 import axios from "axios";
 import { URL } from "../../../PortConfig";
-
+import styleModule from "../../style.module.css";
 import Fallback from "./Fallback";
 
 const ProductsSlider = lazy(() => import("./ProductsSlider"));
@@ -137,8 +137,6 @@ const Home = () => {
       <Container
         maxWidth={"lg"}
         sx={{
-          paddingTop: 10,
-          //   backgroundColor: LIGHTGRAY,
           display: "flex",
           alignItems: "center",
         }}

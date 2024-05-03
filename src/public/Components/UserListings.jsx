@@ -129,6 +129,7 @@ const UserListings = () => {
             return (
               <Box
                 key={index}
+                className="color"
                 sx={{
                   maxWidth: 400,
                   width: 400,
@@ -189,9 +190,12 @@ const UserListings = () => {
                       setOpen(true);
                       setListingToDelete({ id: item._id, name: item.name });
                     }}
-                    color="error"
+                    sx={{
+                      color: "red",
+                    }}
                     type="button"
                     variant="contained"
+                    className="color"
                   >
                     Delete
                   </Button>
@@ -199,9 +203,13 @@ const UserListings = () => {
                     onClick={() => {
                       updateListing(item._id);
                     }}
+                    sx={{
+                      color: "green",
+                    }}
                     color="primary"
                     type="button"
                     variant="contained"
+                    className="color"
                   >
                     Edit
                   </Button>

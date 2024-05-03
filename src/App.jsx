@@ -5,6 +5,7 @@ import { Slide, ToastContainer, toast } from "react-toastify";
 import Fallback from "./public/Components/Fallback.jsx";
 import { useDispatch, useSelector } from "react-redux";
 import { setWelcomeToast } from "../reactRedux/showToast.js";
+import styleModule from "./style.module.css";
 
 const Home = lazy(() => import("./public/Components/Home.jsx"));
 const About = lazy(() => import("./public/Components/About.jsx"));
@@ -46,14 +47,17 @@ const App = () => {
 
   const BasicLayout = () => {
     return (
-      <>
-        <div>
-          <Navbar />
-          <Suspense fallback={<Fallback />}>
-            <Outlet />
-          </Suspense>
-        </div>
-      </>
+      <div
+        className={styleModule.backgroundcolor}
+        style={{
+          minHeight: "100vh",
+        }}
+      >
+        <Navbar />
+        <Suspense fallback={<Fallback />}>
+          <Outlet />
+        </Suspense>
+      </div>
     );
   };
 

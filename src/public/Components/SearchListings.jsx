@@ -17,7 +17,7 @@ import { Suspense, lazy, useEffect, useState } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { URL } from "../../../PortConfig";
 import Fallback from "./Fallback.jsx";
-
+import styleModule from "../../style.module.css";
 const CardItem = lazy(() => import("./Card.jsx"));
 const NotFound = lazy(() => import("./InfoComponents/NotFound.jsx"));
 
@@ -195,7 +195,7 @@ const SearchListings = () => {
 
   return (
     <>
-      <Box>
+      <Box className={styleModule.backgroundcolor}>
         <Grid container>
           {/* search form section */}
           {showFilterSection && (
@@ -210,15 +210,12 @@ const SearchListings = () => {
               <Grid
                 sx={{
                   position: md ? "static" : "fixed",
-                  top: 70,
-                  left: 0,
-                  bottom: 0,
                   width: "100%",
                   overflowY: "auto", // Allow vertical scrolling if content exceeds height
                   paddingRight: theme.spacing(2),
                   padding: md ? 0.5 : 2,
                   borderRight: md ? "0px" : "1px solid gray",
-                  minHeight: md ? 0 : "91.2vh",
+                  minHeight: md ? 0 : "93vh",
                 }}
                 item
                 xs={12}
@@ -421,7 +418,7 @@ const SearchListings = () => {
             <Button
               size="small"
               sx={{
-                mt: showFilterSection ? 0 : 10,
+                mt: showFilterSection ? 0 : 2,
                 color: showFilterSection ? "red" : "green",
               }}
               onClick={() => {
@@ -436,8 +433,6 @@ const SearchListings = () => {
           {/* Filter listing section */}
           <Grid
             sx={{
-              position: md ? "static" : "relative",
-              top: 70,
               marginLeft: "auto", // Ensure content doesn't overlap with fixed section
               paddingLeft: md ? 0 : theme.spacing(3), // Add left padding to align with fixed section
               width: "100%",

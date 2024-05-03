@@ -25,16 +25,22 @@ const LatestProducts = ({ title, loading, error, listings, query }) => {
         <Typography variant="h5" color={BLACK}>
           {title}
         </Typography>
-        <Link className="Link" to={`/search?${queryaString}`}>
+        <Link
+          className="Link"
+          style={{
+            color: "purple",
+          }}
+          to={`/search?${queryaString}`}
+        >
           {title}
         </Link>
         <Box
           sx={{
             display: "flex",
-            justifyContent: "space-between",
+            justifyContent: { xs: "center", sm: "space-between" },
             flexWrap: "wrap",
             rowGap: 3,
-            columnGap: 1,
+            columnGap: { xs: 0, sm: 1 },
             mt: 2,
             mb: 2,
           }}

@@ -26,13 +26,7 @@ const ProtectedRoute = (props) => {
 
     // alert("redirecting to sign in page");
     return (
-      <Box
-        sx={{
-          position: "relative",
-          top: 50,
-        }}
-        padding={2}
-      >
+      <Box padding={2}>
         <Typography
           sx={{
             textAlign: "center",

@@ -12,7 +12,6 @@ import { BLACK } from "../../../COLOR";
 import { formatDistanceToNow } from "date-fns";
 
 const CardItem = ({ listing, transition, delay }) => {
-  console.log("delay: ", delay);
   return (
     <>
       <Zoom
@@ -25,14 +24,21 @@ const CardItem = ({ listing, transition, delay }) => {
       >
         <Link to={`/listing/${listing?._id}`} className="cardLink">
           <Card
+            className="color"
             sx={{
               minWidth: 245,
               width: 280,
               height: 400,
               maxWidth: 345,
-              py: 2,
+              p: 1,
+              borderRadius: 3,
+              boxShadow: "-3px -3px 700px #ffffff,5px 5px 5px #ceced1",
+              transition: "0.75s ease-in-out",
+              "&:hover": {
+                transform: "translate(5px,5px)",
+                // transform: "translateZ(10px)",
+              },
             }}
-            className="cardHover"
           >
             <CardMedia
               component={"img"}

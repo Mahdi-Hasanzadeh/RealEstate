@@ -2,9 +2,9 @@ const Fallback = () => {
   return (
     <div
       style={{
-        position: "relative",
-        top: 50,
-        margin: "0 auto",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
       }}
     >
       <h2>Loading...</h2>

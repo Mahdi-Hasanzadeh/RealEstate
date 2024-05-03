@@ -6,11 +6,10 @@ import { Link } from "react-router-dom";
 
 const afghanistanCodeNumber = "+93";
 const userAgent = navigator.userAgent.toLowerCase();
-let isMobile = /mobile/.test(userAgent);
 const ContactUser = ({ userRef, name, isSmall }) => {
   const [userInfo, setUserInfo] = useState();
   const [error, setError] = useState(null);
-
+  let isMobile = /mobile/.test(userAgent);
   const [message, setMessage] = useState("");
 
   const handleMessage = (event) => {
@@ -112,7 +111,7 @@ const ContactUser = ({ userRef, name, isSmall }) => {
               display: "flex",
               flexWrap: "wrap",
               gap: 2,
-              mt: 2,
+              py: 2.5,
             }}
           >
             {isMobile && (

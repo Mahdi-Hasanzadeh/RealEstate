@@ -282,9 +282,7 @@ const CreateListing = () => {
       <Container
         maxWidth="md"
         sx={{
-          position: "relative",
-          top: 50,
-          mb: 20,
+          paddingBottom: 10,
         }}
       >
         <Suspense fallback={<Fallback />}>

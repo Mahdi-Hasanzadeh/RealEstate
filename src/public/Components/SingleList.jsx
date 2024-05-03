@@ -182,13 +182,7 @@ const SingleList = () => {
   return (
     <>
       {currentUser == null ? (
-        <Box
-          sx={{
-            position: "relative",
-            top: 50,
-          }}
-          padding={2}
-        >
+        <Box padding={2}>
           <Typography
             sx={{
               textAlign: "center",
@@ -228,8 +222,6 @@ const SingleList = () => {
       ) : userListing.loading ? (
         <div
           style={{
-            position: "relative",
-            top: 50,
             textAlign: "center",
           }}
         >
@@ -238,8 +230,6 @@ const SingleList = () => {
       ) : userListing.success == false ? (
         <div
           style={{
-            position: "relative",
-            top: 50,
             textAlign: "center",
           }}
         >
@@ -265,7 +255,7 @@ const SingleList = () => {
                     height: 50,
                     pl: 2,
                     bgcolor: LIGHTGRAY,
-                    mt: 10,
+                    mt: 5,
                   }}
                 >
                   <Typography>{userListing.data.name}</Typography>
@@ -297,6 +287,10 @@ const SingleList = () => {
                   ))}
                 </AutoPlaySwipeableViews>
                 <MobileStepper
+                  style={{
+                    background: LIGHTGRAY,
+                    borderRadius: "5px",
+                  }}
                   steps={maxSteps}
                   position="static"
                   activeStep={activeStep}
@@ -334,7 +328,7 @@ const SingleList = () => {
             <Container
               maxWidth="lg"
               sx={{
-                mb: 10,
+                pb: 5,
               }}
             >
               <Box
@@ -551,6 +545,7 @@ const SingleList = () => {
                         backgroundColor: "GrayText",
                         width: "50%",
                         mt: 3,
+                        mb: 3,
                       }}
                     >
                       Contact Landlord

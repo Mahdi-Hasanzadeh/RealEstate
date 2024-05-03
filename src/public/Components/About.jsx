@@ -1,15 +1,10 @@
 import { Container, Typography } from "@mui/material";
+import styleModule from "../../style.module.css";
 
 const About = () => {
   return (
-    <>
-      <Container
-        maxWidth={"lg"}
-        sx={{
-          position: "relative",
-          top: 45,
-        }}
-      >
+    <div className={styleModule.backgroundcolor}>
+      <Container maxWidth={"lg"}>
         <Typography
           fontWeight={"bold"}
           fontSize={"24px"}
@@ -75,7 +70,7 @@ const About = () => {
           assisting you in achieving your real estate goals.
         </Typography>
       </Container>
-    </>
+    </div>
   );
 };
 export default About;
