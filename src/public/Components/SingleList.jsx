@@ -44,10 +44,12 @@ const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
 const SingleList = () => {
   const [activeStep, setActiveStep] = useState(0);
   const location = useLocation();
+  //get the id of the current product from the url
   const { listingId } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const currentUser = useSelector((store) => store.persistData.user.userInfo);
+  //bring the current user all listings with it's favorites listings
   const userListing = useSelector((store) => store.userListing);
 
   const [favoriteChecked, setFavoriteChecked] = useState(null);
@@ -57,31 +59,14 @@ const SingleList = () => {
   const theme = useTheme();
   const isSmall = useMediaQuery(theme.breakpoints.down("sm"));
   const maxSteps = userListing?.data?.imageURLs?.length || 0;
-  // const fetchUserFavorites = async () => {
-  //   try {
-  //     const response = await axios.get(
-  //       `${URL}api/listing/userListing/${userListing._id}`,
-  //       {
-  //         headers: {
-  //           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-  //         },
-  //       }
-  //     );
-  //     if (response.data.success === false) {
-  //       throw new Error(response.data.message);
-  //     }
-
-  //     // setListing(response.data);
-  //   } catch (error) {
-  //     toast.error(error.message);
-  //   }
-  // };
 
   useEffect(() => {
     if (currentUser) {
+      // get the single product that the user selected and the current user information
+      // to check if the current user have this single product in it's favorties list or not
+      //fetchUserListing return the single product information and the favorites list of current user
       dispatch(fetchUserListing({ listingId, currentUserId: currentUser.id }));
     }
-    // fetchUserFavorites();
   }, []);
 
   const handleFavoriteChecked = async () => {
