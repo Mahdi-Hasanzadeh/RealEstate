@@ -5,7 +5,6 @@ import { Link } from "react-router-dom";
 import { Suspense, lazy, useEffect, useState } from "react";
 import axios from "axios";
 import { URL } from "../../../PortConfig";
-import styleModule from "../../style.module.css";
 import Fallback from "./Fallback";
 
 const ProductsSlider = lazy(() => import("./ProductsSlider"));
@@ -155,7 +154,6 @@ const Home = () => {
               component={"div"}
               sx={{
                 maxWidth: isLaptop ? 600 : isMobile ? 200 : 400,
-                // backgroundColor: "red",
                 wordWrap: "break-word",
               }}
             >
@@ -167,7 +165,7 @@ const Home = () => {
               >
                 perfect
               </Typography>{" "}
-              place with ease
+              product with ease
             </Typography>
           </Box>
           <Box>
@@ -180,8 +178,11 @@ const Home = () => {
                 mt: 1.5,
               }}
             >
-              Hasanzadeh Estate will help you to find your home fast,easy and
-              comfortable.
+              Sell Website will help you to find your{" "}
+              <Typography variant={"h6"} component={"span"} color={BLACK}>
+                products
+              </Typography>{" "}
+              fast,easy and comfortable.
             </Typography>
           </Box>
 

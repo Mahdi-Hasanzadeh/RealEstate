@@ -1,10 +1,12 @@
-import { Box, Container, Typography } from "@mui/material";
+import { Box, Container, Typography, css, keyframes } from "@mui/material";
 import { BLACK } from "../../../COLOR";
 import { Link } from "react-router-dom";
 import { Suspense, lazy } from "react";
 import Fallback from "./Fallback.jsx";
 const Card = lazy(() => import("./Card.jsx"));
+
 const LatestProducts = ({ title, loading, error, listings, query }) => {
+  //#region Fields
   const queryaString =
     query == "offer"
       ? "offer=true"
@@ -13,6 +15,7 @@ const LatestProducts = ({ title, loading, error, listings, query }) => {
       : query == "sell"
       ? "type=sell"
       : null;
+  //#endregion
 
   return (
     <>
@@ -21,6 +24,7 @@ const LatestProducts = ({ title, loading, error, listings, query }) => {
         sx={{
           py: 2,
         }}
+        className="scroll-animation"
       >
         <Typography variant="h5" color={BLACK}>
           {title}

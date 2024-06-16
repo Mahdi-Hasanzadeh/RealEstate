@@ -13,6 +13,7 @@ import SwipeableViews from "react-swipeable-views";
 import { autoPlay } from "react-swipeable-views-utils";
 import { LIGHTGRAY } from "../../../COLOR";
 import { useNavigate } from "react-router-dom";
+import Loader from "../styleComponents/loader";
 const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
 
 const ProductsSlider = ({ loading, error, listings }) => {
@@ -36,15 +37,23 @@ const ProductsSlider = ({ loading, error, listings }) => {
   return (
     <>
       {loading ? (
-        <h3
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Loader />
+        </Box>
+      ) : error ? (
+        <h2
           style={{
             textAlign: "center",
           }}
         >
-          Loading...
-        </h3>
-      ) : error ? (
-        <h2>{error}</h2>
+          {error}
+        </h2>
       ) : (
         listings?.length > 0 &&
         error == null && (

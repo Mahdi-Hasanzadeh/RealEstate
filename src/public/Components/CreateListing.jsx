@@ -1,3 +1,5 @@
+//#region (libraries)
+
 import {
   Box,
   Container,
@@ -17,18 +19,29 @@ import {
   ref,
   uploadBytesResumable,
 } from "firebase/storage";
-import { app } from "../../firebase";
 import axios from "axios";
-import { URL } from "../../../PortConfig";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import Fallback from "./Fallback.jsx";
 import { useDispatch, useSelector } from "react-redux";
-import { updateUser } from "../../../reactRedux/userSlice.js";
-const Wave = lazy(() => import("../styleComponents/Wave.jsx"));
 const autoCloseTime = 3000;
 
+//#endregion
+
+//#region My Modules
+import Fallback from "./Fallback.jsx";
+import { updateUser } from "../../../reactRedux/userSlice.js";
+const Wave = lazy(() => import("../styleComponents/Wave.jsx"));
+import { URL } from "../../../PortConfig";
+import { app } from "../../firebase";
+//#endregion
+
+//#region Global Fields
+const pageTitle = "Create list";
+//#endregion
+
 const CreateListing = () => {
+  //#region fields
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [file, setFile] = useState([]);
@@ -51,6 +64,10 @@ const CreateListing = () => {
     discountPrice: 1,
     mobileNumber: "",
   });
+
+  //#endregion
+
+  //#region methods
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -277,6 +294,8 @@ const CreateListing = () => {
     });
   };
 
+  //#endregion
+
   return (
     <>
       <Container
@@ -286,7 +305,7 @@ const CreateListing = () => {
         }}
       >
         <Suspense fallback={<Fallback />}>
-          <Wave title={"Create list"} />
+          <Wave title={pageTitle} />
         </Suspense>
 
         <Grid
@@ -470,7 +489,11 @@ const CreateListing = () => {
                 />
                 <TextField
                   type="number"
-                  label="Regular Price / month"
+                  label={
+                    formData.type === "rent"
+                      ? "Regular Price / month"
+                      : "Regular Price"
+                  }
                   size={md ? "small" : "medium"}
                   name="regularPrice"
                   value={formData.regularPrice}
@@ -479,7 +502,7 @@ const CreateListing = () => {
                 {formData.offer && (
                   <TextField
                     type="number"
-                    label="Discount Price / month"
+                    label="Discount"
                     size={md ? "small" : "medium"}
                     name="discountPrice"
                     value={formData.discountPrice}
