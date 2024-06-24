@@ -25,7 +25,7 @@ const ComboBox = ({ name, defaultValue, value, handleValueMethod, items }) => {
         >
           {items.map((item, index) => {
             return (
-              <MenuItem key={index} value={item.value}>
+              <MenuItem disabled={item.disabled} key={index} value={item.value}>
                 {item.name}
               </MenuItem>
             );

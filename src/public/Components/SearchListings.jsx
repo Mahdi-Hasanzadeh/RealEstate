@@ -6,7 +6,6 @@ import {
   FormControlLabel,
   Grid,
   Input,
-  InputLabel,
   MenuItem,
   Select,
   TextField,
@@ -18,14 +17,15 @@ import {
 import axios from "axios";
 import { Suspense, lazy, useEffect, useState } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import qs from "qs";
 //#endregion
 
 //#region My Modules
 import { URL } from "../../../PortConfig";
 import Fallback from "./Fallback.jsx";
 import styleModule from "../../style.module.css";
-import { yellow } from "@mui/material/colors";
 import Loader from "../styleComponents/loader.jsx";
+import { toast } from "react-toastify";
 const CardItem = lazy(() => import("./Card.jsx"));
 const NotFound = lazy(() => import("./InfoComponents/NotFound.jsx"));
 const ComboBox = lazy(() => import("../Utility/ComboBox.jsx"));
@@ -69,57 +69,67 @@ const CategoryItems = [
   {
     name: "ALL PRODUCTS",
     value: allProducts,
+    disabled: true,
   },
   {
     name: "ESTATE",
     value: estate,
+    disabled: false,
   },
   {
     name: "DIGITAL EQUIPMENT",
     value: digitalEquipment,
+    disabled: false,
   },
   {
     name: "TRANSPORTATION",
     value: transportation,
+    disabled: true,
   },
 ];
 const SubCategoryItems = [
   {
     name: "ALL DIGITAL EQUIPMENTS",
     value: allDigitalEquipment,
+    disabled: true,
   },
   {
     name: "CELL PHONE & TABLETS",
     value: cellPhoneAndTablets,
+    disabled: false,
   },
   {
     name: "COMPUTER",
     value: computer,
+    disabled: true,
   },
   {
     name: "CONSOLE",
     value: entertainmentConsole,
+    disabled: true,
   },
 ];
 
 var delay = 0;
+
 //#endregion
 
 const SearchListings = () => {
   //#region hooks
 
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortProduct, setSortProduct] = useState("desc");
+  const [orderOfProduct, setOrderOfProduc] = useState("createdAt");
+
   const [subCategory, setSubCategory] = useState(allDigitalEquipment);
 
-  const [category, setCategory] = useState(allProducts);
+  const [category, setCategory] = useState(estate);
 
-  const [formData, setFormData] = useState({
-    searchTerm: "",
+  const [estateFormData, setEstateFormData] = useState({
     type: "all",
     offer: false,
     parking: false,
     furnished: false,
-    sort: "desc",
-    order: "createdAt",
   });
 
   const [price, setPrice] = useState({
@@ -197,6 +207,31 @@ const SearchListings = () => {
 
   //#region methods
 
+  const filterObjectBasedOnValue = (items) => {
+    //* method 1
+
+    // return Object.entries(items)
+    //   .filter(([key, value]) => value === true)
+    //   .reduce((acc, [key, value]) => {
+    //     acc[key] = value;
+    //     return acc;
+    //   }, {});
+
+    //* method 2
+
+    return Object.keys(items).filter((key) => items[key] === true);
+  };
+
+  const handleSortAndOrderOfProduct = (event) => {
+    const order = event.target.value.split("_")[0];
+    const sort = event.target.value.split("_")[1];
+    setSortProduct(sort);
+    setOrderOfProduc(order);
+  };
+  const handleSearchTerm = (event) => {
+    setSearchTerm(event.target.value);
+  };
+
   const handlePriceValue = (event) => {
     if (!(event.target.value < 0)) {
       setPrice((prevData) => {
@@ -229,17 +264,8 @@ const SearchListings = () => {
   };
 
   const handleFormData = (event) => {
-    setFormData((prevData) => {
-      if (event.target.name === "sort_order") {
-        const order = event.target.value.split("_")[0];
-        const sort = event.target.value.split("_")[1];
-        // entertainmentConsole.log(order, sort);
-        return {
-          ...prevData,
-          sort,
-          order,
-        };
-      }
+    // todo Write a better code for this part
+    setEstateFormData((prevData) => {
       if (
         event.target.name === "offer" ||
         event.target.name === "parking" ||
@@ -249,19 +275,13 @@ const SearchListings = () => {
           ...prevData,
           [event.target.name]:
             event.target.name === "offer"
-              ? !formData.offer
+              ? !estateFormData.offer
               : event.target.name === "parking"
-              ? !formData.parking
-              : !formData.furnished,
+              ? !estateFormData.parking
+              : !estateFormData.furnished,
         };
       }
       if (event.target.name === "type") {
-        return {
-          ...prevData,
-          [event.target.name]: event.target.value,
-        };
-      }
-      if (event.target.name === "searchTerm") {
         return {
           ...prevData,
           [event.target.name]: event.target.value,
@@ -296,16 +316,117 @@ const SearchListings = () => {
     }
   };
 
+  const removeQueriesFromURL = () => {
+    var params = [];
+    for (var key of searchParams.keys()) {
+      // console.log(key);
+      params.push(key);
+    }
+    console.log(params.length);
+    params.map((item) => searchParams.delete(item));
+
+    // console.log(searchParams.size, "size");
+  };
+
+  //* set an object to the URL
+  const setObjectToURL = (name, obj) => {
+    const trueValuesOfObj = filterObjectBasedOnValue(obj);
+    const stringifyValues = qs.stringify(trueValuesOfObj);
+    searchParams.set(name, stringifyValues);
+  };
+
   const handleSearch = () => {
-    searchParams.set("searchTerm", formData.searchTerm);
-    searchParams.set("type", formData.type);
-    searchParams.set("parking", formData.parking);
-    searchParams.set("furnished", formData.furnished);
-    searchParams.set("offer", formData.offer);
-    searchParams.set("sort", formData.sort);
-    searchParams.set("order", formData.order);
-    // order: field
-    // sort: asc || desc
+    //* remove all queries from the URL
+    removeQueriesFromURL();
+
+    searchParams.set("category", category);
+    switch (category) {
+      case allProducts: {
+        // * all products section
+        break;
+      }
+      case estate: {
+        // * set filters into the URL
+        console.log("estate");
+        searchParams.set("type", estateFormData.type);
+        searchParams.set("parking", estateFormData.parking);
+        searchParams.set("furnished", estateFormData.furnished);
+        searchParams.set("offer", estateFormData.offer);
+        break;
+      }
+      case digitalEquipment: {
+        // * set the sub category to the URL
+        const selectedSubCategory = subCategory;
+        searchParams.set("subCategory", selectedSubCategory);
+
+        switch (selectedSubCategory) {
+          case allDigitalEquipment: {
+            break;
+          }
+          case cellPhoneAndTablets: {
+            console.log(cellPhoneAndTablets);
+
+            //* set the brand,storage,RAM and color to the URL
+            searchParams.set("brand", cellPhoneBrand);
+
+            //* set storage to the url
+            setObjectToURL("storage", checkedStorage);
+
+            //* set RAM to the url
+            setObjectToURL("RAM", checkedRAM);
+
+            //* set COLOR to the url
+            setObjectToURL("color", checkedColor);
+
+            break;
+          }
+          case computer: {
+            console.log(computer);
+            break;
+          }
+          case console: {
+            console.log(console);
+            break;
+          }
+        }
+        break;
+      }
+      case transportation: {
+        // * transportation's filter section
+        break;
+      }
+    }
+
+    //* check the price
+    const min_price = Number(price.minimumPrice);
+    const max_price = Number(price.maximumPrice);
+
+    if (max_price <= min_price) {
+      if (max_price != 0 && min_price != 0) {
+        toast.error("Maximum price should be higher than the minimum price");
+        return;
+      }
+    }
+
+    //* put the price of product to the URL
+    searchParams.set(
+      "minimumPrice",
+      price.minimumPrice.length == 0 ? 0 : price.minimumPrice
+    );
+    searchParams.set(
+      "maximumPrice",
+      price.maximumPrice.length == 0 ? 0 : price.maximumPrice
+    );
+
+    //* put the searchTerm into the URL
+    searchParams.set("searchTerm", searchTerm);
+
+    //* put the sort and order filters into the URL
+    //* sort: asc || desc
+
+    searchParams.set("sort", sortProduct);
+    searchParams.set("order", orderOfProduct);
+
     navigate(`/search?${searchParams.toString()}`);
   };
 
@@ -418,25 +539,59 @@ const SearchListings = () => {
   useEffect(() => {
     // Get Category from URL
     const categoryOfURL = searchParams.get("category");
+
+    //* put the searchTerm from URL to the input
     const term = searchParams.get("searchTerm");
-    const type = searchParams.get("type");
-    const parking = searchParams.get("parking");
-    const furnished = searchParams.get("furnished");
-    const order = searchParams.get("order");
+    setSearchTerm(term == null ? "" : term);
+
+    //* put the sort and orderOfProducts from URL to the sortProduct variable
     const sort = searchParams.get("sort");
-    const offer = searchParams.get("offer");
-    setFormData({
-      searchTerm: term == null ? "" : term,
-      type: type == null ? "all" : type,
-      parking: parking == null || parking == "false" ? false : true,
-      furnished: furnished == null || furnished == "false" ? false : true,
-      order: order == null ? "createdAt" : order,
-      sort: sort == null ? "desc" : sort,
-      offer: offer == null || offer == "false" ? false : true,
+    setSortProduct(sort == null ? "desc" : sort);
+    const order = searchParams.get("order");
+    setOrderOfProduc(order == null ? "createdAt" : order);
+
+    // * get the price from the URL
+    const min_price = searchParams.get("minimumPrice");
+    const max_price = searchParams.get("maximumPrice");
+
+    setPrice({
+      minimumPrice: min_price == null || min_price.length == 0 ? 0 : min_price,
+      maximumPrice: max_price == null || max_price.length == 0 ? 0 : max_price,
     });
+
+    // * fetch the products based on the category value
+    console.log(categoryOfURL);
     setCategory(categoryOfURL == null ? "all_products" : categoryOfURL);
+    switch (categoryOfURL) {
+      case allProducts: {
+        break;
+      }
+      case estate: {
+        const type = searchParams.get("type");
+        const parking = searchParams.get("parking");
+        const furnished = searchParams.get("furnished");
+        const offer = searchParams.get("offer");
+        setEstateFormData({
+          type: type == null ? "all" : type,
+          parking: parking == null || parking == "false" ? false : true,
+          furnished: furnished == null || furnished == "false" ? false : true,
+          offer: offer == null || offer == "false" ? false : true,
+        });
+        fetchListings();
+
+        break;
+      }
+      case digitalEquipment: {
+        console.log(digitalEquipment);
+        fetchListings();
+        break;
+      }
+      case transportation: {
+        break;
+      }
+    }
+    // * end of fetching the products
     delay = 0;
-    fetchListings();
   }, [location.search]);
 
   useEffect(() => {
@@ -476,8 +631,8 @@ const SearchListings = () => {
                     variant="outlined"
                     size="small"
                     name="searchTerm"
-                    value={formData.searchTerm}
-                    onChange={handleFormData}
+                    value={searchTerm}
+                    onChange={handleSearchTerm}
                     placeholder="type here..."
                   >
                     Search
@@ -522,7 +677,7 @@ const SearchListings = () => {
                         control={
                           <Checkbox
                             size={md ? "small" : "medium"}
-                            checked={formData.type === "all"}
+                            checked={estateFormData.type === "all"}
                           />
                         }
                       />
@@ -535,7 +690,7 @@ const SearchListings = () => {
                         control={
                           <Checkbox
                             size={md ? "small" : "medium"}
-                            checked={formData.type === "rent"}
+                            checked={estateFormData.type === "rent"}
                           />
                         }
                       />
@@ -548,7 +703,7 @@ const SearchListings = () => {
                         control={
                           <Checkbox
                             size={md ? "small" : "medium"}
-                            checked={formData.type === "sell"}
+                            checked={estateFormData.type === "sell"}
                           />
                         }
                       />
@@ -568,7 +723,7 @@ const SearchListings = () => {
                       }}
                     >
                       <FormControlLabel
-                        value={formData.offer}
+                        value={estateFormData.offer}
                         label="Offer"
                         labelPlacement="end"
                         name="offer"
@@ -576,7 +731,7 @@ const SearchListings = () => {
                         control={
                           <Checkbox
                             size={md ? "small" : "medium"}
-                            checked={formData?.offer ? true : false}
+                            checked={estateFormData?.offer ? true : false}
                           />
                         }
                       />
@@ -596,7 +751,7 @@ const SearchListings = () => {
                       }}
                     >
                       <FormControlLabel
-                        value={formData.parking}
+                        value={estateFormData.parking}
                         label="Parking"
                         labelPlacement="end"
                         name="parking"
@@ -604,13 +759,13 @@ const SearchListings = () => {
                         control={
                           <Checkbox
                             size={md ? "small" : "medium"}
-                            checked={formData.parking}
+                            checked={estateFormData.parking}
                           />
                         }
                       />
 
                       <FormControlLabel
-                        value={formData.furnished}
+                        value={estateFormData.furnished}
                         label="furnished"
                         labelPlacement="end"
                         name="furnished"
@@ -618,7 +773,7 @@ const SearchListings = () => {
                         control={
                           <Checkbox
                             size={md ? "small" : "medium"}
-                            checked={formData.furnished}
+                            checked={estateFormData.furnished}
                           />
                         }
                       />
@@ -746,10 +901,10 @@ const SearchListings = () => {
                   <Select
                     name="sort_order"
                     defaultValue={`createdAt_desc`}
-                    value={`${formData.order}_${formData.sort}`}
+                    value={`${orderOfProduct}_${sortProduct}`}
                     size="small"
                     fullWidth
-                    onChange={handleFormData}
+                    onChange={handleSortAndOrderOfProduct}
                   >
                     {orderValues.map((item, index) => {
                       return (
@@ -802,7 +957,7 @@ const SearchListings = () => {
           >
             <Box>
               {loading ? (
-                <Typography
+                <Box
                   sx={{
                     display: "flex",
                     justifyContent: "center",
@@ -811,7 +966,7 @@ const SearchListings = () => {
                   }}
                 >
                   <Loader />
-                </Typography>
+                </Box>
               ) : error !== null ? (
                 <Typography textAlign={"center"}>{error}</Typography>
               ) : listings.length == 0 ? (

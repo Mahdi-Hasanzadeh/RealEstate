@@ -35,7 +35,6 @@ const CheckboxesGroup = ({
         }}
         component={"label"}
       >
-        {name}
         {showStorage ? (
           <ArrowDropUpRounded
             color="error"
@@ -53,6 +52,7 @@ const CheckboxesGroup = ({
             onClick={handleShowStorage}
           />
         )}
+        {name}
       </Typography>
 
       {showStorage && (

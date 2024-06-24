@@ -10,13 +10,15 @@ import Fallback from "./Fallback";
 const ProductsSlider = lazy(() => import("./ProductsSlider"));
 const LatestProducts = lazy(() => import("./LatestProducts"));
 
+const category = "estate";
+
 const numberOfListings = 4;
 const offer = true;
 const rent = "rent";
 const sale = "sell";
-const offerQuery = `limit=${numberOfListings}&offer=${offer}`;
-const rentQuery = `limit=${numberOfListings}&type=${rent}`;
-const saleQuery = `limit=${numberOfListings}&type=${sale}`;
+const offerQuery = `category=${category}&limit=${numberOfListings}&offer=${offer}`;
+const rentQuery = `category=${category}&limit=${numberOfListings}&type=${rent}`;
+const saleQuery = `category=${category}&limit=${numberOfListings}&type=${sale}`;
 const specialListingsQuery = `limit=${numberOfListings}&offer=${offer}&furnished=true&parking=true`;
 
 const Home = () => {
@@ -209,7 +211,7 @@ const Home = () => {
                 fontSize: "1.5em",
               }}
               className="Link"
-              to="/search"
+              to="/search?category=all_products"
             >
               Let's Start Now...
             </Link>
@@ -233,6 +235,7 @@ const Home = () => {
           loading={loadingOffer}
           error={errorOffer}
           listings={recentOffers}
+          category={category}
         />
       </Suspense>
       <Suspense fallback={<Fallback />}>
@@ -242,6 +245,7 @@ const Home = () => {
           loading={loadingRent}
           error={errorRent}
           listings={recentRent}
+          category={category}
         />
       </Suspense>
       <Suspense fallback={<Fallback />}>
@@ -251,6 +255,7 @@ const Home = () => {
           loading={loadingSale}
           error={errorSale}
           listings={recentSale}
+          category={category}
         />
       </Suspense>
     </>

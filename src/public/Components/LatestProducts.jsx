@@ -5,9 +5,17 @@ import { Suspense, lazy } from "react";
 import Fallback from "./Fallback.jsx";
 const Card = lazy(() => import("./Card.jsx"));
 
-const LatestProducts = ({ title, loading, error, listings, query }) => {
+const LatestProducts = ({
+  title,
+  loading,
+  error,
+  listings,
+  query,
+  category,
+}) => {
   //#region Fields
-  const queryaString =
+  var queryString = `category=${category}&`;
+  queryString +=
     query == "offer"
       ? "offer=true"
       : query == "rent"
@@ -34,7 +42,7 @@ const LatestProducts = ({ title, loading, error, listings, query }) => {
           style={{
             color: "purple",
           }}
-          to={`/search?${queryaString}`}
+          to={`/search?${queryString}`}
         >
           {title}
         </Link>
