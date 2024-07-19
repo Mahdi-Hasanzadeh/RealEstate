@@ -302,6 +302,7 @@ const SearchListings = () => {
         }
       );
       // entertainmentConsole.log(response.data.listings);
+      // console.log(response.data.listings);
       if (response.data.listings.length > 8) {
         setShowMore(true);
       } else {
@@ -322,13 +323,13 @@ const SearchListings = () => {
       // console.log(key);
       params.push(key);
     }
-    console.log(params.length);
     params.map((item) => searchParams.delete(item));
 
     // console.log(searchParams.size, "size");
   };
 
   //* set an object to the URL
+
   const setObjectToURL = (name, obj) => {
     const trueValuesOfObj = filterObjectBasedOnValue(obj);
     const stringifyValues = qs.stringify(trueValuesOfObj);
@@ -347,7 +348,7 @@ const SearchListings = () => {
       }
       case estate: {
         // * set filters into the URL
-        console.log("estate");
+        // console.log("estate");
         searchParams.set("type", estateFormData.type);
         searchParams.set("parking", estateFormData.parking);
         searchParams.set("furnished", estateFormData.furnished);
@@ -364,7 +365,7 @@ const SearchListings = () => {
             break;
           }
           case cellPhoneAndTablets: {
-            console.log(cellPhoneAndTablets);
+            // console.log(cellPhoneAndTablets);
 
             //* set the brand,storage,RAM and color to the URL
             searchParams.set("brand", cellPhoneBrand);
@@ -381,11 +382,11 @@ const SearchListings = () => {
             break;
           }
           case computer: {
-            console.log(computer);
+            // console.log(computer);
             break;
           }
           case console: {
-            console.log(console);
+            // console.log(console);
             break;
           }
         }
@@ -517,19 +518,54 @@ const SearchListings = () => {
       gb18: false,
     });
   };
+
+  const setURLQueriesToLocalState = (params, name) => {
+    const parsedValue = qs.parse(params);
+    const values = Object.values(parsedValue);
+    if (name == "storage") {
+      setCheckedStorage((prevData) => {
+        const obj = {};
+        values.map((item) => (obj[item] = true));
+        return {
+          ...prevData,
+          ...obj,
+        };
+      });
+    } else if (name == "RAM") {
+      setCheckedRAM((prevData) => {
+        const obj = {};
+        values.map((item) => (obj[item] = true));
+        return {
+          ...prevData,
+          ...obj,
+        };
+      });
+    } else if (name == "color") {
+      setCheckedColor((prevData) => {
+        const obj = {};
+        values.map((item) => (obj[item] = true));
+        return {
+          ...prevData,
+          ...obj,
+        };
+      });
+    }
+  };
+
   //#endregion
 
   //#region style objects
 
   const gridStyle = {
     position: md ? "static" : "fixed",
+    overflowY: "auto", // Allow vertical scrolling if content exceeds height
     width: "100%",
+    height: md ? "" : "100dvh",
     paddingRight: theme.spacing(2),
     padding: md ? 0.5 : 2,
     borderRight: md ? "0px" : "1px solid gray",
-    // minHeight: md ? 0 : "93vh",
-    height: "93vh",
-    overflowY: "auto", // Allow vertical scrolling if content exceeds height
+    minHeight: md ? 0 : "93vh",
+    paddingBottom: md ? 0 : 15,
   };
 
   //#endregion
@@ -560,7 +596,8 @@ const SearchListings = () => {
     });
 
     // * fetch the products based on the category value
-    console.log(categoryOfURL);
+    // console.log(categoryOfURL);
+
     setCategory(categoryOfURL == null ? "all_products" : categoryOfURL);
     switch (categoryOfURL) {
       case allProducts: {
@@ -578,11 +615,24 @@ const SearchListings = () => {
           offer: offer == null || offer == "false" ? false : true,
         });
         fetchListings();
-
         break;
       }
       case digitalEquipment: {
-        console.log(digitalEquipment);
+        const subCategory = searchParams.get("subCategory");
+        setSubCategory(subCategory);
+
+        // todo
+        const brand = searchParams.get("brand");
+        setCellPhoneBrand(brand == null ? "all_brands" : brand);
+
+        const storage = searchParams.get("storage");
+        const RAM = searchParams.get("RAM");
+        const color = searchParams.get("color");
+
+        setURLQueriesToLocalState(storage, "storage");
+        setURLQueriesToLocalState(RAM, "RAM");
+        setURLQueriesToLocalState(color, "color");
+
         fetchListings();
         break;
       }
@@ -607,6 +657,7 @@ const SearchListings = () => {
       <Box className={styleModule.backgroundcolor}>
         <Grid container>
           {/* search section */}
+
           {showFilterSection && (
             <Zoom
               in={showFilterSection}
@@ -926,6 +977,7 @@ const SearchListings = () => {
               </Grid>
             </Zoom>
           )}
+          {/* End of search section */}
 
           {md && (
             <Button
@@ -943,7 +995,8 @@ const SearchListings = () => {
                 : "Open Filter Section"}
             </Button>
           )}
-          {/* Filter listing section */}
+
+          {/* Products Section */}
           <Grid
             sx={{
               marginLeft: "auto", // Ensure content doesn't overlap with fixed section
@@ -957,6 +1010,7 @@ const SearchListings = () => {
           >
             <Box>
               {loading ? (
+                // Loading component
                 <Box
                   sx={{
                     display: "flex",
@@ -979,7 +1033,7 @@ const SearchListings = () => {
                     sx={{
                       padding: 2,
                       display: "flex",
-                      justifyContent: "flex-start",
+                      justifyContent: "space-around",
                       flexWrap: "wrap",
                       gap: 4,
                     }}
@@ -1013,6 +1067,7 @@ const SearchListings = () => {
               )}
             </Box>
           </Grid>
+          {/* End of Products Section */}
         </Grid>
       </Box>
     </>

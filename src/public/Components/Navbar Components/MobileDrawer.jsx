@@ -1,3 +1,5 @@
+//#region Libraries
+
 import {
   Box,
   Button,
@@ -6,14 +8,20 @@ import {
   IconButton,
   Typography,
 } from "@mui/material";
-import { GRAY, LIGHTGRAY, BLACK } from "../../../COLOR";
-import { Link, NavLink, useNavigate } from "react-router-dom";
-import MyTooltip from "./Tooltip.jsx";
-import profilePicture from "../assets/profile.png";
-import Styles from "../../style.module.css";
-import { navItems } from "../utility.js";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { ArrowDropDownRounded, ArrowDropUpRounded } from "@mui/icons-material";
+
+//#endregion
+
+//#region My Modules
+import { GRAY, LIGHTGRAY, BLACK } from "../../../../COLOR.js";
+import MyTooltip from "../Tooltip.jsx";
+import profilePicture from "../../assets/profile.png";
+import { navItems } from "../../utility.js";
+import ListingTabContent from "./ListingTabContent.jsx";
+
+//#endregion
 
 const MobileDrawer = ({
   mobileOpen,
@@ -34,43 +42,6 @@ const MobileDrawer = ({
 
   const handleMouseLeave = () => {
     setOpenTooltip(false);
-  };
-
-  const Listing = () => {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "flex-start",
-          padding: 1,
-          rowGap: 2,
-          width: 110,
-        }}
-      >
-        <Link
-          onClick={handleDrawerToggle}
-          className={`${Styles.tooltipLink}`}
-          to="/create-list"
-        >
-          New Listing
-        </Link>
-        <Link
-          onClick={handleDrawerToggle}
-          className={`${Styles.tooltipLink}`}
-          to="/search"
-        >
-          Search Listings
-        </Link>
-        <Link
-          onClick={handleDrawerToggle}
-          className={`${Styles.tooltipLink}`}
-          to="/userListings"
-        >
-          Your Listings
-        </Link>
-      </Box>
-    );
   };
 
   return (
@@ -194,7 +165,12 @@ const MobileDrawer = ({
                       show={openTooltip}
                       mouseEnter={handleMouseEnter}
                       mouseLeave={handleMouseLeave}
-                      content={<Listing />}
+                      content={
+                        <ListingTabContent
+                          handleMouseLeave={handleMouseLeave}
+                          handleDrawerToggle={handleDrawerToggle}
+                        />
+                      }
                       position={"rigth"}
                     />
                   </Box>

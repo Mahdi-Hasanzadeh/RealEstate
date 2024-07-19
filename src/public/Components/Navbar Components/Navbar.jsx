@@ -1,13 +1,13 @@
+//# region Libraries
+
 import { Menu, SearchRounded } from "@mui/icons-material";
 import {
   AppBar,
   Box,
   Button,
-  Drawer,
   IconButton,
   Toolbar,
   Typography,
-  Divider,
   TextField,
   InputAdornment,
   useMediaQuery,
@@ -28,21 +28,37 @@ import {
   Link,
   useLocation,
 } from "react-router-dom";
-import { BLACK, GRAY, LIGHTGRAY } from "../../../COLOR";
 import { useDispatch, useSelector } from "react-redux";
-import profilePicture from "../assets/profile.png";
-import Styles from "../../style.module.css";
-import { setWelcomeToast } from "../../../reactRedux/showToast";
-import { deleteUser } from "../../../reactRedux/userSlice";
+
+//#endregion
+
+//#region My Modules
+import profilePicture from "../../assets/profile.png";
+import { setWelcomeToast } from "../../../../reactRedux/showToast";
+import { deleteUser } from "../../../../reactRedux/userSlice";
+import { BLACK, GRAY, LIGHTGRAY } from "../../../../COLOR";
+import MyTooltip from "../Tooltip.jsx";
+import Fallback from "../Fallback.jsx";
+import { navItems } from "../../utility.js";
+const MobileDrawer = lazy(() => import("./MobileDrawer.jsx"));
+
+import Listings from "./ListingTabContent.jsx";
+
+import Styles from "../../../style.module.css";
+
+//#endregion
+
+//#region Global Variable
+
 const Transition = forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
-import MyTooltip from "./Tooltip.jsx";
-import Fallback from "./Fallback.jsx";
 
-const MobileDrawer = lazy(() => import("./MobileDrawer.jsx"));
+//#endregion
 
-import { navItems } from "../utility.js";
+//#region Global Variables
+
+//#endregion
 
 const Navbar = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -59,50 +75,6 @@ const Navbar = () => {
   const user = useSelector((store) => store.persistData.user.userInfo);
   const theme = useTheme();
   const md = useMediaQuery(theme.breakpoints.down("md"));
-
-  const Listing = () => {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "flex-start",
-          padding: 1,
-          rowGap: 2,
-          width: 110,
-        }}
-      >
-        <Link
-          onClick={handleMouseLeave}
-          className={`${Styles.tooltipLink}`}
-          to="/create-list"
-        >
-          New Listing
-        </Link>
-        <Link
-          onClick={handleMouseLeave}
-          className={`${Styles.tooltipLink}`}
-          to="/search"
-        >
-          Search Listings
-        </Link>
-        <Link
-          onClick={handleMouseLeave}
-          className={`${Styles.tooltipLink}`}
-          to="/userListings"
-        >
-          Your Listings
-        </Link>
-        <Link
-          onClick={handleMouseLeave}
-          className={`${Styles.tooltipLink}`}
-          to="/favoriteListings"
-        >
-          Your favorites
-        </Link>
-      </Box>
-    );
-  };
 
   const ProfileTooltip = () => {
     return (
@@ -210,9 +182,9 @@ const Navbar = () => {
               margin: "0 10px",
             }}
           >
-            {/* Menu icon for screen sizes */}
+            {/* Menu icon for small screen size */}
             <IconButton
-              color="inherit"
+              color="primary"
               aria-label="open drawer"
               edge="start"
               onClick={handleDrawerToggle}
@@ -238,6 +210,7 @@ const Navbar = () => {
                 ESTATE
               </Typography>
             </Typography>
+
             <Box>
               <TextField
                 label="Search"
@@ -354,7 +327,9 @@ const Navbar = () => {
                           show={openTooltip}
                           mouseEnter={handleMouseEnter}
                           mouseLeave={handleMouseLeave}
-                          content={<Listing />}
+                          content={
+                            <Listings handleMouseLeave={handleMouseLeave} />
+                          }
                           position={"bottom"}
                         />
                       </Box>
@@ -401,7 +376,7 @@ const Navbar = () => {
         <DialogTitle>Warning</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            "Are your to sign out from your account"
+            "Are you sure to sign out from your account"
           </DialogContentText>
         </DialogContent>
         <DialogActions>

@@ -19,7 +19,7 @@ const sale = "sell";
 const offerQuery = `category=${category}&limit=${numberOfListings}&offer=${offer}`;
 const rentQuery = `category=${category}&limit=${numberOfListings}&type=${rent}`;
 const saleQuery = `category=${category}&limit=${numberOfListings}&type=${sale}`;
-const specialListingsQuery = `limit=${numberOfListings}&offer=${offer}&furnished=true&parking=true`;
+const specialListingsQuery = `category=estate&limit=${numberOfListings}&offer=${offer}&furnished=true&parking=true`;
 
 const Home = () => {
   const theme = useTheme();
@@ -211,7 +211,7 @@ const Home = () => {
                 fontSize: "1.5em",
               }}
               className="Link"
-              to="/search?category=all_products"
+              to="/search?category=estate"
             >
               Let's Start Now...
             </Link>
