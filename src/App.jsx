@@ -1,13 +1,26 @@
+//#region Libraries
+
 import { Suspense, lazy, useEffect } from "react";
 import { Outlet, Route, Routes } from "react-router-dom";
-import { Navbar } from "./public/Components/ComponentsReturn";
 import { Slide, ToastContainer, toast } from "react-toastify";
-import Fallback from "./public/Components/Fallback.jsx";
 import { useDispatch, useSelector } from "react-redux";
+
+//#endregion
+
+//#region My Modules
+
+import { Navbar } from "./public/Components/ComponentsReturn";
+import Fallback from "./public/Components/Fallback.jsx";
 import { setWelcomeToast } from "../reactRedux/showToast.js";
 import styleModule from "./style.module.css";
 
-const Home = lazy(() => import("./public/Components/Home.jsx"));
+//#endregion
+
+//#region Lazy Load Components
+
+const Home = lazy(() =>
+  import("./public/Components/Home Page Component/Home.jsx")
+);
 const About = lazy(() => import("./public/Components/About.jsx"));
 const Signup = lazy(() => import("./public/Components/Sign-up.jsx"));
 const UserProfile = lazy(() => import("./public/Components/UserProfile.jsx"));
@@ -27,13 +40,20 @@ const CreateListing = lazy(() =>
   import("./public/Components/CreateListing.jsx")
 );
 
+//#endregion
+
 const App = () => {
+  //#region fields
+
   const dispatch = useDispatch();
   const user = useSelector((store) => store.persistData.user.userInfo);
   const welcomeToast = useSelector(
     (store) => store.persistData.showWelcomeToast.userAlreadySeeWelcomeToast
   );
 
+  //#endregion
+
+  //#region Hooks
   useEffect(() => {
     if (welcomeToast) return;
     if (user) {
@@ -44,6 +64,10 @@ const App = () => {
       dispatch(setWelcomeToast(true));
     }
   }, [user]);
+
+  //#endregion
+
+  //#region Layout of the page
 
   const BasicLayout = () => {
     return (
@@ -60,6 +84,8 @@ const App = () => {
       </div>
     );
   };
+
+  //#endregion
 
   return (
     <>

@@ -28,15 +28,19 @@ const autoCloseTime = 3000;
 //#endregion
 
 //#region My Modules
+
 import Fallback from "./Fallback.jsx";
 import { updateUser } from "../../../reactRedux/userSlice.js";
 const Wave = lazy(() => import("../styleComponents/Wave.jsx"));
 import { URL } from "../../../PortConfig";
 import { app } from "../../firebase";
+
 //#endregion
 
 //#region Global Fields
+
 const pageTitle = "Create list";
+
 //#endregion
 
 const CreateListing = () => {
