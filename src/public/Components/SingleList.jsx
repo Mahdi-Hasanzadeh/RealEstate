@@ -1,7 +1,7 @@
 //#region import (libraries)
 import axios from "axios";
 import { Suspense, lazy, useEffect, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import {
   Box,
   Button,
@@ -12,6 +12,7 @@ import {
   Paper,
   Checkbox,
   Tooltip,
+  Divider,
 } from "@mui/material";
 import {
   BathroomRounded,
@@ -21,9 +22,11 @@ import {
   ChairRounded,
   LocalParkingRounded,
   LocationCityRounded,
+  LocationOnRounded,
+  PunchClock,
+  TimelineRounded,
 } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
-import { formatDistanceToNow } from "date-fns";
 import MobileStepper from "@mui/material/MobileStepper";
 import { autoPlay } from "react-swipeable-views-utils";
 import KeyboardArrowLeft from "@mui/icons-material/KeyboardArrowLeft";
@@ -35,12 +38,16 @@ import { toast } from "react-toastify";
 
 //#region import (My Modules)
 
-import { addLocationHistory } from "../../../reactRedux/userLocationHistory";
-import { BLACK, LIGHTGRAY } from "../../../COLOR";
+import { LIGHTGRAY } from "../../../COLOR";
 import Fallback from "./Fallback";
 import { fetchUserListing } from "../../../reactRedux/userListing.js";
 import { URL } from "../../../PortConfig";
 import Loader from "../styleComponents/loader.jsx";
+import { cellPhoneAndTablets, estate } from "../utility.js";
+import CellPhoneUI from "./Components For Single Product/CellPhoneUI.jsx";
+import TimePassed from "../Utility/Time.jsx";
+import ErrorUI from "../styleComponents/Error.jsx";
+import LoginUI from "../Utility/Login.jsx";
 const ContactUser = lazy(() => import("./ContactUser.jsx"));
 //#endregion
 
@@ -55,13 +62,10 @@ const SingleList = () => {
   //#region fields (use hook)
 
   const [activeStep, setActiveStep] = useState(0);
-  //get the id of the current product from the url
   const { listingId } = useParams();
-  const location = useLocation();
-  const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  //bring the current user all listings with it's favorites listings
+  //get the current user's all listings with it's favorites listings
   const currentUser = useSelector((store) => store.persistData.user.userInfo);
   const userListing = useSelector((store) => store.userListing);
   const [favoriteChecked, setFavoriteChecked] = useState(null);
@@ -76,10 +80,23 @@ const SingleList = () => {
 
   useEffect(() => {
     if (currentUser) {
+      const split = listingId.split(",");
+      const id = split[0];
+      const mainCategory = split[1];
+      const subCategory = split[2];
+      console.log(mainCategory);
+      console.log(subCategory);
       //* get the single product that the user selected and the current user information
       //* to check if the current user have this single product in it's favorties list or not
       //?fetchUserListing return the single product information and the favorites list of current user
-      dispatch(fetchUserListing({ listingId, currentUserId: currentUser.id }));
+      dispatch(
+        fetchUserListing({
+          id,
+          mainCategory,
+          subCategory,
+          currentUserId: currentUser.id,
+        })
+      );
     }
   }, []);
 
@@ -87,8 +104,13 @@ const SingleList = () => {
 
   //#region Methods
 
+  const toggle = () => {
+    setShow(false);
+  };
+
   //* add or remove a product to/from favorties list
   // ! find a better solution
+
   const handleFavoriteChecked = async () => {
     setFavoriteDisabled(true);
     try {
@@ -149,29 +171,9 @@ const SingleList = () => {
     }
   };
 
-  const toggle = () => {
-    setShow(false);
-  };
-
-  // Calculate the price of product with discount
-  const priceAfterDiscount = (regularPrice, discountPrice) => {
-    return regularPrice - discountPrice;
-  };
-
-  const handleNavigate = (to) => {
-    // getting the user location
-    const currentLocation =
-      "/" + location.pathname.split("/").slice(2).join("/");
-
-    dispatch(addLocationHistory(location));
-
-    // console.log(location.pathname.split("/").slice(2).join("/"));
-    if (to == "login") {
-      navigate("/signin");
-    } else {
-      navigate("/signup");
-    }
-  };
+  // const priceAfterDiscount = (regularPrice, discountPrice) => {
+  //   return regularPrice - discountPrice;
+  // };
 
   //#region Methods for slider
   const handleNext = () => {
@@ -300,83 +302,64 @@ const SingleList = () => {
     );
   };
 
-  // show login form when the user is not login
-  const Login = () => {
-    return (
-      <Box padding={2}>
-        <Typography
-          sx={{
-            textAlign: "center",
-            mb: 1.5,
-          }}
-          variant="body1"
-        >
-          Please first login to your account or create a new one
-        </Typography>
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            columnGap: 2,
-          }}
-        >
-          <Button
-            variant="contained"
-            onClick={() => {
-              handleNavigate("login");
-            }}
-            size="small"
-          >
-            Login
-          </Button>
-          <Button
-            variant="contained"
-            onClick={() => {
-              handleNavigate("signup");
-            }}
-            size="small"
-          >
-            Sign up
-          </Button>
-        </Box>
-      </Box>
-    );
-  };
-
   const ProductDescriptions = () => {
     return (
       <>
         <Box
           sx={{
             display: "flex",
-            flexDirection: { xs: "column", sm: "row" },
+            flexWrap: "wrap",
             alignItems: { xs: "flex-start", md: "center" },
             gap: 1.5,
           }}
         >
-          <Typography variant="h5" fontWeight={"bold"}>
+          {/* <Typography variant="h5" fontWeight={"bold"}>
             {userListing.data?.name}{" "}
-          </Typography>
+          </Typography> */}
+
           <Typography variant="h5" fontWeight={"bold"}>
+            {userListing.data?.regularPrice} AF
+            {userListing?.data?.mainCategoryName == estate &&
+            userListing.data?.type === "rent"
+              ? "/ month"
+              : null}
+          </Typography>
+
+          <TimePassed date={userListing?.data?.createdAt} />
+
+          {currentUser.id !== userListing.data.userRef && (
+            <Tooltip title="Add to Favorites">
+              <Checkbox
+                disabled={favoriteDisabled}
+                icon={<BookmarkBorder />}
+                checkedIcon={<Bookmark />}
+                checked={isFavoriteChecked}
+                onClick={handleFavoriteChecked}
+              />
+            </Tooltip>
+          )}
+
+          {/* <Typography variant="h5" fontWeight={"bold"}>
             {userListing.data?.discountPrice == 0
               ? userListing.data?.regularPrice
               : userListing.data?.discountPrice}{" "}
             {userListing.data?.type === "rent" ? "/ month" : null}
-          </Typography>
+          </Typography> */}
         </Box>
-        {/* Address section */}
+        {/* End of Name,Price and TimePassed for products */}
+
         <Box mt={2} display={"flex"} alignItems={"flex-end"} gap={1}>
-          {
-            <LocationCityRounded
-              color="success"
-              sx={{
-                verticalAlign: "middle",
-              }}
-            />
-          }
+          <LocationOnRounded
+            color="success"
+            sx={{
+              verticalAlign: "middle",
+            }}
+          />
+
           <Typography variant="body1">{userListing.data?.address}</Typography>
         </Box>
-        {/* type of property section */}
+        {/*End of Address  */}
+
         <Box
           mt={1.5}
           mb={1}
@@ -386,20 +369,23 @@ const SingleList = () => {
             gap: 1,
           }}
         >
-          <Typography
-            variant="body1"
-            sx={{
-              backgroundColor: "red",
-              width: "200px",
-              textAlign: "center",
-              color: "white",
-              fontSize: "19px",
-              borderRadius: 5,
-            }}
-          >
-            {userListing.data?.type == "rent" ? "Rent" : "Sell"}
-          </Typography>
-          {userListing.data?.offer && (
+          {userListing?.data?.mainCategoryName == estate && (
+            <Typography
+              variant="body1"
+              sx={{
+                backgroundColor: "red",
+                width: "200px",
+                textAlign: "center",
+                color: "white",
+                fontSize: "19px",
+                borderRadius: 5,
+              }}
+            >
+              {userListing.data?.type == "rent" ? "Rent" : "Sell"}
+            </Typography>
+          )}
+
+          {/* {userListing.data?.offer && (
             <Typography
               variant="body1"
               sx={{
@@ -417,20 +403,10 @@ const SingleList = () => {
                   userListing.data?.discountPrice
                 )}
             </Typography>
-          )}
-          {currentUser.id !== userListing.data.userRef && (
-            <Tooltip title="Add to Favorites">
-              <Checkbox
-                disabled={favoriteDisabled}
-                icon={<BookmarkBorder />}
-                checkedIcon={<Bookmark />}
-                checked={isFavoriteChecked}
-                onClick={handleFavoriteChecked}
-              />
-            </Tooltip>
-          )}
+          )} */}
         </Box>
-        {/* Description Section */}
+        {/*End of type of property (sell or rent)*/}
+
         <Box>
           <Typography
             variant="body1"
@@ -438,6 +414,7 @@ const SingleList = () => {
             sx={{
               wordWrap: "break-word",
               textAlign: "justify",
+              fontFamily: "sans-serif",
             }}
           >
             <span
@@ -445,128 +422,130 @@ const SingleList = () => {
                 fontWeight: "bold",
               }}
             >
-              Description -
+              Description:{" "}
             </span>
             {userListing.data?.description}
           </Typography>
         </Box>
-        <Box mt={1} mb={1}>
-          <Typography variant="body2" color={BLACK}>
-            {/* {listing?.createdAt.toString()} */}
-            {userListing.data?.createdAt &&
-              formatDistanceToNow(new Date(userListing.data?.createdAt))}
-            ago
-          </Typography>
-        </Box>
-        {/* Home Features */}
-        <Box
+        {/* End 0f Description */}
+
+        <Divider
           sx={{
-            display: "flex",
-            justifyContent: "flex-start",
-            gap: 2,
-            alignItems: "center",
-            flexWrap: "wrap-reverse",
+            my: 2,
           }}
-        >
-          <Typography color={"green"} variant="body1">
-            {
-              <BedroomParentRounded
-                sx={{
-                  verticalAlign: "middle",
-                }}
-              />
-            }
-            {userListing.data?.bedrooms} bed
-            {userListing.data?.bedrooms !== 1 && "s"}
-          </Typography>
+        />
 
-          <Typography color={"green"} variant="body1">
-            {
-              <BathroomRounded
-                sx={{
-                  verticalAlign: "middle",
-                }}
-              />
-            }
-            {userListing.data?.bath} bath
-            {userListing.data?.bath !== 1 && "s"}
-          </Typography>
-          <Typography color={"green"} variant="body1">
-            {
-              <LocalParkingRounded
-                sx={{
-                  verticalAlign: "middle",
-                }}
-              />
-            }
-            {userListing.data?.parking ? "Parking spot" : "No Parking"}
-          </Typography>
-          <Typography color={"green"} variant="body1">
-            {
-              <ChairRounded
-                sx={{
-                  verticalAlign: "middle",
-                }}
-              />
-            }
-            {userListing.data?.furnished ? "Furnished" : "Unfurnished"}
-          </Typography>
-        </Box>
-      </>
-    );
-  };
-  //#endregion
-
-  return (
-    <>
-      {currentUser == null ? (
-        <Login />
-      ) : userListing.loading ? (
-        <div
-          style={{
-            textAlign: "center",
-          }}
-        >
+        {userListing?.data?.mainCategoryName == estate && (
           <Box
             sx={{
               display: "flex",
-              justifyContent: "center",
+              justifyContent: "flex-start",
+              gap: 2,
               alignItems: "center",
-              marginTop: "20%",
+              flexWrap: "wrap-reverse",
             }}
           >
-            <Loader />
+            <Typography color={"green"} variant="body1">
+              {
+                <BedroomParentRounded
+                  sx={{
+                    verticalAlign: "middle",
+                  }}
+                />
+              }
+              {userListing.data?.bedrooms} bed
+              {userListing.data?.bedrooms !== 1 && "s"}
+            </Typography>
+
+            <Typography color={"green"} variant="body1">
+              {
+                <BathroomRounded
+                  sx={{
+                    verticalAlign: "middle",
+                  }}
+                />
+              }
+              {userListing.data?.bath} bath
+              {userListing.data?.bath !== 1 && "s"}
+            </Typography>
+            <Typography color={"green"} variant="body1">
+              {
+                <LocalParkingRounded
+                  sx={{
+                    verticalAlign: "middle",
+                  }}
+                />
+              }
+              {userListing.data?.parking ? "Parking spot" : "No Parking"}
+            </Typography>
+            <Typography color={"green"} variant="body1">
+              {
+                <ChairRounded
+                  sx={{
+                    verticalAlign: "middle",
+                  }}
+                />
+              }
+              {userListing.data?.furnished ? "Furnished" : "Unfurnished"}
+            </Typography>
           </Box>
-        </div>
-      ) : userListing.success == false ? (
-        <div
-          style={{
-            textAlign: "center",
+        )}
+        {/*End of Home Features */}
+
+        {userListing?.data?.subCategoryName == cellPhoneAndTablets && (
+          <CellPhoneUI product={userListing?.data} />
+        )}
+        {/* End of Cell Phone Info */}
+
+        <Divider
+          sx={{
+            my: 2,
+          }}
+        />
+      </>
+    );
+  };
+
+  //#endregion
+
+  // if user is not logged in show login form
+  if (currentUser == null) {
+    return <LoginUI />;
+  }
+
+  return (
+    <>
+      {userListing.loading ? (
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "90dvh",
           }}
         >
-          <h2>{userListing.error}</h2>
-        </div>
+          <Loader />
+        </Box>
+      ) : userListing.success == false ? (
+        <ErrorUI error={userListing?.error} />
       ) : (
         userListing.success &&
         userListing.error == false && (
-          <main>
-            <div>
-              <Container
-                maxWidth="lg"
-                sx={{
-                  mt: 4,
-                }}
-              >
-                <Slider />
-              </Container>
-            </div>
-            <Container
-              maxWidth="lg"
+          <Container maxWidth="lg">
+            <Box
+              sx={{
+                mt: 4,
+              }}
+            >
+              <Slider />
+            </Box>
+            <Box
               sx={{
                 pb: 5,
               }}
             >
               <ProductDescriptions />
+
               <Suspense fallback={<Fallback />}>
                 {!show && (
                   <Box
@@ -599,8 +578,8 @@ const SingleList = () => {
                   </Box>
                 )}
               </Suspense>
-            </Container>
-          </main>
+            </Box>
+          </Container>
         )
       )}
     </>

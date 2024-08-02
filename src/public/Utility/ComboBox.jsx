@@ -1,4 +1,5 @@
 import { Box, MenuItem, Select, Typography } from "@mui/material";
+import { allProducts } from "../utility";
 
 const ComboBox = ({ name, defaultValue, value, handleValueMethod, items }) => {
   return (
@@ -16,7 +17,7 @@ const ComboBox = ({ name, defaultValue, value, handleValueMethod, items }) => {
         }}
       >
         <Select
-          name="subCategory"
+          name={name}
           defaultValue={defaultValue}
           value={value}
           size="small"
@@ -26,7 +27,7 @@ const ComboBox = ({ name, defaultValue, value, handleValueMethod, items }) => {
           {items.map((item, index) => {
             return (
               <MenuItem disabled={item.disabled} key={index} value={item.value}>
-                {item.name}
+                {item.name.toUpperCase()}
               </MenuItem>
             );
           })}

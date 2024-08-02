@@ -7,8 +7,17 @@ export const fetchUserListing = createAsyncThunk(
   async (value, thunkAPI) => {
     try {
       // fetch single product to show for the user
+      console.log(value.mainCategory);
+      const id_main_sub = (
+        value.id +
+        "," +
+        value.mainCategory +
+        "," +
+        value.subCategory
+      ).toString();
+      console.log(id_main_sub);
       const response = await axios.get(
-        `${URL}api/listing/userListing/${value.listingId}`,
+        `${URL}api/listing/userListing/${id_main_sub}`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,

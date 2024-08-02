@@ -11,8 +11,7 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import { Suspense, lazy, useState } from "react";
-import { BLACK, LIGHTGRAY } from "../../../COLOR";
+import { Suspense, lazy, useEffect, useState } from "react";
 import {
   getDownloadURL,
   getStorage,
@@ -29,11 +28,33 @@ const autoCloseTime = 3000;
 
 //#region My Modules
 
+import { BLACK, LIGHTGRAY } from "../../../COLOR";
 import Fallback from "./Fallback.jsx";
 import { updateUser } from "../../../reactRedux/userSlice.js";
-const Wave = lazy(() => import("../styleComponents/Wave.jsx"));
 import { URL } from "../../../PortConfig";
 import { app } from "../../firebase";
+import ComboBox from "../Utility/ComboBox.jsx";
+import {
+  allBrands,
+  allDigitalEquipment,
+  allProducts,
+  CategoryItems,
+  cellPhoneAndTablets,
+  CellPhoneBrands,
+  CellPhoneRAM,
+  CellPhoneStorage,
+  ColorValues,
+  digitalEquipment,
+  estate,
+  samsung,
+  StorageValues,
+  SubCategoryItemsForDigitalEquiments,
+  ValidateMobileNumber,
+  ValidateMobileNumberLength,
+} from "../utility.js";
+import { Category } from "@mui/icons-material";
+
+const Wave = lazy(() => import("../styleComponents/Wave.jsx"));
 
 //#endregion
 
@@ -55,169 +76,111 @@ const CreateListing = () => {
   const md = useMediaQuery(theme.breakpoints.down("md"));
   const currentUser = useSelector((store) => store.persistData.user.userInfo);
 
-  const [formData, setFormData] = useState({
+  const [mainCategory, setMainCategory] = useState(estate);
+  const [subCategory, setSubCategory] = useState("");
+
+  const [cellPhoneInfo, setCellPhoneInfo] = useState({
+    brand: CellPhoneBrands[1].value, // default is samsung
+    storage: CellPhoneStorage[0].value,
+    color: ColorValues[0].value,
+    RAM: CellPhoneRAM[0].value,
+  });
+
+  const [estateFormInfo, setEstateFormInfo] = useState({
     type: "rent",
-    description: "",
-    imageURLs: [],
     parking: false,
     furnished: false,
-    offer: false,
     bedrooms: 1,
     bath: 1,
+  });
+
+  const [generalFormInfo, setGeneralFormInfo] = useState({
+    description: "",
+    imageURLs: [],
     regularPrice: 1,
     discountPrice: 1,
     mobileNumber: "",
+    offer: false,
   });
+
+  //#endregion
+
+  //#region useEffect
+
+  useEffect(() => {
+    // we set the sub mainCategory to a default value when the mainCategory is changed
+    switch (mainCategory) {
+      case digitalEquipment: {
+        setSubCategory(cellPhoneAndTablets);
+        break;
+      }
+    }
+  }, [mainCategory]);
 
   //#endregion
 
   //#region methods
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (
-      !formData.name ||
-      !formData.description ||
-      !formData.address ||
-      formData.imageURLs.length === 0
-    ) {
-      console.log("Fill out the form");
-      toast.error("Please fill out the form", {
-        autoClose: autoCloseTime,
-      });
-      return;
-    }
-    if (!currentUser.mobileNumber) {
-      const reg = /^\d+$/;
-      if (!reg.test(formData?.mobileNumber)) {
-        toast.error("Telephone number Should Contain only numbers");
-        return;
-        // errors.telNumber = "Telephone number Should Contain only numbers ";
-      }
-      if (
-        formData?.mobileNumber.length < 10 ||
-        formData?.mobileNumber.length > 10
-      ) {
-        toast.error("Mobile number should be 10 digits");
-        return;
-      }
-    }
-
-    if (parseInt(formData.discountPrice) >= parseInt(formData.regularPrice)) {
-      toast.error(
-        "Discount price can not be bigger than or equal to regular price",
-        {
-          autoClose: autoCloseTime,
-        }
-      );
-      return;
-    }
-    const accessToken = localStorage.getItem("accessToken");
-    try {
-      setUploading(true);
-
-      if (!currentUser.mobileNumber) {
-        const resp = await axios.put(
-          `${URL}api/user/update/${currentUser.id}`,
-          {
-            mobileNumber: formData.mobileNumber,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-          }
-        );
-        if (resp?.data?.succeess == false) {
-          console.log(resp.data.message);
-          toast.error(resp.data.message, {
-            autoClose: autoCloseTime,
-          });
-          setUploadError(resp.data.message);
-          return;
-        }
-        toast.success("Your mobile number updated");
-
-        dispatch(
-          updateUser({
-            ...currentUser,
-            mobileNumber: formData.mobileNumber,
-          })
-        );
-      }
-
-      const response = await axios.post(
-        `${URL}api/listing/create`,
-        {
-          ...formData,
-          discountPrice: formData.offer ? formData.discountPrice : 0,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
-      if (response?.data?.succeess == false) {
-        console.log(response.data.message);
-        toast.error(response.data.message, {
-          autoClose: autoCloseTime,
-        });
-        setUploadError(response.data.message);
-        return;
-      }
-      toast.success("Your listing created successfully");
-      navigate(`/listing/${response.data._id}`);
-    } catch (error) {
-      console.log(error.message);
-      toast.error(error.message, {
-        autoClose: autoCloseTime,
-      });
-    } finally {
-      setUploading(false);
-    }
+  const handleCategory = (event) => {
+    setMainCategory(event.target.value);
   };
 
-  const deleteImageFromlist = (item) => {
-    setFormData((prevData) => {
+  const handleSubCategoryForDigitalEquipment = (event) => {
+    setSubCategory(event.target.value);
+  };
+
+  const handleGeneralFormInfo = (event) => {
+    setGeneralFormInfo((prevData) => {
       return {
         ...prevData,
-        imageURLs: [...formData.imageURLs.filter((url) => url !== item)],
+        [event.target.name]:
+          event.target.type == "checkbox"
+            ? event.target.checked
+            : event.target.value,
       };
     });
   };
 
-  const handleFormData = (event) => {
-    // console.log(event.target.value);
-    if (
-      event.target.name == "parking" ||
-      event.target.name == "furnished" ||
-      event.target.name == "offer"
-    ) {
-      setFormData((prevData) => {
+  const handleEstateFormInfo = (event) => {
+    const attributeName = event.target.name;
+    const inputType = event.target.type;
+
+    setEstateFormInfo((prevData) => {
+      if (attributeName == "type") {
         return {
           ...prevData,
-          [event.target.name]:
-            event.target.name == "parking"
-              ? !formData.parking
-              : event.target.name == "furnished"
-              ? !formData.furnished
-              : !formData.offer,
+          [event.target.name]: event.target.value,
         };
-      });
-    } else {
-      setFormData((prevData) => {
+      } else if (inputType == "checkbox") {
         return {
           ...prevData,
-          [event.target.name]:
-            event.target.type == "text" || "number"
-              ? event.target.value
-              : event.target.name == "type"
-              ? event.target.value
-              : event.target.checked,
+          [event.target.name]: event.target.checked,
         };
-      });
-    }
+      } else {
+        return {
+          ...prevData,
+          [event.target.name]: event.target.value,
+        };
+      }
+    });
+  };
+
+  const handleCellPhoneInfo = (event) => {
+    setCellPhoneInfo((prevData) => {
+      return {
+        ...prevData,
+        [event.target.name]: event.target.value,
+      };
+    });
+  };
+
+  const deleteImageFromlist = (item) => {
+    setGeneralFormInfo((prevData) => {
+      return {
+        ...prevData,
+        imageURLs: [...generalFormInfo.imageURLs.filter((url) => url !== item)],
+      };
+    });
   };
 
   const handleChoosenFiles = (event) => {
@@ -225,20 +188,21 @@ const CreateListing = () => {
       setFile(event.target.files);
     }
   };
+
   const handleUpload = () => {
-    if (file.length > 0 && file.length + formData.imageURLs.length < 7) {
+    if (file.length > 0 && file.length + generalFormInfo.imageURLs.length < 7) {
       const promises = [];
-      console.log("upload photo");
+      toast.info("Uploading photo, please wait");
       setUploading(true);
       for (var i = 0; i < file.length; i++) {
         promises.push(storeImage(file[i]));
       }
       Promise.all(promises)
         .then((urls) => {
-          setFormData((prevData) => {
+          setGeneralFormInfo((prevData) => {
             return {
               ...prevData,
-              imageURLs: formData.imageURLs.concat(urls),
+              imageURLs: generalFormInfo.imageURLs.concat(urls),
             };
           });
           setUploading(true);
@@ -261,6 +225,200 @@ const CreateListing = () => {
       toast.error("Please choose only six images for every list", {
         autoClose: autoCloseTime,
       });
+    }
+  };
+
+  const AddUserMobileNumberToDatabase = async (
+    userId,
+    mobileNumber,
+    accessToken
+  ) => {
+    try {
+      const resp = await axios.put(
+        `${URL}api/user/update/${userId}`,
+        {
+          mobileNumber: mobileNumber,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+
+      if (resp?.data?.succeess == false) {
+        return {
+          success: false,
+          message: resp?.data?.message,
+        };
+      }
+
+      return {
+        success: true,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: error.message,
+      };
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // check the general information
+    if (
+      !generalFormInfo.name ||
+      !generalFormInfo.description ||
+      !generalFormInfo.address ||
+      generalFormInfo.imageURLs.length === 0
+    ) {
+      toast.error("Please provide the required information", {
+        autoClose: autoCloseTime,
+      });
+      return;
+    }
+
+    // check the mobile number
+    if (!currentUser.mobileNumber) {
+      if (!ValidateMobileNumber(generalFormInfo.mobileNumber)) {
+        toast.error("Telephone number Should Contain only numbers");
+        return;
+      }
+
+      if (!ValidateMobileNumberLength(generalFormInfo.mobileNumber)) {
+        toast.error("Mobile number should be 10 digits");
+        return;
+      }
+    }
+
+    // check the price and discount
+    // if (generalFormInfo.offer) {
+    //   if (
+    //     parseInt(generalFormInfo.discountPrice) >=
+    //     parseInt(generalFormInfo.regularPrice)
+    //   ) {
+    //     toast.error(
+    //       "Discount price can not be bigger than or equal to regular price",
+    //       {
+    //         autoClose: autoCloseTime,
+    //       }
+    //     );
+    //     return;
+    //   }
+    // }
+
+    setUploading(true);
+    // check that the user have mobile number or not
+    if (!currentUser.mobileNumber) {
+      const response = await AddUserMobileNumberToDatabase(
+        currentUser.id,
+        generalFormInfo.mobileNumber,
+        accessToken
+      );
+
+      if (!response.success == false) {
+        toast.error(response.message, {
+          autoClose: autoCloseTime,
+        });
+        setUploadError(response.message);
+        setUploading(false);
+        return;
+      }
+
+      // mobile number added Successfully
+      toast.success("Your mobile number updated");
+      dispatch(
+        updateUser({
+          ...currentUser,
+          mobileNumber: generalFormInfo.mobileNumber,
+        })
+      );
+    }
+
+    // Get Proudct object
+    const productObject = CreateProductObjectBasedOnCategory(mainCategory);
+
+    // Add Product object to database
+    const response = await addProductToDatabase(productObject);
+
+    if (response.success == false) {
+      setUploading(false);
+      return;
+    }
+    setUploading(false);
+    // const params = response.data._id + "," + response.data.
+    console.log(response.data._id + "," + mainCategory + "," + subCategory);
+    // return;
+    navigate(
+      `/listing/${response.data._id + "," + mainCategory + "," + subCategory}`
+    );
+  };
+
+  const CreateProductObjectBasedOnCategory = (mainCategory) => {
+    // const discountPrice = generalFormInfo.offer
+    //   ? generalFormInfo.discountPrice
+    //   : 0;
+    let productInfo = {
+      mainCategory,
+      // discountPrice,
+      ...generalFormInfo,
+    };
+
+    switch (mainCategory) {
+      case estate: {
+        productInfo = {
+          ...productInfo,
+          ...estateFormInfo,
+        };
+        break;
+      }
+      case digitalEquipment: {
+        productInfo = {
+          ...productInfo,
+          ...cellPhoneInfo,
+          subCategory,
+        };
+        break;
+      }
+    }
+    return productInfo;
+  };
+
+  const addProductToDatabase = async (product) => {
+    const accessToken = localStorage.getItem("accessToken");
+    try {
+      const response = await axios.post(`${URL}api/listing/create`, product, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      if (response?.data?.succeess == false) {
+        toast.error(response?.data?.message, {
+          autoClose: autoCloseTime,
+        });
+
+        setUploadError(response?.data?.message);
+
+        return {
+          success: false,
+          message: response?.data?.message,
+        };
+      }
+
+      toast.success("Your product added successfully");
+      return {
+        succeess: true,
+        data: response?.data,
+      };
+    } catch (error) {
+      toast.error(error.message);
+      return {
+        success: false,
+        message: error.message,
+      };
     }
   };
 
@@ -324,21 +482,44 @@ const CreateListing = () => {
                 padding: 2,
               }}
             >
+              {/* General information about the product and user */}
               <Box
                 sx={{
                   display: "flex",
                   flexDirection: "column",
-                  gap: 1.5,
+                  rowGap: 1,
                 }}
               >
+                <ComboBox
+                  name={"Choose Category"}
+                  defaultValue={"ALL PRODUCTS"}
+                  value={mainCategory}
+                  handleValueMethod={handleCategory}
+                  items={CategoryItems.filter(
+                    (item) => item.value != allProducts
+                  )}
+                />
+                {mainCategory == digitalEquipment && (
+                  <>
+                    <ComboBox
+                      name={"Choose Sub Category"}
+                      defaultValue={allDigitalEquipment}
+                      value={subCategory}
+                      items={SubCategoryItemsForDigitalEquiments.filter(
+                        (item) => item.value != allDigitalEquipment
+                      )}
+                      handleValueMethod={handleSubCategoryForDigitalEquipment}
+                    />
+                  </>
+                )}
                 <TextField
                   fullWidth
                   type="text"
                   label="Name"
                   variant="outlined"
                   name="name"
-                  value={formData.name || ""}
-                  onChange={handleFormData}
+                  value={generalFormInfo.name || ""}
+                  onChange={handleGeneralFormInfo}
                   required
                   size={md ? "small" : "medium"}
                 />
@@ -350,8 +531,8 @@ const CreateListing = () => {
                   label="Description"
                   variant="outlined"
                   name="description"
-                  value={formData.description}
-                  onChange={handleFormData}
+                  value={generalFormInfo.description}
+                  onChange={handleGeneralFormInfo}
                   required
                   size={md ? "small" : "medium"}
                 />
@@ -363,8 +544,8 @@ const CreateListing = () => {
                   label="address"
                   variant="outlined"
                   name="address"
-                  value={formData?.address || ""}
-                  onChange={handleFormData}
+                  value={generalFormInfo?.address || ""}
+                  onChange={handleGeneralFormInfo}
                   required
                   size={md ? "small" : "medium"}
                 />
@@ -375,48 +556,127 @@ const CreateListing = () => {
                     label="Mobile"
                     variant="outlined"
                     name="mobileNumber"
-                    value={formData?.mobileNumber || ""}
-                    onChange={handleFormData}
+                    value={generalFormInfo?.mobileNumber || ""}
+                    onChange={handleGeneralFormInfo}
                     required
                     size={md ? "small" : "medium"}
                   />
                 )}
               </Box>
+              {/*End of General information about the product and user */}
+
               {/* property type: sell or rent */}
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: { xs: "space-between", sm: "flex-start" },
-                }}
-              >
-                <FormControlLabel
-                  value="sell"
-                  label="Sell"
-                  labelPlacement="start"
-                  name="type"
-                  onChange={handleFormData}
-                  control={
-                    <Checkbox
-                      size={md ? "small" : "medium"}
-                      checked={formData.type === "sell"}
+              {mainCategory == estate && (
+                <>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: { xs: "space-between", sm: "flex-start" },
+                    }}
+                  >
+                    <FormControlLabel
+                      value="sell"
+                      label="Sell"
+                      labelPlacement="start"
+                      name="type"
+                      onChange={handleEstateFormInfo}
+                      control={
+                        <Checkbox
+                          size={md ? "small" : "medium"}
+                          checked={estateFormInfo.type === "sell"}
+                        />
+                      }
                     />
-                  }
-                />
-                <FormControlLabel
-                  value={"rent"}
-                  label="Rent"
-                  labelPlacement="start"
-                  name="type"
-                  onChange={handleFormData}
-                  control={
-                    <Checkbox
-                      size={md ? "small" : "medium"}
-                      checked={formData.type === "rent"}
+                    <FormControlLabel
+                      value={"rent"}
+                      label="Rent"
+                      labelPlacement="start"
+                      name="type"
+                      onChange={handleEstateFormInfo}
+                      control={
+                        <Checkbox
+                          size={md ? "small" : "medium"}
+                          checked={estateFormInfo.type === "rent"}
+                        />
+                      }
                     />
-                  }
-                />
-              </Box>
-              {/* Features of property */}
+                  </Box>
+                  {/* Features of property */}
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexWrap: "wrap",
+                      flexDirection: { xs: "column", sm: "row" },
+                      alignItems: "flex-start",
+                      mb: 1.5,
+                    }}
+                  >
+                    <FormControlLabel
+                      value={estateFormInfo.parking}
+                      label="Parking spot"
+                      labelPlacement="start"
+                      name="parking"
+                      onChange={handleEstateFormInfo}
+                      control={
+                        <Checkbox
+                          size={md ? "small" : "medium"}
+                          checked={estateFormInfo.parking || false}
+                        />
+                      }
+                    />
+                    <FormControlLabel
+                      value={true}
+                      label="Furnished"
+                      labelPlacement="start"
+                      name="furnished"
+                      onChange={handleEstateFormInfo}
+                      control={
+                        <Checkbox
+                          size={md ? "small" : "medium"}
+                          checked={estateFormInfo.furnished || false}
+                        />
+                      }
+                    />
+                  </Box>
+                </>
+              )}
+              {mainCategory == digitalEquipment &&
+                subCategory == cellPhoneAndTablets && (
+                  <>
+                    <ComboBox
+                      name={"brand"}
+                      defaultValue={samsung}
+                      items={CellPhoneBrands.filter(
+                        (item) => item.value != allBrands
+                      )}
+                      value={cellPhoneInfo.brand}
+                      handleValueMethod={handleCellPhoneInfo}
+                    />
+                    <ComboBox
+                      name={"storage"}
+                      defaultValue={"Choose Storage"}
+                      items={CellPhoneStorage}
+                      value={cellPhoneInfo.storage}
+                      handleValueMethod={handleCellPhoneInfo}
+                    />
+                    <ComboBox
+                      name="RAM"
+                      defaultValue={"Choose RAM"}
+                      value={cellPhoneInfo.RAM}
+                      items={CellPhoneRAM}
+                      handleValueMethod={handleCellPhoneInfo}
+                    />
+                    <ComboBox
+                      name={"color"}
+                      defaultValue={"Choose Color"}
+                      items={ColorValues}
+                      value={cellPhoneInfo.color}
+                      handleValueMethod={handleCellPhoneInfo}
+                    />
+                  </>
+                )}
+              {/* Offer input */}
+              {/* 
               <Box
                 sx={{
                   display: "flex",
@@ -428,95 +688,88 @@ const CreateListing = () => {
               >
                 <FormControlLabel
                   value={true}
-                  label="Parking spot"
-                  labelPlacement="start"
-                  name="parking"
-                  onChange={handleFormData}
-                  control={
-                    <Checkbox
-                      size={md ? "small" : "medium"}
-                      checked={formData.parking || false}
-                    />
-                  }
-                />
-                <FormControlLabel
-                  value={true}
-                  label="Furnished"
-                  labelPlacement="start"
-                  name="furnished"
-                  onChange={handleFormData}
-                  control={
-                    <Checkbox
-                      size={md ? "small" : "medium"}
-                      checked={formData.furnished || false}
-                    />
-                  }
-                />
-                <FormControlLabel
-                  value={true}
                   label="Offer"
                   labelPlacement="start"
                   name="offer"
-                  onChange={handleFormData}
+                  onChange={handleGeneralFormInfo}
                   control={
                     <Checkbox
                       size={md ? "small" : "medium"}
-                      checked={formData.offer || false}
+                      checked={generalFormInfo.offer || false}
                     />
                   }
                 />
-              </Box>
-              {/* Price of the property */}
+              </Box> */}
+
+              {/* End of Offer input */}
+
+              {/* Price Input */}
               <Box
                 sx={{
                   display: "flex",
                   justifyContent: "flex-start",
                   gap: 3,
                   flexWrap: "wrap",
+                  marginTop: 2,
                 }}
               >
-                <TextField
-                  type="number"
-                  label="Beds"
-                  size={md ? "small" : "medium"}
-                  name="bedrooms"
-                  value={formData.bedrooms}
-                  onChange={handleFormData}
-                />
-                <TextField
-                  type="number"
-                  label="Baths"
-                  size={md ? "small" : "medium"}
-                  name="bath"
-                  value={formData.bath}
-                  onChange={handleFormData}
-                />
-                <TextField
+                {mainCategory == estate && (
+                  <>
+                    <TextField
+                      type="number"
+                      label="Beds"
+                      size={md ? "small" : "medium"}
+                      name="bedrooms"
+                      value={estateFormInfo.bedrooms}
+                      onChange={handleEstateFormInfo}
+                    />
+                    <TextField
+                      type="number"
+                      label="Baths"
+                      size={md ? "small" : "medium"}
+                      name="bath"
+                      value={estateFormInfo.bath}
+                      onChange={handleEstateFormInfo}
+                    />
+                  </>
+                )}
+
+                {/* <TextField
                   type="number"
                   label={
-                    formData.type === "rent"
+                    generalFormInfo.type === "rent"
                       ? "Regular Price / month"
                       : "Regular Price"
                   }
                   size={md ? "small" : "medium"}
                   name="regularPrice"
-                  value={formData.regularPrice}
-                  onChange={handleFormData}
+                  value={generalFormInfo.regularPrice}
+                  onChange={handleEstateFormInfo}
+                /> */}
+
+                <TextField
+                  type="number"
+                  label={"Price"}
+                  size={md ? "small" : "medium"}
+                  name="regularPrice"
+                  value={generalFormInfo.regularPrice}
+                  onChange={handleGeneralFormInfo}
                 />
-                {formData.offer && (
+                {generalFormInfo.offer && (
                   <TextField
                     type="number"
                     label="Discount"
                     size={md ? "small" : "medium"}
                     name="discountPrice"
-                    value={formData.discountPrice}
-                    onChange={handleFormData}
+                    value={generalFormInfo.discountPrice}
+                    onChange={handleGeneralFormInfo}
                   />
                 )}
               </Box>
             </Box>
           </Grid>
           {/* Upload Photo section */}
+
           <Grid
             item
             xs={12}
@@ -579,8 +832,8 @@ const CreateListing = () => {
             <Box className="show image section">
               <p>{uploadError && uploadError}</p>
 
-              {formData.imageURLs.length > 0 &&
-                formData.imageURLs.map((item, index) => {
+              {generalFormInfo.imageURLs.length > 0 &&
+                generalFormInfo.imageURLs.map((item, index) => {
                   return (
                     <Box
                       key={index}
@@ -627,6 +880,8 @@ const CreateListing = () => {
               {uploading ? "Loading" : "Create list"}
             </Button>
           </Grid>
+
+          {/* End of Upload Photo section */}
         </Grid>
       </Container>
     </>

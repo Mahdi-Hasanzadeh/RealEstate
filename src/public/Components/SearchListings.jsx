@@ -26,6 +26,10 @@ import Fallback from "./Fallback.jsx";
 import styleModule from "../../style.module.css";
 import Loader from "../styleComponents/loader.jsx";
 import { toast } from "react-toastify";
+import {
+  CategoryItems,
+  SubCategoryItemsForDigitalEquiments,
+} from "../utility.js";
 const CardItem = lazy(() => import("./Card.jsx"));
 const NotFound = lazy(() => import("./InfoComponents/NotFound.jsx"));
 const ComboBox = lazy(() => import("../Utility/ComboBox.jsx"));
@@ -62,51 +66,6 @@ const orderValues = [
   {
     name: "PRICE HIGH TO LOW",
     value: "regularPrice_desc",
-  },
-];
-
-const CategoryItems = [
-  {
-    name: "ALL PRODUCTS",
-    value: allProducts,
-    disabled: true,
-  },
-  {
-    name: "ESTATE",
-    value: estate,
-    disabled: false,
-  },
-  {
-    name: "DIGITAL EQUIPMENT",
-    value: digitalEquipment,
-    disabled: false,
-  },
-  {
-    name: "TRANSPORTATION",
-    value: transportation,
-    disabled: true,
-  },
-];
-const SubCategoryItems = [
-  {
-    name: "ALL DIGITAL EQUIPMENTS",
-    value: allDigitalEquipment,
-    disabled: true,
-  },
-  {
-    name: "CELL PHONE & TABLETS",
-    value: cellPhoneAndTablets,
-    disabled: false,
-  },
-  {
-    name: "COMPUTER",
-    value: computer,
-    disabled: true,
-  },
-  {
-    name: "CONSOLE",
-    value: entertainmentConsole,
-    disabled: true,
   },
 ];
 
@@ -844,7 +803,7 @@ const SearchListings = () => {
                         defaultValue={"ALL DIGITAL EQUIPMENTS"}
                         value={subCategory}
                         handleValueMethod={handleSubCategory}
-                        items={SubCategoryItems}
+                        items={SubCategoryItemsForDigitalEquiments}
                       />
                     </Suspense>
                     {subCategory == cellPhoneAndTablets && (
