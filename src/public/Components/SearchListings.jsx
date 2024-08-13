@@ -25,13 +25,21 @@ import { URL } from "../../../PortConfig";
 import Fallback from "./Fallback.jsx";
 import styleModule from "../../style.module.css";
 import Loader from "../styleComponents/loader.jsx";
+import ErrorUI from "../styleComponents/Error.jsx";
 import { toast } from "react-toastify";
 import {
+  allBrands,
+  allDigitalEquipment,
+  allProducts,
   CategoryItems,
+  cellPhoneAndTablets,
+  digitalEquipment,
+  estate,
+  filterProdcutsBy,
   SubCategoryItemsForDigitalEquiments,
+  transportation,
 } from "../utility.js";
 const CardItem = lazy(() => import("./Card.jsx"));
-const NotFound = lazy(() => import("./InfoComponents/NotFound.jsx"));
 const ComboBox = lazy(() => import("../Utility/ComboBox.jsx"));
 const CellPhone_TabletsFilter = lazy(() =>
   import("./SubCategories/CellPhone&TabletsFilters.jsx")
@@ -39,35 +47,6 @@ const CellPhone_TabletsFilter = lazy(() =>
 //#endregion
 
 //#region Constant Fields
-
-const estate = "estate";
-const allProducts = "all_products";
-const digitalEquipment = "digital_equipment";
-const transportation = "transportation";
-
-const allDigitalEquipment = "all_digital_equipment";
-const cellPhoneAndTablets = "cellPhone_tablets";
-const computer = "computer";
-const entertainmentConsole = "console";
-
-const orderValues = [
-  {
-    name: "LATEST", // this field return the newest products
-    value: "createdAt_desc",
-  },
-  {
-    name: "OLDEST",
-    value: "createdAt_asc",
-  },
-  {
-    name: "PRICE LOW TO HIGH",
-    value: "regularPrice_asc",
-  },
-  {
-    name: "PRICE HIGH TO LOW",
-    value: "regularPrice_desc",
-  },
-];
 
 var delay = 0;
 
@@ -96,7 +75,7 @@ const SearchListings = () => {
     maximumPrice: 0,
   });
 
-  const [cellPhoneBrand, setCellPhoneBrand] = useState("all_brands");
+  const [cellPhoneBrand, setCellPhoneBrand] = useState(allBrands);
 
   const [checkedStorage, setCheckedStorage] = useState({
     mb512: false,
@@ -916,7 +895,7 @@ const SearchListings = () => {
                     fullWidth
                     onChange={handleSortAndOrderOfProduct}
                   >
-                    {orderValues.map((item, index) => {
+                    {filterProdcutsBy.map((item, index) => {
                       return (
                         <MenuItem key={index} value={item.value}>
                           {item.name}
@@ -981,10 +960,10 @@ const SearchListings = () => {
                   <Loader />
                 </Box>
               ) : error !== null ? (
-                <Typography textAlign={"center"}>{error}</Typography>
+                <ErrorUI error={error} />
               ) : listings.length == 0 ? (
                 <Suspense fallback={<Fallback />}>
-                  <NotFound />
+                  <ErrorUI error={"Not Found"} />
                 </Suspense>
               ) : (
                 <>

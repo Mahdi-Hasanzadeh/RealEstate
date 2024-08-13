@@ -452,3 +452,22 @@ export const ValidateMobileNumberLength = (mobileNumber) => {
   }
   return true;
 };
+
+export const filterProdcutsBy = [
+  {
+    name: "LATEST", // this field return the newest products
+    value: "createdAt_desc",
+  },
+  {
+    name: "OLDEST",
+    value: "createdAt_asc",
+  },
+  {
+    name: "PRICE LOW TO HIGH",
+    value: "regularPrice_asc",
+  },
+  {
+    name: "PRICE HIGH TO LOW",
+    value: "regularPrice_desc",
+  },
+];

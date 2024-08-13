@@ -1,5 +1,4 @@
 import { Box, MenuItem, Select, Typography } from "@mui/material";
-import { allProducts } from "../utility";
 
 const ComboBox = ({ name, defaultValue, value, handleValueMethod, items }) => {
   return (

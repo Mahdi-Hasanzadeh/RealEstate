@@ -12,6 +12,7 @@ import { BLACK } from "../../../COLOR";
 import { formatDistanceToNow } from "date-fns";
 
 const CardItem = ({ listing, transition, delay }) => {
+  console.log(listing.mainCategoryName);
   return (
     <>
       <Zoom
@@ -22,7 +23,10 @@ const CardItem = ({ listing, transition, delay }) => {
         mountOnEnter
         unmountOnExit
       >
-        <Link to={`/listing/${listing?._id}`} className="cardLink">
+        <Link
+          to={`/listing/${listing?._id},${listing?.mainCategoryName}`}
+          className="cardLink"
+        >
           <Card
             className="color"
             sx={{
