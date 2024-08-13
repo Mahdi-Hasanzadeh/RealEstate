@@ -24,7 +24,7 @@ const CardItem = ({ listing, transition, delay }) => {
         unmountOnExit
       >
         <Link
-          to={`/listing/${listing?._id},${listing?.mainCategoryName}`}
+          to={`/listing/${listing?._id},${listing?.mainCategoryName},${listing?.subCategoryName || null}`}
           className="cardLink"
         >
           <Card

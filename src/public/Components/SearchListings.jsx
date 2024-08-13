@@ -59,7 +59,7 @@ const SearchListings = () => {
   const [sortProduct, setSortProduct] = useState("desc");
   const [orderOfProduct, setOrderOfProduc] = useState("createdAt");
 
-  const [subCategory, setSubCategory] = useState(allDigitalEquipment);
+  const [subCategory, setSubCategory] = useState(cellPhoneAndTablets);
 
   const [category, setCategory] = useState(estate);
 
@@ -539,6 +539,23 @@ const SearchListings = () => {
     setCategory(categoryOfURL == null ? "all_products" : categoryOfURL);
     switch (categoryOfURL) {
       case allProducts: {
+
+        const subCategory = searchParams.get("subCategory");
+        console.log(subCategory)
+        setSubCategory(subCategory);
+
+        // todo
+        const brand = searchParams.get("brand");
+        setCellPhoneBrand(brand == null ? "all_brands" : brand);
+
+        const storage = searchParams.get("storage");
+        const RAM = searchParams.get("RAM");
+        const color = searchParams.get("color");
+
+        setURLQueriesToLocalState(storage, "storage");
+        setURLQueriesToLocalState(RAM, "RAM");
+        setURLQueriesToLocalState(color, "color");
+        fetchListings();
         break;
       }
       case estate: {
@@ -779,7 +796,7 @@ const SearchListings = () => {
                     <Suspense>
                       <ComboBox
                         name={"Sub Category"}
-                        defaultValue={"ALL DIGITAL EQUIPMENTS"}
+                        defaultValue={"CELL PHONE & TABLETS"}
                         value={subCategory}
                         handleValueMethod={handleSubCategory}
                         items={SubCategoryItemsForDigitalEquiments}

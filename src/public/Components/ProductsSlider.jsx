@@ -88,7 +88,7 @@ const ProductsSlider = ({ loading, error, listings }) => {
                     <Box
                       component="img"
                       onClick={() => {
-                        navigate(`/listing/${step?._id}`);
+                        navigate(`/listing/${step?._id},estate`);
                       }}
                       sx={{
                         height: { sm: 450, md: 500 },
