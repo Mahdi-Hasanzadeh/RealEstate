@@ -1,1 +1,0 @@
-import{j as r,B as t,T as n}from"./index-p3PlTnYA.js";const i=({error:e})=>r.jsx(t,{sx:{display:"flex",justifyContent:"center",alignItems:"center",minHeight:"90dvh"},children:r.jsx(n,{variant:"h4",color:"red",sx:{textAlign:"center"},children:e})});export{i as E};
