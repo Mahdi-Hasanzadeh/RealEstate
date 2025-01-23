@@ -539,9 +539,8 @@ const SearchListings = () => {
     setCategory(categoryOfURL == null ? "all_products" : categoryOfURL);
     switch (categoryOfURL) {
       case allProducts: {
-
         const subCategory = searchParams.get("subCategory");
-        console.log(subCategory)
+        console.log(subCategory);
         setSubCategory(subCategory);
 
         // todo

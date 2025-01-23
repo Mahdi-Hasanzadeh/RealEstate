@@ -84,6 +84,7 @@ const SingleList = () => {
       const id = split[0];
       const mainCategory = split[1];
       const subCategory = split[2];
+      console.log("heelo");
       console.log(mainCategory);
       console.log(subCategory);
       //* get the single product that the user selected and the current user information

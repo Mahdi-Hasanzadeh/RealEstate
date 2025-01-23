@@ -12,6 +12,7 @@ import { BLACK } from "../../../COLOR";
 import { formatDistanceToNow } from "date-fns";
 
 const CardItem = ({ listing, transition, delay }) => {
+  console.log("mahdii");
   console.log(listing.mainCategoryName);
   return (
     <>
@@ -24,7 +25,9 @@ const CardItem = ({ listing, transition, delay }) => {
         unmountOnExit
       >
         <Link
-          to={`/listing/${listing?._id},${listing?.mainCategoryName},${listing?.subCategoryName || null}`}
+          to={`/listing/${listing?._id},${listing?.mainCategoryName},${
+            listing?.subCategoryName || null
+          }`}
           className="cardLink"
         >
           <Card

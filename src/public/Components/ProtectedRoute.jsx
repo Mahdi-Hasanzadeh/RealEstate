@@ -17,7 +17,8 @@ const ProtectedRoute = (props) => {
     } else {
       navigate("/signup");
     }
-  };
+    };
+
   if (currentUser.userInfo) {
     return props.children;
   } else {

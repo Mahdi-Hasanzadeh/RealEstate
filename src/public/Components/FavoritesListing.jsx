@@ -197,7 +197,10 @@ const favoritesListing = () => {
                             padding: 0,
                             margin: 0,
                           }}
-                          to={`/listing/${item._id}`}
+                          to={`/listing/${item?._id},${
+                            item?.mainCategoryName
+                          },${item?.subCategoryName || null}`}
+                          // to={`/listing/${item._id}`}
                         >
                           <img
                             className="cardImage"
