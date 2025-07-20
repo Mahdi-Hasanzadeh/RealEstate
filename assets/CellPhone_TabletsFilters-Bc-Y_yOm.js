@@ -1,7 +1,0 @@
-function __vite__mapDeps(indexes) {
-  if (!__vite__mapDeps.viteFileDeps) {
-    __vite__mapDeps.viteFileDeps = ["assets/ComboBox-CXF_UDN7.js","assets/index-EFlZ9WXB.js","assets/index-DDnostVl.css","assets/TextField-OBejHHZL.js","assets/useFormControl-B3DWF-5D.js","assets/isMuiElement-BJt8Gr6u.js","assets/MenuItem-17T_AQY8.js","assets/dividerClasses-Caj5ybAZ.js","assets/CheckBoxesGroup-CPxIuiL5.js","assets/ArrowDropUpRounded--tIytt7o.js","assets/Checkbox-BjH7vHFb.js"]
-  }
-  return indexes.map((i) => __vite__mapDeps.viteFileDeps[i])
-}
-import{r as a,_ as o,a7 as t,j as e,ak as V,bb as B,bc as C,al as j}from"./index-EFlZ9WXB.js";const p=a.lazy(()=>o(()=>import("./ComboBox-CXF_UDN7.js"),__vite__mapDeps([0,1,2,3,4,5,6,7]))),s=a.lazy(()=>o(()=>import("./CheckBoxesGroup-CPxIuiL5.js"),__vite__mapDeps([8,1,2,9,3,4,5,10]))),b=({setCellPhoneBrand:r,setCheckedStorage:n,checkedStorage:u,checkedRAM:d,setCheckedRAM:c,checkedColor:h,setCheckedColor:x})=>{const[i,m]=a.useState(t),_=l=>{r(l.target.value),m(l.target.value)};return e.jsxs(e.Fragment,{children:[e.jsx(p,{name:"Brand",value:i,defaultValue:t,handleValueMethod:_,items:V}),e.jsx(a.Suspense,{children:e.jsx(s,{name:"Storage",items:B,handleCheckBoxValue:n,checkedValues:u})}),e.jsx(a.Suspense,{children:e.jsx(s,{name:"RAM",items:C,handleCheckBoxValue:c,checkedValues:d})}),e.jsx(s,{name:"COLOR",items:j,handleCheckBoxValue:x,checkedValues:h,color:!0})]})};export{b as default};
