@@ -9,35 +9,39 @@ import { useDispatch, useSelector } from "react-redux";
 
 //#region My Modules
 
-import { Navbar } from "./public/Components/ComponentsReturn";
-import Fallback from "./public/Components/Fallback.jsx";
-import { setWelcomeToast } from "../reactRedux/showToast.js";
-import styleModule from "./style.module.css";
+import Navbar from "./pages/Navbar/Navbar.jsx";
+import Fallback from "./Components/UI/Fallback.jsx";
+import { setWelcomeToast } from "./redux/showToast.js";
+import styleModule from "./styles/style.module.css";
 
 //#endregion
 
 //#region Lazy Load Components
 
-const Home = lazy(() =>
-  import("./public/Components/Home Page Component/Home.jsx")
-);
-const About = lazy(() => import("./public/Components/About.jsx"));
-const Signup = lazy(() => import("./public/Components/Sign-up.jsx"));
-const UserProfile = lazy(() => import("./public/Components/UserProfile.jsx"));
-const SingleList = lazy(() => import("./public/Components/SingleList.jsx"));
-const EditListing = lazy(() => import("./public/Components/EditListing.jsx"));
+const Home = lazy(() => import("./pages/Home/Home.jsx"));
+
+const Dashboard = lazy(() => import("./pages/Dashboard/AdminDashboard.jsx"));
+
+const About = lazy(() => import("./pages/About/About.jsx"));
+
+const Signup = lazy(() => import("./pages/Account/Sign-up.jsx"));
+
+const UserProfile = lazy(() => import("./pages/UserProfile/UserProfile.jsx"));
+const ShowListing = lazy(() => import("./pages/ShowListing/ShowListing.jsx"));
+const EditListing = lazy(() => import("./pages/EditListing/EditListing.jsx"));
 const FavoritesListing = lazy(() =>
-  import("./public/Components/FavoritesListing.jsx")
+  import("./pages/FavoriteListings/FavoritesListing.jsx")
 );
 const SearchListings = lazy(() =>
-  import("./public/Components/SearchListings.jsx")
+  import("./pages/SearchListings/SearchListings.jsx")
 );
-const YourListings = lazy(() => import("./public/Components/YourListings.jsx"));
-const ProtectedRoute = lazy(() =>
-  import("./public/Components/ProtectedRoute.jsx")
+const UserListings = lazy(() =>
+  import("./pages/UserListings/UserListings.jsx")
 );
+// const YourListings = lazy(() => import("./pages/YourListings.jsx"));
+const ProtectedRoute = lazy(() => import("./auth/ProtectedRoute.jsx"));
 const CreateListing = lazy(() =>
-  import("./public/Components/CreateListing.jsx")
+  import("./pages/CreateListing/CreateListing.jsx")
 );
 
 //#endregion
@@ -100,7 +104,7 @@ const App = () => {
             path="/userListings"
             element={
               <ProtectedRoute>
-                <YourListings />
+                <UserListings />
               </ProtectedRoute>
             }
           />
@@ -121,6 +125,14 @@ const App = () => {
             }
           />
           <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/create-list"
             element={
               <ProtectedRoute>
@@ -128,7 +140,7 @@ const App = () => {
               </ProtectedRoute>
             }
           />
-          <Route path="/listing/:listingId" element={<SingleList />} />
+          <Route path="/listing/:listingId" element={<ShowListing />} />
           <Route
             path="/listing/update/:listingId"
             element={
@@ -171,3 +183,28 @@ const App = () => {
   );
 };
 export default App;
+
+// Based on project, what folder structure should be used?
+
+// The folder structure should be organized to separate components, pages, and utilities for better maintainability and scalability. Here's a suggested structure:
+// public/
+// ├── Components/
+// │   ├── Common/          # Reusable components like buttons, cards, etc.
+// │   ├── InfoComponents/  # Components that display information, like empty states
+// │   ├── Home Page Component/ # Components specific to the home page
+// │   ├── Dashboard/       # Components related to the admin dashboard
+// │   ├── UserProfile/     # Components for user profile management
+// │   ├── CreateListing/   # Components for creating listings
+// │   ├── EditListing/     # Components for editing listings
+// │   ├── SingleList/      # Components for displaying a single listing
+// │   ├── SearchListings/  # Components for searching listings
+// │   ├── FavoritesListing/ # Components for displaying favorite listings
+// │   ├── YourListings/    # Components for displaying user's listings
+// │   ├── ProtectedRoute/  # Components for protected routes
+// │   └── Navbar/          # Navigation bar component
+// ├── styleComponents/     # Components for styling, like NotFound, ErrorState
+// ├── App.jsx              # Main application component
+// ├── index.js             # Entry point of the application
+// ├── style.module.css     # Global styles
+// └── reactRedux/          # Redux-related files, like store configuration and actions
+// └── utils/               # Utility functions and constants
