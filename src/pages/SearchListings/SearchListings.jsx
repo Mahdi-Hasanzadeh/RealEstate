@@ -6,8 +6,10 @@ import {
   FormControlLabel,
   Grid,
   Input,
+  InputAdornment,
   MenuItem,
   Select,
+  Stack,
   TextField,
   Typography,
   Zoom,
@@ -29,7 +31,6 @@ import ErrorUI from "../../Components/UI/Error.jsx";
 import { toast } from "react-toastify";
 import {
   allBrands,
-  allDigitalEquipment,
   allProducts,
   CategoryItems,
   cellPhoneAndTablets,
@@ -60,6 +61,7 @@ const SearchListings = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortProduct, setSortProduct] = useState("desc");
   const [orderOfProduct, setOrderOfProduc] = useState("createdAt");
+  const isSmallScreen = useMediaQuery(useTheme().breakpoints.down("sm"));
 
   const [subCategory, setSubCategory] = useState(cellPhoneAndTablets);
 
@@ -73,8 +75,8 @@ const SearchListings = () => {
   });
 
   const [price, setPrice] = useState({
-    minimumPrice: 0,
-    maximumPrice: 0,
+    minimumPrice: "",
+    maximumPrice: "",
   });
 
   const [cellPhoneBrand, setCellPhoneBrand] = useState(allBrands);
@@ -168,18 +170,20 @@ const SearchListings = () => {
     setSortProduct(sort);
     setOrderOfProduc(order);
   };
+
   const handleSearchTerm = (event) => {
     setSearchTerm(event.target.value);
   };
 
   const handlePriceValue = (event) => {
-    if (!(event.target.value < 0)) {
-      setPrice((prevData) => {
-        return {
-          ...prevData,
-          [event.target.name]: event.target.value,
-        };
-      });
+    const { name, value } = event.target;
+
+    // Allow only digits or empty
+    if (value === "" || /^\d+$/.test(value)) {
+      setPrice((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
     }
   };
 
@@ -241,8 +245,6 @@ const SearchListings = () => {
           },
         }
       );
-      // entertainmentConsole.log(response.data.listings);
-      // console.log(response.data.listings);
       if (response.data.listings.length > 8) {
         setShowMore(true);
       } else {
@@ -301,9 +303,6 @@ const SearchListings = () => {
         searchParams.set("subCategory", selectedSubCategory);
 
         switch (selectedSubCategory) {
-          case allDigitalEquipment: {
-            break;
-          }
           case cellPhoneAndTablets: {
             // console.log(cellPhoneAndTablets);
 
@@ -397,7 +396,7 @@ const SearchListings = () => {
   };
 
   const ResetSubCategoryForDigitalEquipments = () => {
-    setSubCategory(allDigitalEquipment);
+    setSubCategory(cellPhoneAndTablets);
   };
 
   const ResetColor = () => {
@@ -536,29 +535,28 @@ const SearchListings = () => {
     });
 
     // * fetch the products based on the category value
-    // console.log(categoryOfURL);
 
-    setCategory(categoryOfURL == null ? "all_products" : categoryOfURL);
+    setCategory(categoryOfURL == null ? "estate" : categoryOfURL);
     switch (categoryOfURL) {
-      case allProducts: {
-        const subCategory = searchParams.get("subCategory");
-        console.log(subCategory);
-        setSubCategory(subCategory);
+      // case allProducts: {
+      //   const subCategory = searchParams.get("subCategory");
+      //   console.log(subCategory);
+      //   setSubCategory(subCategory);
 
-        // todo
-        const brand = searchParams.get("brand");
-        setCellPhoneBrand(brand == null ? "all_brands" : brand);
+      //   // todo
+      //   const brand = searchParams.get("brand");
+      //   setCellPhoneBrand(brand == null ? "all_brands" : brand);
 
-        const storage = searchParams.get("storage");
-        const RAM = searchParams.get("RAM");
-        const color = searchParams.get("color");
+      //   const storage = searchParams.get("storage");
+      //   const RAM = searchParams.get("RAM");
+      //   const color = searchParams.get("color");
 
-        setURLQueriesToLocalState(storage, "storage");
-        setURLQueriesToLocalState(RAM, "RAM");
-        setURLQueriesToLocalState(color, "color");
-        fetchListings();
-        break;
-      }
+      //   setURLQueriesToLocalState(storage, "storage");
+      //   setURLQueriesToLocalState(RAM, "RAM");
+      //   setURLQueriesToLocalState(color, "color");
+      //   fetchListings();
+      //   break;
+      // }
       case estate: {
         const type = searchParams.get("type");
         const parking = searchParams.get("parking");
@@ -592,7 +590,9 @@ const SearchListings = () => {
         fetchListings();
         break;
       }
-      case transportation: {
+      default: {
+        setSearchParams({ category: "estate" });
+        fetchListings();
         break;
       }
     }
@@ -608,6 +608,134 @@ const SearchListings = () => {
 
   //#endregion
 
+  const EstateFilterSection = () => {
+    return (
+      <>
+        <Typography mt={2} component={"label"} display={"block"}>
+          Type
+        </Typography>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "flex-start",
+            flexWrap: "wrap",
+            alignItems: "center",
+            mb: 1.5,
+          }}
+        >
+          <FormControlLabel
+            value={"all"}
+            label="Rent & Sale"
+            labelPlacement="end"
+            name="type"
+            onChange={handleFormData}
+            control={
+              <Checkbox
+                size={md ? "small" : "medium"}
+                checked={estateFormData.type === "all"}
+              />
+            }
+          />
+          <FormControlLabel
+            value={"rent"}
+            label="Rent"
+            labelPlacement="end"
+            name="type"
+            onChange={handleFormData}
+            control={
+              <Checkbox
+                size={md ? "small" : "medium"}
+                checked={estateFormData.type === "rent"}
+              />
+            }
+          />
+          <FormControlLabel
+            value={"sell"}
+            label="Sell"
+            labelPlacement="end"
+            name="type"
+            onChange={handleFormData}
+            control={
+              <Checkbox
+                size={md ? "small" : "medium"}
+                checked={estateFormData.type === "sell"}
+              />
+            }
+          />
+        </Box>
+        {/* Offer checkbox */}
+        <Typography mt={2} component={"label"} display={"block"}>
+          Offer
+        </Typography>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "flex-start",
+            flexWrap: "wrap",
+            alignItems: "center",
+            mb: 1.5,
+          }}
+        >
+          <FormControlLabel
+            value={estateFormData.offer}
+            label="Special Offer"
+            labelPlacement="end"
+            name="offer"
+            onChange={handleFormData}
+            control={
+              <Checkbox
+                size={md ? "small" : "medium"}
+                checked={estateFormData?.offer ? true : false}
+              />
+            }
+          />
+        </Box>
+        {/* Amenties section */}
+        <Typography mt={2} component={"label"} display={"block"}>
+          Amenties
+        </Typography>
+        <Box
+          sx={{
+            display: "flex",
+            flexWrap: "wrap",
+            // flexDirection: { xs: "column", sm: "row" },
+            alignItems: "center",
+            mb: 1.5,
+            justifyContent: "flex-start",
+          }}
+        >
+          <FormControlLabel
+            value={estateFormData.parking}
+            label="Parking"
+            labelPlacement="end"
+            name="parking"
+            onChange={handleFormData}
+            control={
+              <Checkbox
+                size={md ? "small" : "medium"}
+                checked={estateFormData.parking}
+              />
+            }
+          />
+
+          <FormControlLabel
+            value={estateFormData.furnished}
+            label="furnished"
+            labelPlacement="end"
+            name="furnished"
+            onChange={handleFormData}
+            control={
+              <Checkbox
+                size={md ? "small" : "medium"}
+                checked={estateFormData.furnished}
+              />
+            }
+          />
+        </Box>
+      </>
+    );
+  };
+
   return (
     <>
       <Box className={styleModule.backgroundcolor}>
@@ -620,11 +748,12 @@ const SearchListings = () => {
               mountOnEnter
               unmountOnExit
               style={{
-                transitionDelay: showFilterSection ? "500ms" : "0ms",
+                transitionDelay: showFilterSection ? "250ms" : "0ms",
               }}
             >
               <Grid sx={gridStyle} item xs={12} md={3}>
                 {/* Search input */}
+
                 <Box
                   sx={{
                     display: "flex",
@@ -640,14 +769,15 @@ const SearchListings = () => {
                     name="searchTerm"
                     value={searchTerm}
                     onChange={handleSearchTerm}
-                    placeholder="type here..."
+                    onFocus={(e) => e.target.select()}
+                    fullWidth
+                    placeholder="Type here..."
                   >
                     Search
                   </TextField>
                 </Box>
 
                 {/* Category Section */}
-
                 <ComboBox
                   name={"Category"}
                   defaultValue={"ALL PRODUCTS"}
@@ -655,139 +785,10 @@ const SearchListings = () => {
                   handleValueMethod={handleCategory}
                   items={CategoryItems}
                 />
-
                 {/* End-Category Section */}
 
                 {/* Estate Filters */}
-
-                {category == estate && (
-                  <>
-                    <Typography mt={2} component={"label"} display={"block"}>
-                      Type:
-                    </Typography>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "flex-start",
-                        flexWrap: "wrap",
-                        // flexDirection: { xs: "column", sm: "row" },
-                        alignItems: "center",
-                        mb: 1.5,
-                      }}
-                    >
-                      <FormControlLabel
-                        value={"all"}
-                        label="Rent & Sale"
-                        labelPlacement="end"
-                        name="type"
-                        onChange={handleFormData}
-                        control={
-                          <Checkbox
-                            size={md ? "small" : "medium"}
-                            checked={estateFormData.type === "all"}
-                          />
-                        }
-                      />
-                      <FormControlLabel
-                        value={"rent"}
-                        label="Rent"
-                        labelPlacement="end"
-                        name="type"
-                        onChange={handleFormData}
-                        control={
-                          <Checkbox
-                            size={md ? "small" : "medium"}
-                            checked={estateFormData.type === "rent"}
-                          />
-                        }
-                      />
-                      <FormControlLabel
-                        value={"sell"}
-                        label="Sell"
-                        labelPlacement="end"
-                        name="type"
-                        onChange={handleFormData}
-                        control={
-                          <Checkbox
-                            size={md ? "small" : "medium"}
-                            checked={estateFormData.type === "sell"}
-                          />
-                        }
-                      />
-                    </Box>
-                    {/* Offer checkbox */}
-                    <Typography mt={2} component={"label"} display={"block"}>
-                      Special:
-                    </Typography>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "flex-start",
-                        flexWrap: "wrap",
-                        // flexDirection: { xs: "column", sm: "row" },
-                        alignItems: "center",
-                        mb: 1.5,
-                      }}
-                    >
-                      <FormControlLabel
-                        value={estateFormData.offer}
-                        label="Offer"
-                        labelPlacement="end"
-                        name="offer"
-                        onChange={handleFormData}
-                        control={
-                          <Checkbox
-                            size={md ? "small" : "medium"}
-                            checked={estateFormData?.offer ? true : false}
-                          />
-                        }
-                      />
-                    </Box>
-                    {/* Amenties section */}
-                    <Typography mt={2} component={"label"} display={"block"}>
-                      Amenties:
-                    </Typography>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        flexWrap: "wrap",
-                        // flexDirection: { xs: "column", sm: "row" },
-                        alignItems: "center",
-                        mb: 1.5,
-                        justifyContent: "flex-start",
-                      }}
-                    >
-                      <FormControlLabel
-                        value={estateFormData.parking}
-                        label="Parking"
-                        labelPlacement="end"
-                        name="parking"
-                        onChange={handleFormData}
-                        control={
-                          <Checkbox
-                            size={md ? "small" : "medium"}
-                            checked={estateFormData.parking}
-                          />
-                        }
-                      />
-
-                      <FormControlLabel
-                        value={estateFormData.furnished}
-                        label="furnished"
-                        labelPlacement="end"
-                        name="furnished"
-                        onChange={handleFormData}
-                        control={
-                          <Checkbox
-                            size={md ? "small" : "medium"}
-                            checked={estateFormData.furnished}
-                          />
-                        }
-                      />
-                    </Box>
-                  </>
-                )}
-
+                {category == estate && <EstateFilterSection />}
                 {/* End of Estate Filters */}
 
                 {/* digital Equipment filters */}
@@ -804,19 +805,17 @@ const SearchListings = () => {
                       />
                     </Suspense>
                     {subCategory == cellPhoneAndTablets && (
-                      <>
-                        <Suspense>
-                          <CellPhone_TabletsFilter
-                            setCellPhoneBrand={setCellPhoneBrand}
-                            checkedStorage={checkedStorage}
-                            setCheckedStorage={setCheckedStorage}
-                            checkedRAM={checkedRAM}
-                            setCheckedRAM={setCheckedRAM}
-                            checkedColor={checkedColor}
-                            setCheckedColor={setCheckedColor}
-                          />
-                        </Suspense>
-                      </>
+                      <Suspense>
+                        <CellPhone_TabletsFilter
+                          setCellPhoneBrand={setCellPhoneBrand}
+                          checkedStorage={checkedStorage}
+                          setCheckedStorage={setCheckedStorage}
+                          checkedRAM={checkedRAM}
+                          setCheckedRAM={setCheckedRAM}
+                          checkedColor={checkedColor}
+                          setCheckedColor={setCheckedColor}
+                        />
+                      </Suspense>
                     )}
                   </>
                 )}
@@ -825,67 +824,56 @@ const SearchListings = () => {
 
                 {/* Price Section for all products */}
 
-                <Typography
-                  mt={2}
-                  mb={1}
-                  component={"label"}
-                  display={"block"}
-                  mr={0.5}
-                >
-                  Price:
-                </Typography>
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexWrap: "wrap",
-                    alignItems: "center",
-                    mb: 1.5,
-                    justifyContent: "flex-start",
-                    gap: 1,
-                  }}
-                >
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "flex-start",
-                      alignItems: "baseline",
-                      gap: 1,
-                    }}
-                  >
-                    <Typography ml={0.4}>Minimum</Typography>
-                    <Input
-                      name="minimumPrice"
-                      type="number"
-                      fullWidth
-                      placeholder="Example:100 AFG"
-                      onChange={handlePriceValue}
-                      value={price.minimumPrice}
-                    />
-                  </Box>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "flex-start",
-                      alignItems: "baseline",
-                      gap: 1,
-                    }}
-                  >
-                    <Typography>Maximum</Typography>
-                    <Input
-                      name="maximumPrice"
-                      type="number"
-                      fullWidth
-                      placeholder="Example:200 AFG"
-                      onChange={handlePriceValue}
-                      value={price.maximumPrice}
-                    />
-                  </Box>
-                </Box>
+                <Box mt={2}>
+                  <Typography variant="subtitle1" mb={1}>
+                    Price Range
+                  </Typography>
 
+                  <Stack
+                    direction={isSmallScreen ? "column" : "row"}
+                    spacing={2}
+                    alignItems="center"
+                  >
+                    {/* Minimum Price */}
+                    <TextField
+                      label="Minimum"
+                      autoComplete="off"
+                      name="minimumPrice"
+                      type="text"
+                      size="small"
+                      fullWidth
+                      value={price.minimumPrice}
+                      onChange={handlePriceValue}
+                      onFocus={(e) => e.target.select()}
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">AFG</InputAdornment>
+                        ),
+                      }}
+                    />
+
+                    {/* Maximum Price */}
+                    <TextField
+                      label="Maximum"
+                      autoComplete="off"
+                      name="maximumPrice"
+                      type="text"
+                      size="small"
+                      fullWidth
+                      value={price.maximumPrice}
+                      onChange={handlePriceValue}
+                      onFocus={(e) => e.target.select()}
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">AFG</InputAdornment>
+                        ),
+                      }}
+                    />
+                  </Stack>
+                </Box>
                 {/* end of Price Section for all products */}
 
                 {/* sort section for all products*/}
-
                 <Typography
                   mt={2}
                   mb={1}
@@ -922,9 +910,7 @@ const SearchListings = () => {
                     })}
                   </Select>
                 </Box>
-
                 {/* end of sort section for all products*/}
-
                 <Box>
                   <Button onClick={handleSearch} fullWidth variant="contained">
                     Search
@@ -998,13 +984,12 @@ const SearchListings = () => {
                       listings.map((listing, index) => {
                         delay = 500 + index * 100;
                         return (
-                          <Suspense key={index} fallback={<Fallback />}>
-                            <CardItem
-                              listing={listing}
-                              transition={true}
-                              delay={delay}
-                            />
-                          </Suspense>
+                          <CardItem
+                            key={index}
+                            listing={listing}
+                            transition={true}
+                            delay={delay}
+                          />
                         );
                       })}
                   </Box>

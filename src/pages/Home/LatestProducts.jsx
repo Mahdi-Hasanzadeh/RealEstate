@@ -1,8 +1,8 @@
-import { Box, Container, Typography, css, keyframes } from "@mui/material";
+import { Box, Container, Typography, Link } from "@mui/material";
 import { BLACK } from "../../styles/Color.js";
-import { Link } from "react-router-dom";
 import { Suspense, lazy } from "react";
 import Fallback from "../../Components/UI/Fallback.jsx";
+
 const Card = lazy(() =>
   import("../../Components/CustomizedCard/SearchResultCard.jsx")
 );
@@ -16,67 +16,66 @@ const LatestProducts = ({
   category,
 }) => {
   //#region Fields
-  var queryString = `category=${category}&`;
+  let queryString = `category=${category}&`;
   queryString +=
-    query == "offer"
+    query === "offer"
       ? "offer=true"
-      : query == "rent"
+      : query === "rent"
       ? "type=rent"
-      : query == "sell"
+      : query === "sell"
       ? "type=sell"
-      : null;
+      : "";
   //#endregion
 
   return (
-    <>
-      <Container
-        maxWidth="lg"
-        sx={{
-          py: 2,
-        }}
-        className="scroll-animation"
+    <Container
+      maxWidth="lg"
+      sx={{
+        py: 2,
+      }}
+      className="scroll-animation"
+    >
+      <Typography variant="h5" color={BLACK} gutterBottom>
+        {title}
+      </Typography>
+
+      <Link
+        href={`/search?${queryString}`}
+        underline="hover"
+        color="purple"
+        sx={{ display: "inline-block", mb: 2 }}
       >
-        <Typography variant="h5" color={BLACK}>
-          {title}
-        </Typography>
-        <Link
-          className="Link"
-          style={{
-            color: "purple",
-          }}
-          to={`/search?${queryString}`}
-        >
-          {title}
-        </Link>
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: { xs: "center", sm: "space-between" },
-            flexWrap: "wrap",
-            rowGap: 3,
-            columnGap: { xs: 0, sm: 1 },
-            mt: 2,
-            mb: 2,
-          }}
-        >
-          {loading ? (
-            <h3>Loading...</h3>
-          ) : error ? (
-            <h2>{error}</h2>
-          ) : (
-            listings?.length > 0 &&
-            error == null &&
-            listings.map((item, index) => {
-              return (
-                <Suspense key={index} fallback={<Fallback />}>
-                  <Card listing={item} />
-                </Suspense>
-              );
-            })
-          )}
-        </Box>
-      </Container>
-    </>
+        {title}
+      </Link>
+
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: { xs: "center", sm: "space-between" },
+          flexWrap: "wrap",
+          rowGap: 3,
+          columnGap: { xs: 0, sm: 1 },
+          mt: 2,
+          mb: 2,
+        }}
+      >
+        {loading ? (
+          <Typography variant="h6">Loading...</Typography>
+        ) : error ? (
+          <Typography variant="h6" color="error">
+            {error}
+          </Typography>
+        ) : (
+          listings?.length > 0 &&
+          !error &&
+          listings.map((item, index) => (
+            <Suspense key={index} fallback={<Fallback />}>
+              <Card listing={item} />
+            </Suspense>
+          ))
+        )}
+      </Box>
+    </Container>
   );
 };
 

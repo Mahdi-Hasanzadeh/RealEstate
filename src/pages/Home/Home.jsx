@@ -1,18 +1,16 @@
 //#region Libraries
 
-import { Box, Container, Typography } from "@mui/material";
+import { Container } from "@mui/material";
 import { useTheme, useMediaQuery } from "@mui/material";
-import { Link } from "react-router-dom";
 import { Suspense, lazy, useEffect, useState } from "react";
-import axios from "axios";
 
 //#endregion
 
 //#region My Modules
 
-import { URL } from "../../config/PortConfig.js";
 import Fallback from "../../Components/UI/Fallback.jsx";
 import MainPageTopic from "./MainPageTopic.jsx";
+import axiosInstance from "../../config/axiosConfig.js";
 
 //#endregion
 
@@ -66,90 +64,61 @@ const Home = () => {
 
   //#region methods
 
-  const fetchSpecialListings = async () => {
-    try {
-      setSpecialListingsLoading(true);
-      const response = await axios.get(
-        `${URL}api/listing/get?${specialListingsQuery}`
-      );
+  const fetchAllListings = async () => {
+    setSpecialListingsLoading(true);
+    setLoadingOffer(true);
+    setLoadingRent(true);
+    setLoadingSale(true);
 
-      if (response.data.success == false) {
-        setSpecialError(response.data.message);
-        return;
+    try {
+      const [specialRes, offerRes, rentRes, saleRes] = await Promise.all([
+        axiosInstance.get(`api/listing/get?${specialListingsQuery}`),
+        axiosInstance.get(`api/listing/get?${offerQuery}`),
+        axiosInstance.get(`api/listing/get?${rentQuery}`),
+        axiosInstance.get(`api/listing/get?${saleQuery}`),
+      ]);
+
+      // Handle Special Listings
+      if (specialRes.data.success === false) {
+        setSpecialError(specialRes.data.message);
+      } else {
+        setSpecialListings(specialRes.data.listings);
+        setSpecialError(null);
       }
-      setSpecialListings(response.data.listings);
-      setSpecialError(null);
-      // Calling next function to load the data
-      fetchRecentOffers();
+
+      // Handle Offers
+      if (offerRes.data.success === false) {
+        setErrorOffer(offerRes.data.message);
+      } else {
+        setRecentOffers(offerRes.data.listings);
+        setErrorOffer(null);
+      }
+
+      // Handle Rent
+      if (rentRes.data.success === false) {
+        setErrorRent(rentRes.data.message);
+      } else {
+        setRecentRent(rentRes.data.listings);
+        setErrorRent(null);
+      }
+
+      // Handle Sale
+      if (saleRes.data.success === false) {
+        setErrorSale(saleRes.data.message);
+      } else {
+        setRecentSale(saleRes.data.listings);
+        setErrorSale(null);
+      }
     } catch (error) {
-      setSpecialError(error.message);
+      const message = error.message || "Unknown error";
+      setSpecialError(message);
+      setErrorOffer(message);
+      setErrorRent(message);
+      setErrorSale(message);
     } finally {
       setSpecialListingsLoading(false);
-    }
-  };
-
-  const fetchRecentOffers = async () => {
-    try {
-      setLoadingOffer(true);
-      const response = await axios.get(`${URL}api/listing/get?${offerQuery}`);
-
-      if (response.data.success == false) {
-        setErrorOffer(response.data.message);
-        return;
-      }
-      setRecentOffers(response.data.listings);
-      setErrorOffer(null);
-      // Calling next function to load the data
-      fetchRecentRent();
-    } catch (error) {
-      setErrorOffer(error.message);
-    } finally {
       setLoadingOffer(false);
-    }
-  };
-
-  const fetchRecentRent = async () => {
-    try {
-      setLoadingRent(true);
-      const response = await axios.get(`${URL}api/listing/get?${rentQuery}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      });
-
-      if (response.data.success == false) {
-        setErrorRent(response.data.message);
-        return;
-      }
-      setRecentRent(response.data.listings);
-      setErrorRent(null);
-      // Calling next function to load the data
-      fetchRecentSale();
-    } catch (error) {
-      setErrorRent(error.message);
-    } finally {
       setLoadingRent(false);
-    }
-  };
-
-  const fetchRecentSale = async () => {
-    try {
-      setLoadingSale(true);
-      const response = await axios.get(`${URL}api/listing/get?${saleQuery}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      });
-
-      if (response.data.success == false) {
-        setErrorSale(response.data.message);
-        return;
-      }
-      setRecentSale(response.data.listings);
-      setErrorSale(null);
-    } catch (error) {
-      setErrorSale(error.message);
-    } finally {
       setLoadingSale(false);
     }
   };
@@ -159,7 +128,7 @@ const Home = () => {
   //#region useEffect
 
   useEffect(() => {
-    fetchSpecialListings();
+    fetchAllListings();
   }, []);
 
   //#endregion

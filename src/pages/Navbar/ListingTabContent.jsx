@@ -2,9 +2,11 @@ import { Box } from "@mui/material";
 import { Link } from "react-router-dom";
 import Styles from "../../styles/style.module.css";
 
-const ListingContent = ({ handleMouseLeave, handleDrawerToggle }) => {
+const ListingContent = ({ handleMouseLeave = null, handleDrawerToggle }) => {
   const handleListingClick = () => {
-    handleMouseLeave();
+    if (handleMouseLeave) {
+      handleMouseLeave();
+    }
     if (handleDrawerToggle) {
       handleDrawerToggle();
     }
@@ -30,7 +32,8 @@ const ListingContent = ({ handleMouseLeave, handleDrawerToggle }) => {
       <Link
         onClick={handleListingClick}
         className={`${Styles.tooltipLink}`}
-        to="/search"
+        // to="/search"
+        to="/search?category=estate"
       >
         Search Listings
       </Link>

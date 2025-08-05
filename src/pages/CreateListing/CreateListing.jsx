@@ -36,7 +36,7 @@ import { app } from "../../config/firebase.js";
 import ComboBox from "../SearchListings/ComboBox.jsx";
 import {
   allBrands,
-  allDigitalEquipment,
+  // allDigitalEquipment,
   allProducts,
   CategoryItems,
   cellPhoneAndTablets,
@@ -54,12 +54,6 @@ import {
 } from "../../utils/utility.js";
 
 const Wave = lazy(() => import("../../Components/WaveHeader.jsx"));
-
-//#endregion
-
-//#region Global Fields
-
-const pageTitle = "Create list";
 
 //#endregion
 
@@ -89,15 +83,15 @@ const CreateListing = () => {
     type: "rent",
     parking: false,
     furnished: false,
-    bedrooms: 1,
-    bath: 1,
+    bedrooms: "",
+    bath: "",
   });
 
   const [generalFormInfo, setGeneralFormInfo] = useState({
     description: "",
     imageURLs: [],
-    regularPrice: 1,
-    discountPrice: 1,
+    regularPrice: "",
+    discountPrice: "",
     mobileNumber: "",
     offer: false,
   });
@@ -122,6 +116,12 @@ const CreateListing = () => {
 
   const handleCategory = (event) => {
     setMainCategory(event.target.value);
+    setGeneralFormInfo((prevDate) => {
+      return {
+        ...prevDate,
+        offer: false,
+      };
+    });
   };
 
   const handleSubCategoryForDigitalEquipment = (event) => {
@@ -211,9 +211,7 @@ const CreateListing = () => {
         })
         .catch((error) => {
           // setUploadError("image Upload failed.Image should be 2mb ");
-          toast.error("image Upload failed.Image should be 2mb ", {
-            autoClose: autoCloseTime,
-          });
+          toast.error("image Upload failed.Image should be 2mb ");
           console.log(error.message);
         })
         .finally(() => {
@@ -221,17 +219,12 @@ const CreateListing = () => {
         });
     } else {
       setUploadError("Please choose only six images for every list");
-      toast.error("Please choose only six images for every list", {
-        autoClose: autoCloseTime,
-      });
+      toast.error("Please choose only six images for every list");
     }
   };
 
-  const AddUserMobileNumberToDatabase = async (
-    userId,
-    mobileNumber,
-    accessToken
-  ) => {
+  const AddUserMobileNumberToDatabase = async (userId, mobileNumber) => {
+    const accessToken = localStorage.getItem("accessToken");
     try {
       const resp = await axios.put(
         `${URL}api/user/update/${userId}`,
@@ -263,6 +256,42 @@ const CreateListing = () => {
     }
   };
 
+  const addProductToDatabase = async (product) => {
+    const accessToken = localStorage.getItem("accessToken");
+    console.log(product);
+    try {
+      const response = await axios.post(`${URL}api/listing/create`, product, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      if (response?.data?.succeess == false) {
+        toast.error(response?.data?.message);
+        setUploadError(response?.data?.message);
+        return {
+          success: false,
+          message: response?.data?.message,
+        };
+      }
+
+      toast.success("Your product added successfully");
+      return {
+        succeess: true,
+        data: response?.data,
+      };
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message);
+      return {
+        success: false,
+        message: error.message,
+      };
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -273,9 +302,7 @@ const CreateListing = () => {
       !generalFormInfo.address ||
       generalFormInfo.imageURLs.length === 0
     ) {
-      toast.error("Please provide the required information", {
-        autoClose: autoCloseTime,
-      });
+      toast.error("Please provide the required information");
       return;
     }
 
@@ -292,40 +319,62 @@ const CreateListing = () => {
       }
     }
 
-    // check the price and discount
-    // if (generalFormInfo.offer) {
-    //   if (
-    //     parseInt(generalFormInfo.discountPrice) >=
-    //     parseInt(generalFormInfo.regularPrice)
-    //   ) {
-    //     toast.error(
-    //       "Discount price can not be bigger than or equal to regular price",
-    //       {
-    //         autoClose: autoCloseTime,
-    //       }
-    //     );
-    //     return;
-    //   }
-    // }
+    if (mainCategory === "estate") {
+      const beds = parseFloat(estateFormInfo.bedrooms);
+      const bath = parseFloat(estateFormInfo.bath);
+      const price = parseFloat(generalFormInfo.regularPrice);
+      const discount = parseFloat(generalFormInfo.discountPrice);
+
+      if (isNaN(beds) || beds <= 0) {
+        toast.error("Beds must be greater than zero");
+        return;
+      }
+
+      if (isNaN(bath) || bath <= 0) {
+        toast.error("Bath must be greater than zero");
+        return;
+      }
+
+      if (isNaN(price) || price <= 0) {
+        toast.error("Price must be greater than zero");
+        return;
+      }
+
+      if (generalFormInfo.offer) {
+        if (isNaN(discount) || discount <= 0) {
+          toast.error("Discount price must be greater than zero");
+          return;
+        }
+
+        if (discount >= price) {
+          toast.error("Discount must be smaller than the regular price");
+          return;
+        }
+      }
+    } else if (mainCategory === "Digital_Equipment") {
+      if (
+        !generalFormInfo.regularPrice ||
+        parseFloat(generalFormInfo.regularPrice) <= 0
+      ) {
+        toast.error("Price must be greater than zero");
+        return;
+      }
+    }
 
     setUploading(true);
     // check that the user have mobile number or not
     if (!currentUser.mobileNumber) {
       const response = await AddUserMobileNumberToDatabase(
         currentUser.id,
-        generalFormInfo.mobileNumber,
-        accessToken
+        generalFormInfo.mobileNumber
       );
 
-      if (!response.success == false) {
-        toast.error(response.message, {
-          autoClose: autoCloseTime,
-        });
+      if (response.success == false) {
+        toast.error(response.message);
         setUploadError(response.message);
         setUploading(false);
         return;
       }
-
       // mobile number added Successfully
       toast.success("Your mobile number updated");
       dispatch(
@@ -347,21 +396,15 @@ const CreateListing = () => {
       return;
     }
     setUploading(false);
-    // const params = response.data._id + "," + response.data.
-    console.log(response.data._id + "," + mainCategory + "," + subCategory);
-    // return;
+
     navigate(
       `/listing/${response.data._id + "," + mainCategory + "," + subCategory}`
     );
   };
 
   const CreateProductObjectBasedOnCategory = (mainCategory) => {
-    // const discountPrice = generalFormInfo.offer
-    //   ? generalFormInfo.discountPrice
-    //   : 0;
     let productInfo = {
       mainCategory,
-      // discountPrice,
       ...generalFormInfo,
     };
 
@@ -385,42 +428,6 @@ const CreateListing = () => {
     return productInfo;
   };
 
-  const addProductToDatabase = async (product) => {
-    const accessToken = localStorage.getItem("accessToken");
-    try {
-      const response = await axios.post(`${URL}api/listing/create`, product, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-
-      if (response?.data?.succeess == false) {
-        toast.error(response?.data?.message, {
-          autoClose: autoCloseTime,
-        });
-
-        setUploadError(response?.data?.message);
-
-        return {
-          success: false,
-          message: response?.data?.message,
-        };
-      }
-
-      toast.success("Your product added successfully");
-      return {
-        succeess: true,
-        data: response?.data,
-      };
-    } catch (error) {
-      toast.error(error.message);
-      return {
-        success: false,
-        message: error.message,
-      };
-    }
-  };
-
   const storeImage = async (file) => {
     return new Promise((resolve, reject) => {
       const storage = getStorage(app);
@@ -432,15 +439,9 @@ const CreateListing = () => {
         (snapshot) => {
           const progress =
             (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          console.log(progress);
-          console.log("Upload is " + Math.round(progress) + "% done");
         },
         (error) => {
-          console.log("eroro upload");
-          toast.error(error.message, {
-            autoClose: autoCloseTime,
-          });
-          console.log(error);
+          toast.error(error.message);
           setUploading(false);
           reject(error);
         },
@@ -448,7 +449,6 @@ const CreateListing = () => {
           console.log("down url");
           getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
             resolve(downloadURL);
-            console.log(downloadURL);
           });
         }
       );
@@ -466,7 +466,7 @@ const CreateListing = () => {
         }}
       >
         <Suspense fallback={<Fallback />}>
-          <Wave title={pageTitle} />
+          <Wave title={"Create Listing"} />
         </Suspense>
 
         <Grid
@@ -502,11 +502,9 @@ const CreateListing = () => {
                   <>
                     <ComboBox
                       name={"Choose Sub Category"}
-                      defaultValue={allDigitalEquipment}
+                      defaultValue={cellPhoneAndTablets}
                       value={subCategory}
-                      items={SubCategoryItemsForDigitalEquiments.filter(
-                        (item) => item.value != allDigitalEquipment
-                      )}
+                      items={SubCategoryItemsForDigitalEquiments}
                       handleValueMethod={handleSubCategoryForDigitalEquipment}
                     />
                   </>
@@ -675,30 +673,32 @@ const CreateListing = () => {
                   </>
                 )}
               {/* Offer input */}
-              {/* 
-              <Box
-                sx={{
-                  display: "flex",
-                  flexWrap: "wrap",
-                  flexDirection: { xs: "column", sm: "row" },
-                  alignItems: "flex-start",
-                  mb: 1.5,
-                }}
-              >
-                <FormControlLabel
-                  value={true}
-                  label="Offer"
-                  labelPlacement="start"
-                  name="offer"
-                  onChange={handleGeneralFormInfo}
-                  control={
-                    <Checkbox
-                      size={md ? "small" : "medium"}
-                      checked={generalFormInfo.offer || false}
-                    />
-                  }
-                />
-              </Box> */}
+
+              {mainCategory == estate && (
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexWrap: "wrap",
+                    flexDirection: { xs: "column", sm: "row" },
+                    alignItems: "flex-start",
+                    mb: 1.5,
+                  }}
+                >
+                  <FormControlLabel
+                    value={true}
+                    label="Offer"
+                    labelPlacement="start"
+                    name="offer"
+                    onChange={handleGeneralFormInfo}
+                    control={
+                      <Checkbox
+                        size={md ? "small" : "medium"}
+                        checked={generalFormInfo.offer || false}
+                      />
+                    }
+                  />
+                </Box>
+              )}
 
               {/* End of Offer input */}
 

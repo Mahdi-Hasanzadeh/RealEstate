@@ -24,6 +24,19 @@ const userSlice = createSlice({
     updateUser: (state, action) => {
       state.userInfo = { ...state.userInfo, ...action.payload };
     },
+    //For updating just favorites
+    updateFavorites: (state, action) => {
+      const { id, remove } = action.payload;
+      const favorites = state.userInfo?.favorites || [];
+
+      if (remove) {
+        state.userInfo.favorites = favorites.filter((favId) => favId !== id);
+      } else {
+        if (!favorites.includes(id)) {
+          state.userInfo.favorites.push(id);
+        }
+      }
+    },
     deleteUser: (state, action) => {
       state.error = "";
       state.loading = false;
@@ -38,5 +51,6 @@ export const {
   signInFailed,
   updateUser,
   deleteUser,
+  updateFavorites,
 } = userSlice.actions;
 export const userReducer = userSlice.reducer;

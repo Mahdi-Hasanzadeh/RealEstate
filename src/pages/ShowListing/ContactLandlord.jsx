@@ -1,162 +1,198 @@
-import { Typography, TextField, Box, Button } from "@mui/material";
+import React, { useState, useEffect } from "react";
+import {
+  Typography,
+  TextField,
+  Box,
+  Button,
+  Paper,
+  Alert,
+  Stack,
+} from "@mui/material";
 import axios from "axios";
-import { useEffect, useState } from "react";
 import { URL } from "../../config/PortConfig";
-import { Link } from "react-router-dom";
 
 const afghanistanCodeNumber = "+93";
 const userAgent = navigator.userAgent.toLowerCase();
 
 const ContactLandlord = ({ userRef, name, isSmall }) => {
-  const [userInfo, setUserInfo] = useState();
+  const [userInfo, setUserInfo] = useState(null);
   const [error, setError] = useState(null);
-  let isMobile = /mobile/.test(userAgent);
   const [message, setMessage] = useState("");
+  const isMobile = /mobile/.test(userAgent);
 
-  const handleMessage = (event) => {
-    setMessage(event.target.value);
-  };
-
-  const fetchUserInfo = async () => {
-    try {
-      const user = await axios.get(`${URL}api/user/userInfo/${userRef}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      });
-      setUserInfo(user.data);
-    } catch (error) {
-      setError(error.message);
-      console.log(error.message);
-    }
-  };
   useEffect(() => {
+    const fetchUserInfo = async () => {
+      try {
+        const response = await axios.get(`${URL}api/user/userInfo/${userRef}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        });
+        setUserInfo(response.data);
+      } catch (err) {
+        setError(err.message || "Failed to load user info");
+      }
+    };
     fetchUserInfo();
-  }, []);
+  }, [userRef]);
+
+  const handleMessageChange = (e) => {
+    setMessage(e.target.value);
+  };
 
   return (
-    <>
+    <Paper
+      elevation={3}
+      sx={{
+        p: { xs: 3, sm: 4 },
+        borderRadius: 3,
+        maxWidth: 700,
+        mx: "auto",
+        bgcolor: "#f5f5f5",
+        boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
+        minHeight: 280,
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: error || !userInfo ? "center" : "flex-start",
+        alignItems: "center",
+        textAlign: "center",
+      }}
+    >
       {error ? (
-        <h1>{error}</h1>
+        <Typography
+          variant="h6"
+          color="error"
+          sx={{ fontWeight: "bold", mb: 1 }}
+        >
+          {error}
+        </Typography>
+      ) : !userInfo ? (
+        <>
+          <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
+            Loading contact info...
+          </Typography>
+          {/* Optional: You can add a small spinner here */}
+        </>
       ) : (
         <>
-          {userInfo?.mobileNumber && (
-            <Box
-              sx={{
-                display: "flex",
-                flexWrap: "wrap",
-                columnGap: 1,
-                alignItems: "center",
-                mb: 2,
-                justifyContent: { xs: "center", sm: "normal" },
-              }}
+          {/* Mobile Number & Call Button */}
+          {userInfo.mobileNumber && (
+            <Stack
+              direction={{ xs: "column", sm: "row" }}
+              spacing={2}
+              alignItems="center"
+              justifyContent="space-between"
+              sx={{ width: "100%", mb: 3 }}
             >
-              <Typography
-                variant="body1"
-                fontWeight={"bold"}
-                fontSize={"1.1em"}
-              >
+              <Typography variant="subtitle1" fontWeight="600" noWrap>
                 Mobile Number: {afghanistanCodeNumber}-
-                {userInfo?.mobileNumber.slice(1)}
+                {userInfo.mobileNumber.slice(1)}
               </Typography>
-              <Link to={`tel:+93${userInfo?.mobileNumber.slice(1)}`}>
-                <Button size={"small"} variant="contained" color="success">
-                  Call
-                </Button>
-              </Link>
-            </Box>
+
+              <Button
+                component="a"
+                href={`tel:+93${userInfo.mobileNumber.slice(1)}`}
+                variant="contained"
+                color="success"
+                size={isSmall ? "small" : "medium"}
+                sx={{ whiteSpace: "nowrap" }}
+              >
+                Call
+              </Button>
+            </Stack>
           )}
 
+          {/* Contact Intro */}
           <Typography
-            sx={{
-              textAlign: "justify",
-              fontSize: "1.1em",
-            }}
             variant="body1"
+            sx={{
+              mb: 3,
+              fontSize: { xs: "1rem", md: "1.15rem" },
+              color: "text.primary",
+              fontWeight: 500,
+              width: "100%",
+              textAlign: { xs: "center", sm: "left" },
+            }}
           >
             Contact{" "}
-            <span
-              style={{
-                fontWeight: "bold",
-              }}
+            <Box
+              component="span"
+              sx={{ fontWeight: "bold", color: "primary.main" }}
             >
-              {userInfo?.username}
-            </span>{" "}
-            for
-            <span
-              style={{
-                fontWeight: "bold",
-              }}
-            >
-              {" "}
+              {userInfo.username}
+            </Box>{" "}
+            regarding{" "}
+            <Box component="span" sx={{ fontWeight: "bold" }}>
               {name || ""}
-            </span>{" "}
+            </Box>
+            .
           </Typography>
 
+          {/* Message Input */}
           <TextField
-            name="message"
-            value={message}
-            onChange={handleMessage}
             variant="outlined"
-            size="small"
             multiline
-            rows={5}
+            rows={7}
             placeholder="Enter your message here..."
+            value={message}
+            onChange={handleMessageChange}
+            fullWidth
+            size={isSmall ? "small" : "medium"}
             sx={{
-              width: isSmall ? "100%" : "50%",
-              mt: 0.3,
+              mb: 4,
+              maxWidth: isSmall ? "100%" : 700,
+              mx: "auto",
+              fontSize: { xs: "0.9rem", md: "1.1rem" },
+              "& .MuiInputBase-root": {
+                fontSize: { xs: "0.9rem", md: "1.1rem" },
+                padding: "14px 16px",
+                minHeight: 140,
+                borderRadius: 2,
+                backgroundColor: "#fafafa",
+              },
             }}
           />
-          <Box
-            sx={{
-              display: "flex",
-              flexWrap: "wrap",
-              gap: 2,
-              py: 2.5,
-            }}
+
+          {/* Action Buttons */}
+          <Stack
+            direction={{ xs: "column", sm: "row" }}
+            spacing={2}
+            width="100%"
+            justifyContent={{ xs: "center", sm: "flex-start" }}
           >
             {isMobile && (
-              <Box>
-                <Link
-                  to={`sms:${afghanistanCodeNumber}${userInfo?.mobileNumber.slice(
-                    1
-                  )}?&body=${message}`}
-                >
-                  <Button
-                    size={isSmall ? "small" : "medium"}
-                    variant="contained"
-                    color="success"
-                    sx={{
-                      width: isSmall ? "100%" : "100%",
-                    }}
-                  >
-                    Send Message via SMS
-                  </Button>
-                </Link>
-              </Box>
+              <Button
+                component="a"
+                href={`sms:${afghanistanCodeNumber}${userInfo.mobileNumber.slice(
+                  1
+                )}?&body=${encodeURIComponent(message)}`}
+                variant="contained"
+                color="success"
+                fullWidth={isSmall}
+                size={isSmall ? "small" : "medium"}
+                sx={{ flexGrow: isSmall ? 1 : 0 }}
+              >
+                Send Message via SMS
+              </Button>
             )}
 
-            <Box>
-              <Link
-                to={`mailto:${userInfo?.email}?subject=Regarding ${name}&body=${message}`}
-              >
-                <Button
-                  fullWidth
-                  size={isSmall ? "small" : "medium"}
-                  variant="contained"
-                  color="success"
-                  sx={{
-                    width: isSmall ? "100%" : "100%",
-                  }}
-                >
-                  Send Message via E-mail
-                </Button>
-              </Link>
-            </Box>
-          </Box>
+            <Button
+              component="a"
+              href={`mailto:${userInfo.email}?subject=${encodeURIComponent(
+                `Regarding ${name}`
+              )}&body=${encodeURIComponent(message)}`}
+              variant="contained"
+              color="success"
+              fullWidth={!isSmall}
+              size={isSmall ? "small" : "medium"}
+              sx={{ flexGrow: 1 }}
+            >
+              Send Message via E-mail
+            </Button>
+          </Stack>
         </>
       )}
-    </>
+    </Paper>
   );
 };
 

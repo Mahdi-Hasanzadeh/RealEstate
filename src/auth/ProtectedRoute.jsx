@@ -10,7 +10,6 @@ const ProtectedRoute = (props) => {
   const currentUser = useSelector((store) => store.persistData.user);
   const handleNavigate = (to) => {
     const currentLocation = location.pathname;
-    console.log("current Location: ", currentLocation);
     dispatch(addLocationHistory(location));
     if (to == "login") {
       navigate("/signin");

@@ -67,23 +67,25 @@ const UserListings = () => {
 
   const deleteListing = async (id) => {
     try {
-      const response = await axios.delete(`${URL}api/listing/${id}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      });
+      const listToDelete = listings.filter((item) => item._id == id)[0];
+      const response = await axios.delete(
+        `${URL}api/listing/${id}`,
 
-      if (response.data.success == false) {
-        console.log(response.data.message);
-        toast.error(response?.data?.message, { autoClose: autoCloseTime });
-        return;
-      }
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+          data: {
+            mainCategoryName: listToDelete.mainCategoryName,
+          },
+        }
+      );
 
-      toast.error("Listing Deleted", { autoClose: autoCloseTime });
-      setListings((prevData) => prevData.filter((item) => item._id !== id));
+      toast.success("Listing Deleted Successfully");
+      const filteredListings = listings.filter((item) => item._id != id);
+      setListings(filteredListings);
     } catch (error) {
-      console.log(error.message);
-      toast.error(error.message, { autoClose: autoCloseTime });
+      toast.error(error?.response?.data?.message || error.message);
     }
   };
   //#endregion

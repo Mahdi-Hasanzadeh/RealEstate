@@ -9,10 +9,12 @@ import {
   Typography,
   useTheme,
   useMediaQuery,
-  Paper,
   Checkbox,
   Tooltip,
   Divider,
+  Stack,
+  Chip,
+  Paper,
 } from "@mui/material";
 import {
   BathroomRounded,
@@ -21,24 +23,15 @@ import {
   BookmarkBorder,
   ChairRounded,
   LocalParkingRounded,
-  LocationCityRounded,
   LocationOnRounded,
-  PunchClock,
-  TimelineRounded,
 } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
-import MobileStepper from "@mui/material/MobileStepper";
-import { autoPlay } from "react-swipeable-views-utils";
-import KeyboardArrowLeft from "@mui/icons-material/KeyboardArrowLeft";
-import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
-import SwipeableViews from "react-swipeable-views";
 import { toast } from "react-toastify";
 
 //#endregion
 
 //#region import (My Modules)
 
-import { LIGHTGRAY } from "../../styles/Color.js";
 import Fallback from "../../Components/UI/Fallback.jsx";
 import { fetchUserListing } from "../../redux/userListing.js";
 import { URL } from "../../config/PortConfig.js";
@@ -48,32 +41,34 @@ import CellPhoneUI from "./CellPhoneUI.jsx";
 import TimePassed from "../../Components/TimePassed.jsx";
 import ErrorUI from "../../Components/UI/Error.jsx";
 import Unauthorized from "../../auth/Unauthorized.jsx";
+import ImageSlider from "./ImageSlider.jsx";
 const ContactUser = lazy(() => import("./ContactLandlord.jsx"));
 //#endregion
 
 //#region globale variable
 
-const autoCloseTime = 3000;
-const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
-
+const ContactLandlordButtonStyle = {
+  backgroundColor: "GrayText",
+  width: "50%",
+  mt: 3,
+  mb: 3,
+};
 //#endregion
 
 const ShowListing = () => {
   //#region fields (use hook)
 
-  const [activeStep, setActiveStep] = useState(0);
   const { listingId } = useParams();
   const dispatch = useDispatch();
 
   //get the current user's all listings with it's favorites listings
   const currentUser = useSelector((store) => store.persistData.user.userInfo);
   const userListing = useSelector((store) => store.userListing);
-  const [favoriteChecked, setFavoriteChecked] = useState(null);
+  const [isFavoriteChecked, setIsFavoriteChecked] = useState(false);
   const [favoriteDisabled, setFavoriteDisabled] = useState(false);
   const [show, setShow] = useState(true);
   const theme = useTheme();
   const isSmall = useMediaQuery(theme.breakpoints.down("sm"));
-  const maxSteps = userListing?.data?.imageURLs?.length || 0;
   //#endregion
 
   //#region Use Effect hook
@@ -84,9 +79,6 @@ const ShowListing = () => {
       const id = split[0];
       const mainCategory = split[1]?.toLowerCase();
       const subCategory = split[2]?.toLowerCase();
-      // console.log("heelo");
-      // console.log(mainCategory);
-      // console.log(subCategory);
 
       //* get the single product that the user selected and the current user information
       //* to check if the current user have this single product in it's favorties list or not
@@ -102,31 +94,29 @@ const ShowListing = () => {
     }
   }, []);
 
+  useEffect(() => {
+    if (userListing?.data && listingId) {
+      const id = listingId.split(",")[0];
+      const isFavorited = userListing.data.favorites?.includes(id);
+      setIsFavoriteChecked(isFavorited);
+    }
+  }, [userListing?.data, listingId]);
+
   //#endregion
 
   //#region Methods
 
-  const toggle = () => {
-    setShow(false);
-  };
-
   //* add or remove a product to/from favorties list
-  // ! find a better solution
-
   const handleFavoriteChecked = async () => {
     setFavoriteDisabled(true);
+    const id = listingId.split(",")[0];
+
     try {
       const response = await axios.put(
         `${URL}api/user/update/${currentUser.id}`,
         {
           favorites: userListing.data._id,
-          removeFavorites: favoriteChecked
-            ? true
-            : favoriteChecked == false
-            ? false
-            : userListing?.data?.favorites.find((item) => item == listingId)
-            ? true
-            : false,
+          removeFavorites: isFavoriteChecked,
         },
         {
           headers: {
@@ -134,386 +124,514 @@ const ShowListing = () => {
           },
         }
       );
-      if (!response.data) {
-        throw new Error("Add to favorites Failed");
-      }
-      if (favoriteChecked == null) {
-        if (userListing?.data?.favorites.find((item) => item == listingId)) {
-          toast.error("Removed from favorites", {
-            autoClose: 2000,
-          });
-        } else {
-          toast.success("Added to favorites", {
-            autoClose: 2000,
-          });
-        }
-        setFavoriteChecked(
-          userListing?.data?.favorites.find((item) => item == listingId)
-            ? false
-            : true
-        );
-      } else {
-        if (favoriteChecked) {
-          toast.error("Removed from favorites", {
-            autoClose: 2000,
-          });
-        } else {
-          toast.success("Added to favorites", {
-            autoClose: 2000,
-          });
-        }
-        setFavoriteChecked(!favoriteChecked);
-      }
+
+      if (!response.data) throw new Error("Failed to update favorites");
+
+      toast["success"](
+        isFavoriteChecked ? "Removed from favorites" : "Added to favorites"
+      );
+
+      setIsFavoriteChecked((prev) => !prev);
     } catch (error) {
-      toast.error(error?.response?.data.message || error.message, {
-        autoClose: 3000,
-      });
+      toast.error(error?.response?.data.message || error.message);
     } finally {
       setFavoriteDisabled(false);
     }
   };
 
-  // const priceAfterDiscount = (regularPrice, discountPrice) => {
-  //   return regularPrice - discountPrice;
-  // };
-
-  //#region Methods for slider
-  const handleNext = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep + 1);
-  };
-
-  const handleBack = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep - 1);
-  };
-
-  const handleStepChange = (step) => {
-    setActiveStep(step);
-  };
-  //#endregion
-
-  //#endregion
-
-  //#region Styles Objects
-
-  const styleForSliderImage = {
-    height: { sm: 450, md: 500 },
-    display: "block",
-    width: "100%",
-    overflow: "hidden",
-    objectFit: { xs: "contain", sm: "fill" },
-    objectPosition: "center",
-  };
-
-  const ContactLandlordButtonStyle = {
-    backgroundColor: "GrayText",
-    width: "50%",
-    mt: 3,
-    mb: 3,
-  };
-
-  //#endregion
-
-  //#region fields
-
-  const isFavoriteChecked =
-    favoriteChecked == true
-      ? true
-      : favoriteChecked == false
-      ? false
-      : userListing?.data?.favorites.find(
-          (item) => item == listingId.split(",")[0]
-        )
-      ? true
-      : false;
   //#endregion
 
   //#region Components
 
-  const Slider = () => {
-    return (
-      <>
-        <Paper
-          square
-          elevation={1}
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            height: 50,
-            pl: 2,
-            bgcolor: LIGHTGRAY,
-            mt: 5,
-          }}
-        >
-          <Typography>{userListing.data.name}</Typography>
-        </Paper>
-        <AutoPlaySwipeableViews
-          axis={theme.direction === "rtl" ? "x-reverse" : "x"}
-          index={activeStep}
-          onChangeIndex={handleStepChange}
-          enableMouseEvents
-        >
-          {userListing.data?.imageURLs.map((step, index) => (
-            <div key={index}>
-              {Math.abs(activeStep - index) <= 2 ? (
-                <Box
-                  component="img"
-                  sx={styleForSliderImage}
-                  src={step}
-                  alt={step}
-                />
-              ) : null}
-            </div>
-          ))}
-        </AutoPlaySwipeableViews>
-        <MobileStepper
-          style={{
-            background: LIGHTGRAY,
-            borderRadius: "5px",
-          }}
-          steps={maxSteps}
-          position="static"
-          activeStep={activeStep}
-          nextButton={
-            <Button
-              size="small"
-              onClick={handleNext}
-              disabled={activeStep === maxSteps - 1}
-            >
-              Next
-              {theme.direction === "rtl" ? (
-                <KeyboardArrowLeft />
-              ) : (
-                <KeyboardArrowRight />
-              )}
-            </Button>
-          }
-          backButton={
-            <Button
-              size="small"
-              onClick={handleBack}
-              disabled={activeStep === 0}
-            >
-              {theme.direction === "rtl" ? (
-                <KeyboardArrowRight />
-              ) : (
-                <KeyboardArrowLeft />
-              )}
-              Back
-            </Button>
-          }
-        />
-      </>
-    );
-  };
+  // const ProductDescriptions = () => {
+  //   return (
+  //     <>
+  //       <Box
+  //         sx={{
+  //           display: "flex",
+  //           flexWrap: "wrap",
+  //           alignItems: { xs: "flex-start", md: "center" },
+  //           gap: 1.5,
+  //         }}
+  //       >
+  //         <Typography variant="h5" fontWeight={"bold"}>
+  //           {userListing.data?.regularPrice} AF
+  //           {userListing?.data?.mainCategoryName == estate &&
+  //           userListing.data?.type === "rent"
+  //             ? "/ month"
+  //             : null}
+  //         </Typography>
+
+  //         <TimePassed date={userListing?.data?.createdAt} />
+
+  //         {currentUser.id !== userListing.data.userRef && (
+  //           <Tooltip title="Add to Favorites">
+  //             <Checkbox
+  //               disabled={favoriteDisabled}
+  //               icon={<BookmarkBorder />}
+  //               checkedIcon={<Bookmark />}
+  //               checked={isFavoriteChecked}
+  //               onClick={handleFavoriteChecked}
+  //             />
+  //           </Tooltip>
+  //         )}
+  //       </Box>
+  //       {/* End of Name,Price and TimePassed for products */}
+
+  //       <Box mt={2} display={"flex"} alignItems={"flex-end"} gap={1}>
+  //         <LocationOnRounded
+  //           color="success"
+  //           sx={{
+  //             verticalAlign: "middle",
+  //           }}
+  //         />
+
+  //         <Typography variant="body1">{userListing.data?.address}</Typography>
+  //       </Box>
+  //       {/*End of Address  */}
+
+  //       <Box
+  //         mt={1.5}
+  //         mb={1}
+  //         sx={{
+  //           display: "flex",
+  //           alignItems: "center",
+  //           gap: 1,
+  //         }}
+  //       >
+  //         {userListing?.data?.mainCategoryName == estate && (
+  //           <Typography
+  //             variant="body1"
+  //             sx={{
+  //               backgroundColor: "red",
+  //               width: "200px",
+  //               textAlign: "center",
+  //               color: "white",
+  //               fontSize: "19px",
+  //               borderRadius: 5,
+  //             }}
+  //           >
+  //             {userListing.data?.type == "rent" ? "Rent" : "Sell"}
+  //           </Typography>
+  //         )}
+
+  //         {/* {userListing.data?.offer && (
+  //           <Typography
+  //             variant="body1"
+  //             sx={{
+  //               backgroundColor: "green",
+  //               width: "200px",
+  //               textAlign: "center",
+  //               color: "white",
+  //               fontSize: "19px",
+  //               borderRadius: 5,
+  //             }}
+  //           >
+  //             {"AFG " +
+  //               priceAfterDiscount(
+  //                 userListing.data?.regularPrice,
+  //                 userListing.data?.discountPrice
+  //               )}
+  //           </Typography>
+  //         )} */}
+  //       </Box>
+  //       {/*End of type of property (sell or rent)*/}
+
+  //       <Box>
+  //         <Typography
+  //           variant="body1"
+  //           width={"80%"}
+  //           sx={{
+  //             wordWrap: "break-word",
+  //             textAlign: "justify",
+  //             fontFamily: "sans-serif",
+  //           }}
+  //         >
+  //           <span
+  //             style={{
+  //               fontWeight: "bold",
+  //             }}
+  //           >
+  //             Description:{" "}
+  //           </span>
+  //           {userListing.data?.description}
+  //         </Typography>
+  //       </Box>
+  //       {/* End 0f Description */}
+
+  //       <Divider
+  //         sx={{
+  //           my: 2,
+  //         }}
+  //       />
+
+  //       {userListing?.data?.mainCategoryName.toLowerCase() == estate && (
+  //         <Box
+  //           sx={{
+  //             display: "flex",
+  //             justifyContent: "flex-start",
+  //             gap: 2,
+  //             alignItems: "center",
+  //             flexWrap: "wrap-reverse",
+  //           }}
+  //         >
+  //           <Typography color={"green"} variant="body1">
+  //             {
+  //               <BedroomParentRounded
+  //                 sx={{
+  //                   verticalAlign: "middle",
+  //                 }}
+  //               />
+  //             }
+  //             {userListing.data?.bedrooms} bed
+  //             {userListing.data?.bedrooms !== 1 && "s"}
+  //           </Typography>
+  //           <Typography color={"green"} variant="body1">
+  //             {
+  //               <BathroomRounded
+  //                 sx={{
+  //                   verticalAlign: "middle",
+  //                 }}
+  //               />
+  //             }
+  //             {userListing.data?.bath} bath
+  //             {userListing.data?.bath !== 1 && "s"}
+  //           </Typography>
+  //           <Typography color={"green"} variant="body1">
+  //             {
+  //               <LocalParkingRounded
+  //                 sx={{
+  //                   verticalAlign: "middle",
+  //                 }}
+  //               />
+  //             }
+  //             {userListing.data?.parking ? "Parking spot" : "No Parking"}
+  //           </Typography>
+  //           <Typography color={"green"} variant="body1">
+  //             {
+  //               <ChairRounded
+  //                 sx={{
+  //                   verticalAlign: "middle",
+  //                 }}
+  //               />
+  //             }
+  //             {userListing.data?.furnished ? "Furnished" : "Unfurnished"}
+  //           </Typography>
+  //         </Box>
+  //       )}
+  //       {/*End of Home Features */}
+
+  //       {userListing?.data?.subCategoryName == cellPhoneAndTablets && (
+  //         <CellPhoneUI product={userListing?.data} />
+  //       )}
+  //       {/* End of Cell Phone Info */}
+
+  //       <Divider
+  //         sx={{
+  //           my: 2,
+  //         }}
+  //       />
+  //     </>
+  //   );
+  // };
+
+  // //#endregion
+
+  // if (currentUser == null) {
+  //   return <Unauthorized />;
+  // }
+
+  // return (
+  //   <>
+  //     {userListing.loading ? (
+  //       <Box
+  //         sx={{
+  //           display: "flex",
+  //           justifyContent: "center",
+  //           alignItems: "center",
+  //           height: "90dvh",
+  //         }}
+  //       >
+  //         <Loader />
+  //       </Box>
+  //     ) : userListing.success == false ? (
+  //       <ErrorUI error={userListing?.error} />
+  //     ) : (
+  //       userListing.success &&
+  //       userListing.error == false && (
+  //         <Container maxWidth="lg">
+  //           <Box
+  //             sx={{
+  //               mt: 4,
+  //             }}
+  //           >
+  //             <ImageSlider
+  //               images={userListing.data?.imageURLs || []}
+  //               title={userListing.data?.name}
+  //             />
+  //           </Box>
+  //           <Box
+  //             sx={{
+  //               pb: 5,
+  //             }}
+  //           >
+  //             <ProductDescriptions />
+
+  //             <Suspense fallback={<Fallback />}>
+  //               {!show && (
+  //                 <Box
+  //                   sx={{
+  //                     mt: 2.5,
+  //                   }}
+  //                 >
+  //                   {/* Contact user Form */}
+  //                   <ContactUser
+  //                     userRef={userListing.data.userRef}
+  //                     name={userListing.data.name}
+  //                     isSmall={isSmall}
+  //                   />
+  //                 </Box>
+  //               )}
+  //             </Suspense>
+
+  //             {currentUser.id !== userListing.data.userRef && show && (
+  //               <Box>
+  //                 <Button
+  //                   onClick={() => setShow(false)}
+  //                   variant="contained"
+  //                   fullWidth
+  //                   size={isSmall ? "small" : "medium"}
+  //                   sx={ContactLandlordButtonStyle}
+  //                 >
+  //                   Contact Seller
+  //                 </Button>
+  //               </Box>
+  //             )}
+  //           </Box>
+  //         </Container>
+  //       )
+  //     )}
+  //   </>
+  // );
 
   const ProductDescriptions = () => {
+    const isEstate =
+      userListing?.data?.mainCategoryName?.toLowerCase() === "estate";
+    const isRent = userListing?.data?.type === "rent";
+    const isCellPhone =
+      userListing?.data?.subCategoryName === cellPhoneAndTablets;
+
     return (
-      <>
-        <Box
-          sx={{
-            display: "flex",
-            flexWrap: "wrap",
-            alignItems: { xs: "flex-start", md: "center" },
-            gap: 1.5,
-          }}
+      <Paper
+        sx={{
+          backgroundColor: "#f5f5f5",
+          borderRadius: 2,
+          p: { xs: 3, md: 5 },
+        }}
+      >
+        {/* Price + Date + Favorite */}
+        <Stack
+          direction={{ xs: "column", md: "row" }}
+          alignItems={{ xs: "flex-start", md: "center" }}
+          justifyContent="space-between"
+          spacing={2}
         >
-          {/* <Typography variant="h5" fontWeight={"bold"}>
-            {userListing.data?.name}{" "}
-          </Typography> */}
-
-          <Typography variant="h5" fontWeight={"bold"}>
-            {userListing.data?.regularPrice} AF
-            {userListing?.data?.mainCategoryName == estate &&
-            userListing.data?.type === "rent"
-              ? "/ month"
-              : null}
-          </Typography>
-
-          <TimePassed date={userListing?.data?.createdAt} />
+          <Box>
+            <Typography
+              variant="h3"
+              fontWeight="400"
+              color="primary.main"
+              sx={{ letterSpacing: 1, mb: 0.5 }}
+            >
+              {userListing.data?.regularPrice} AF
+              {isEstate && isRent && (
+                <Typography component="span"> / month</Typography>
+              )}
+              <TimePassed date={userListing?.data?.createdAt} />
+            </Typography>
+            {isEstate && (
+              <Chip
+                label={isEstate ? (isRent ? "For Rent" : "For Sale") : ""}
+                color={isRent ? "warning" : "success"}
+                size="medium"
+                sx={{
+                  fontWeight: "bold",
+                  fontSize: 16,
+                  mt: 0.5,
+                  borderRadius: 2,
+                }}
+              />
+            )}
+          </Box>
 
           {currentUser.id !== userListing.data.userRef && (
-            <Tooltip title="Add to Favorites">
+            <Tooltip
+              title={
+                isFavoriteChecked ? "Remove from Favorites" : "Add to Favorites"
+              }
+            >
               <Checkbox
                 disabled={favoriteDisabled}
                 icon={<BookmarkBorder />}
-                checkedIcon={<Bookmark />}
+                checkedIcon={<Bookmark color="primary" />}
                 checked={isFavoriteChecked}
-                onClick={handleFavoriteChecked}
+                onChange={handleFavoriteChecked}
+                size="large"
+                sx={{ ml: { md: 2 } }}
+                inputProps={{ "aria-label": "add to favorites" }}
               />
             </Tooltip>
           )}
+        </Stack>
 
-          {/* <Typography variant="h5" fontWeight={"bold"}>
-            {userListing.data?.discountPrice == 0
-              ? userListing.data?.regularPrice
-              : userListing.data?.discountPrice}{" "}
-            {userListing.data?.type === "rent" ? "/ month" : null}
-          </Typography> */}
-        </Box>
-        {/* End of Name,Price and TimePassed for products */}
+        {/* Location */}
+        <Stack
+          direction="row"
+          alignItems="center"
+          spacing={1}
+          mt={3}
+          flexWrap="wrap" // ensures text wraps instead of overflowing
+          maxWidth="100%" // prevent overflow beyond container
+        >
+          <LocationOnRounded color="success" fontSize="medium" />
+          <Typography
+            variant="subtitle1"
+            color="text.secondary"
+            fontWeight={600}
+            sx={{ wordBreak: "break-word" }} // helps break long words
+          >
+            {userListing.data?.address}
+          </Typography>
+        </Stack>
 
-        <Box mt={2} display={"flex"} alignItems={"flex-end"} gap={1}>
-          <LocationOnRounded
-            color="success"
-            sx={{
-              verticalAlign: "middle",
-            }}
-          />
-
-          <Typography variant="body1">{userListing.data?.address}</Typography>
-        </Box>
-        {/*End of Address  */}
-
+        {/* Description */}
         <Box
-          mt={1.5}
-          mb={1}
+          mt={4}
           sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: 1,
+            fontSize: 18,
+            lineHeight: 1.6,
+            color: "#555",
+            overflowWrap: "break-word", // important for long words or URLs
           }}
         >
-          {userListing?.data?.mainCategoryName == estate && (
-            <Typography
-              variant="body1"
-              sx={{
-                backgroundColor: "red",
-                width: "200px",
-                textAlign: "center",
-                color: "white",
-                fontSize: "19px",
-                borderRadius: 5,
-              }}
-            >
-              {userListing.data?.type == "rent" ? "Rent" : "Sell"}
-            </Typography>
-          )}
-
-          {/* {userListing.data?.offer && (
-            <Typography
-              variant="body1"
-              sx={{
-                backgroundColor: "green",
-                width: "200px",
-                textAlign: "center",
-                color: "white",
-                fontSize: "19px",
-                borderRadius: 5,
-              }}
-            >
-              {"AFG " +
-                priceAfterDiscount(
-                  userListing.data?.regularPrice,
-                  userListing.data?.discountPrice
-                )}
-            </Typography>
-          )} */}
-        </Box>
-        {/*End of type of property (sell or rent)*/}
-
-        <Box>
+          <Typography variant="body1" sx={{ fontWeight: "bold", mb: 1 }}>
+            Description:
+          </Typography>
           <Typography
-            variant="body1"
-            width={"80%"}
+            variant="body2"
             sx={{
-              wordWrap: "break-word",
-              textAlign: "justify",
-              fontFamily: "sans-serif",
+              whiteSpace: "pre-line",
+              wordBreak: "break-word",
             }}
           >
-            <span
-              style={{
-                fontWeight: "bold",
-              }}
-            >
-              Description:{" "}
-            </span>
-            {userListing.data?.description}
+            {userListing.data?.description || "No description available."}
           </Typography>
         </Box>
-        {/* End 0f Description */}
 
-        <Divider
-          sx={{
-            my: 2,
-          }}
-        />
+        <Divider sx={{ my: 4 }} />
 
-        {userListing?.data?.mainCategoryName == estate && (
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "flex-start",
-              gap: 2,
-              alignItems: "center",
-              flexWrap: "wrap-reverse",
-            }}
+        {/* Estate Features */}
+        {isEstate && (
+          <Stack
+            direction={{ xs: "column", sm: "row" }}
+            spacing={3}
+            flexWrap="wrap"
+            justifyContent="start"
+            mb={3}
           >
-            <Typography color={"green"} variant="body1">
+            {[
               {
-                <BedroomParentRounded
-                  sx={{
-                    verticalAlign: "middle",
-                  }}
-                />
-              }
-              {userListing.data?.bedrooms} bed
-              {userListing.data?.bedrooms !== 1 && "s"}
-            </Typography>
+                icon: <BedroomParentRounded fontSize="large" color="success" />,
+                label: `${userListing.data?.bedrooms} bed${
+                  userListing.data?.bedrooms !== 1 ? "s" : ""
+                }`,
+              },
+              {
+                icon: <BathroomRounded fontSize="large" color="success" />,
+                label: `${userListing.data?.bath} bath${
+                  userListing.data?.bath !== 1 ? "s" : ""
+                }`,
+              },
+              {
+                icon: <LocalParkingRounded fontSize="large" color="success" />,
+                label: userListing.data?.parking
+                  ? "Parking spot"
+                  : "No Parking",
+              },
+              {
+                icon: <ChairRounded fontSize="large" color="success" />,
+                label: userListing.data?.furnished
+                  ? "Furnished"
+                  : "Unfurnished",
+              },
+            ].map(({ icon, label }, i) => (
+              <Box
+                key={i}
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                  bgcolor: "#e6f4ea",
+                  p: 1.5,
+                  borderRadius: 2,
+                  minWidth: 140,
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+                  cursor: "pointer",
+                  transition:
+                    "background-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease",
+                  "&:hover": {
+                    bgcolor: "#d4edda", // Slightly darker green background on hover
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                    transform: "translateY(-2px)", // Optional: slight lift on hover
+                  },
+                }}
+              >
+                {icon}
+                <Typography
+                  fontWeight="600"
+                  variant="body1"
+                  color="success.main"
+                >
+                  {label}
+                </Typography>
+              </Box>
+            ))}
+          </Stack>
+        )}
 
-            <Typography color={"green"} variant="body1">
-              {
-                <BathroomRounded
-                  sx={{
-                    verticalAlign: "middle",
-                  }}
-                />
-              }
-              {userListing.data?.bath} bath
-              {userListing.data?.bath !== 1 && "s"}
-            </Typography>
-            <Typography color={"green"} variant="body1">
-              {
-                <LocalParkingRounded
-                  sx={{
-                    verticalAlign: "middle",
-                  }}
-                />
-              }
-              {userListing.data?.parking ? "Parking spot" : "No Parking"}
-            </Typography>
-            <Typography color={"green"} variant="body1">
-              {
-                <ChairRounded
-                  sx={{
-                    verticalAlign: "middle",
-                  }}
-                />
-              }
-              {userListing.data?.furnished ? "Furnished" : "Unfurnished"}
-            </Typography>
+        {/* Cell Phone Info */}
+        {isCellPhone && <CellPhoneUI product={userListing?.data} />}
+
+        <Divider sx={{ my: 3 }} />
+        {currentUser.id !== userListing.data.userRef && show && (
+          <Box sx={{ mt: 2, textAlign: "left" }}>
+            <Button
+              onClick={() => setShow(false)}
+              variant="contained"
+              size="small"
+              sx={{
+                borderRadius: 2,
+                fontWeight: "bold",
+                py: 1,
+                px: 3,
+                background:
+                  "linear-gradient(90deg, rgba(21,101,192,1) 0%, rgba(25,118,210,1) 100%)",
+                "&:hover": {
+                  background:
+                    "linear-gradient(90deg, rgba(17,83,160,1) 0%, rgba(21,101,192,1) 100%)",
+                },
+                boxShadow: "0 3px 10px rgb(25 118 210 / 0.4)",
+              }}
+            >
+              Contact Seller
+            </Button>
           </Box>
         )}
-        {/*End of Home Features */}
-
-        {userListing?.data?.subCategoryName == cellPhoneAndTablets && (
-          <CellPhoneUI product={userListing?.data} />
-        )}
-        {/* End of Cell Phone Info */}
-
-        <Divider
-          sx={{
-            my: 2,
-          }}
-        />
-      </>
+      </Paper>
     );
   };
 
-  //#endregion
-
-  // if user is not logged in show login form
-  if (currentUser == null) {
+  if (!currentUser) {
     return <Unauthorized />;
   }
 
@@ -530,59 +648,32 @@ const ShowListing = () => {
         >
           <Loader />
         </Box>
-      ) : userListing.success == false ? (
+      ) : userListing.success === false ? (
         <ErrorUI error={userListing?.error} />
       ) : (
         userListing.success &&
-        userListing.error == false && (
-          <Container maxWidth="lg">
-            <Box
-              sx={{
-                mt: 4,
-              }}
-            >
-              <Slider />
+        !userListing.error && (
+          <Container maxWidth="lg" sx={{ py: 5 }}>
+            <Box mb={4}>
+              <ImageSlider
+                images={userListing.data?.imageURLs || []}
+                title={userListing.data?.name}
+              />
             </Box>
-            <Box
-              sx={{
-                pb: 5,
-              }}
-            >
-              <ProductDescriptions />
 
-              <Suspense fallback={<Fallback />}>
-                {!show && (
-                  <Box
-                    sx={{
-                      mt: 2.5,
-                    }}
-                  >
-                    {/* Contact user Form */}
-                    <ContactUser
-                      userRef={userListing.data.userRef}
-                      name={userListing.data.name}
-                      isSmall={isSmall}
-                    />
-                  </Box>
-                )}
-              </Suspense>
+            <ProductDescriptions />
 
-              <Suspense fallback={<Fallback />}>
-                {currentUser.id !== userListing.data.userRef && show && (
-                  <Box>
-                    <Button
-                      onClick={toggle}
-                      variant="contained"
-                      fullWidth
-                      size={isSmall ? "small" : "medium"}
-                      sx={ContactLandlordButtonStyle}
-                    >
-                      Contact Landlord
-                    </Button>
-                  </Box>
-                )}
-              </Suspense>
-            </Box>
+            <Suspense fallback={<Fallback />}>
+              {!show && (
+                <Box mt={4}>
+                  <ContactUser
+                    userRef={userListing.data.userRef}
+                    name={userListing.data.name}
+                    isSmall={isSmall}
+                  />
+                </Box>
+              )}
+            </Suspense>
           </Container>
         )
       )}

@@ -3,8 +3,9 @@ export const allProducts = "all_products";
 export const digitalEquipment = "Digital_Equipment";
 export const transportation = "transportation";
 
-export const allDigitalEquipment = "all_digital_equipment";
-export const cellPhoneAndTablets = "cellphone_tablets";
+// export const allDigitalEquipment = "all_digital_equipment";
+export const cellPhoneAndTablets = "cellphone_tablet";
+// export const cellPhoneAndTablets = "CELL PHONE & TABLETS";
 export const computer = "computer";
 export const entertainmentConsole = "console";
 
@@ -38,11 +39,11 @@ export const navItems = [
 ];
 
 export const CategoryItems = [
-  {
-    name: "ALL PRODUCTS",
-    value: allProducts,
-    disabled: true,
-  },
+  // {
+  //   name: "ALL PRODUCTS",
+  //   value: allProducts,
+  //   disabled: true,
+  // },
   {
     name: "ESTATE",
     value: estate,
@@ -61,12 +62,7 @@ export const CategoryItems = [
 ];
 export const SubCategoryItemsForDigitalEquiments = [
   {
-    name: "ALL DIGITAL EQUIPMENTS",
-    value: allDigitalEquipment,
-    disabled: true,
-  },
-  {
-    name: "CELL PHONE & TABLETS",
+    name: "cellphone_tablet",
     value: cellPhoneAndTablets,
     disabled: false,
   },
@@ -80,6 +76,11 @@ export const SubCategoryItemsForDigitalEquiments = [
     value: entertainmentConsole,
     disabled: true,
   },
+  // {
+  //   name: "ALL DIGITAL EQUIPMENTS",
+  //   value: allDigitalEquipment,
+  //   disabled: true,
+  // },
 ];
 
 export const CellPhoneBrands = [
