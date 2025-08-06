@@ -1,1 +1,0 @@
-import{n as e,l as s}from"./index-BTe4GArI.js";function a(t){return s("MuiListItemText",t)}const i=e("MuiListItemText",["root","multiline","dense","inset","primary","secondary"]),n=i;export{a as g,n as l};
