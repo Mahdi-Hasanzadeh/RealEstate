@@ -4,6 +4,8 @@ import {
   Card,
   CardContent,
   CardMedia,
+  Chip,
+  Tooltip,
   Typography,
   Zoom,
 } from "@mui/material";
@@ -16,113 +18,157 @@ const SearchResultCard = ({ listing, transition, delay }) => {
     <Zoom
       in={transition || true}
       style={{
-        transitionDelay: transition ? `${delay ? delay : 500}ms` : "0ms",
+        transitionDelay: transition ? `${delay || 500}ms` : "0ms",
       }}
       mountOnEnter
       unmountOnExit
     >
       <Link
         to={`/listing/${listing?._id},${listing?.mainCategoryName},${
-          listing?.subCategoryName || null
+          listing?.subCategoryName || "unknown"
         }`}
         className="cardLink"
+        style={{ textDecoration: "none" }}
       >
         <Card
           className="color"
           sx={{
-            minWidth: 245,
             width: 280,
-            height: 400,
+            height: 420,
             maxWidth: 345,
-            p: 1,
-            borderRadius: 3,
-            boxShadow: "-3px -3px 700px #ffffff,5px 5px 5px #ceced1",
-            transition: "0.75s ease-in-out",
+            p: 2,
+            borderRadius: 4,
+            boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
+            transition: "0.3s ease-in-out",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
             "&:hover": {
-              transform: "translate(5px,5px)",
+              transform: "translateY(-5px)",
             },
           }}
         >
           <CardMedia
-            component={"img"}
+            component="img"
+            height="150"
+            image={listing?.imageURLs[0]}
             alt={listing?.name}
-            height={145}
-            srcSet={listing?.imageURLs[0]}
-            sx={{ borderRadius: 2 }}
+            sx={{
+              borderRadius: 2,
+              objectFit: "cover",
+              mb: 2,
+            }}
             className="cardImage"
           />
-          <CardContent>
-            {/* Name */}
-            <Typography
-              variant="h5"
-              component={"div"}
-              sx={{
-                whiteSpace: "nowrap",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-              }}
-            >
+
+          <CardContent sx={{ flex: 1, p: 0 }}>
+            {/* Title */}
+            <Typography variant="h6" noWrap fontWeight={600} gutterBottom>
               {listing?.name}
             </Typography>
 
             {/* Address */}
             <Typography
-              variant="caption"
-              fontSize={15}
-              color={BLACK}
-              display={"flex"}
-              alignItems={"center"}
+              variant="body2"
+              color="text.secondary"
+              display="flex"
+              alignItems="center"
+              noWrap
               mb={1}
-              sx={{
-                whiteSpace: "nowrap",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-              }}
             >
-              <LocationOnRounded fontSize="small" color="info" />{" "}
+              <LocationOnRounded
+                fontSize="small"
+                color="info"
+                sx={{ mr: 0.5 }}
+              />
               {listing?.address}
             </Typography>
 
             {/* Description */}
             <Typography
               variant="body2"
-              component="div"
+              color="text.secondary"
               sx={{
-                height: "5rem",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
                 display: "-webkit-box",
-                WebkitLineClamp: 3,
+                WebkitLineClamp: 2,
                 WebkitBoxOrient: "vertical",
+                overflow: "hidden",
+                mb: 2,
+                minHeight: "3.5rem",
               }}
             >
               {listing?.description || "No description available."}
             </Typography>
 
-            {/* Price */}
-            <Typography variant="h6" color={BLACK} mt={1}>
-              {listing?.regularPrice} AFG{" "}
-              {listing?.type === "rent" ? "/month" : null}
-            </Typography>
+            {/* Price + Offer Badge */}
+            <Box
+              display="flex"
+              justifyContent="space-between"
+              alignItems="center"
+              flexWrap="wrap"
+              mb={1}
+            >
+              <Box display="flex" alignItems="center" gap={1} mt={1}>
+                {/* Offer Badge with Tooltip */}
+                {listing?.offer && (
+                  <Tooltip title="Limited-time offer!" arrow>
+                    <Chip
+                      label="Offer"
+                      color="info"
+                      size="small"
+                      sx={{ fontWeight: "bold", fontSize: "0.75rem" }}
+                    />
+                  </Tooltip>
+                )}
+
+                {/* Discounted Price with Tooltip */}
+                {listing?.offer && (
+                  <Tooltip title="Discounted Price" arrow>
+                    <Typography
+                      variant="h6"
+                      color="success.main"
+                      fontWeight={600}
+                    >
+                      {listing.discountPrice} AFG{" "}
+                    </Typography>
+                  </Tooltip>
+                )}
+
+                {/* Regular Price with Tooltip (strikethrough if there's a discount) */}
+                <Tooltip
+                  title={listing?.offer ? "Original Price" : "Price"}
+                  arrow
+                >
+                  <Typography
+                    variant="body1"
+                    color={listing?.offer ? "text.secondary" : "text.primary"}
+                    sx={{
+                      textDecoration: listing?.offer ? "line-through" : "none",
+                      fontWeight: listing?.offer ? 500 : 600,
+                      fontSize: listing?.offer ? "0.875rem" : "1.125rem",
+                    }}
+                  >
+                    {listing.regularPrice} AFG{" "}
+                  </Typography>
+                </Tooltip>
+              </Box>
+            </Box>
 
             {/* Beds / Baths */}
-            <Box display={"flex"} justifyContent={"flex-start"} mt={1} gap={2}>
-              <Typography variant="body2" color={BLACK}>
+            <Box display="flex" gap={2} mb={1}>
+              <Typography variant="body2" color="text.primary">
                 {listing?.bedrooms} Bed{listing?.bedrooms !== 1 ? "s" : ""}
               </Typography>
-              <Typography variant="body2" color={BLACK}>
+              <Typography variant="body2" color="text.primary">
                 {listing?.bath} Bath{listing?.bath !== 1 ? "s" : ""}
               </Typography>
             </Box>
 
-            {/* Time Ago */}
-            <Box mt={1}>
-              <Typography variant="body2" color={BLACK}>
-                {listing?.createdAt &&
-                  formatDistanceToNow(new Date(listing?.createdAt))}{" "}
-                ago
-              </Typography>
-            </Box>
+            {/* Posted Time */}
+            <Typography variant="caption" color="text.secondary">
+              {listing?.createdAt &&
+                `${formatDistanceToNow(new Date(listing?.createdAt))} ago`}
+            </Typography>
           </CardContent>
         </Card>
       </Link>

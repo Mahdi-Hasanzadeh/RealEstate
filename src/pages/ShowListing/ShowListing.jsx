@@ -420,6 +420,16 @@ const ShowListing = () => {
     const isRent = userListing?.data?.type === "rent";
     const isCellPhone =
       userListing?.data?.subCategoryName === cellPhoneAndTablets;
+    const offer = userListing?.data?.offer;
+    // Calculate discount percentage
+    const discountPercentage =
+      offer && userListing.data?.regularPrice
+        ? Math.round(
+            ((userListing.data.regularPrice - userListing.data.discountPrice) /
+              userListing.data.regularPrice) *
+              100
+          )
+        : 0;
 
     return (
       <Paper
@@ -437,18 +447,66 @@ const ShowListing = () => {
           spacing={2}
         >
           <Box>
-            <Typography
-              variant="h3"
-              fontWeight="400"
-              color="primary.main"
-              sx={{ letterSpacing: 1, mb: 0.5 }}
-            >
-              {userListing.data?.regularPrice} AF
-              {isEstate && isRent && (
-                <Typography component="span"> / month</Typography>
+            <Box display="flex" alignItems="center" flexWrap="wrap" gap={1}>
+              {offer ? (
+                <>
+                  <Typography
+                    variant="h5"
+                    component="span"
+                    color="text.secondary"
+                    sx={{ textDecoration: "line-through" }}
+                  >
+                    {userListing.data?.regularPrice} AF
+                  </Typography>
+
+                  <Typography
+                    variant="h4"
+                    component="span"
+                    color="success.main"
+                    fontWeight={600}
+                  >
+                    {userListing.data?.discountPrice} AF
+                  </Typography>
+
+                  {isEstate && isRent && (
+                    <Typography component="span" color="text.secondary">
+                      / month
+                    </Typography>
+                  )}
+
+                  {/* Offer Chip */}
+                  <Chip
+                    label={`${discountPercentage}% Off`}
+                    color="info"
+                    size="small"
+                    sx={{ ml: 1, fontWeight: 500 }}
+                  />
+                </>
+              ) : (
+                <>
+                  <Typography
+                    variant="h4"
+                    component="span"
+                    color="primary.main"
+                    fontWeight={500}
+                  >
+                    {userListing.data?.regularPrice} AF
+                  </Typography>
+
+                  {isEstate && isRent && (
+                    <Typography component="span" color="text.secondary">
+                      / month
+                    </Typography>
+                  )}
+                </>
               )}
-              <TimePassed date={userListing?.data?.createdAt} />
-            </Typography>
+
+              {/* Time Passed */}
+              <Box ml={2}>
+                <TimePassed date={userListing?.data?.createdAt} />
+              </Box>
+            </Box>
+
             {isEstate && (
               <Chip
                 label={isEstate ? (isRent ? "For Rent" : "For Sale") : ""}

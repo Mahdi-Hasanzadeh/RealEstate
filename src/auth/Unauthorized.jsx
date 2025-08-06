@@ -1,4 +1,7 @@
-import { Box, Button, Typography } from "@mui/material";
+import { Box, Button, Typography, Stack } from "@mui/material";
+import LockPersonIcon from "@mui/icons-material/LockPerson";
+import LoginIcon from "@mui/icons-material/Login";
+import PersonAddAltIcon from "@mui/icons-material/PersonAddAlt";
 import { addLocationHistory } from "../redux/userLocationHistory.js";
 import { useDispatch } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -7,67 +10,59 @@ const Unauthorized = () => {
   const location = useLocation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
   const handleNavigate = (path) => {
-    // getting the user location
     const currentLocation =
       "/" + location.pathname.split("/").slice(2).join("/");
-
     dispatch(addLocationHistory(location));
 
-    if (path == "login") {
+    if (path === "login") {
       navigate("/signin");
     } else {
       navigate("/signup");
     }
   };
+
   return (
     <Box
       sx={{
+        mt: 5,
         display: "flex",
         flexDirection: "column",
-        justifyContent: "center",
         alignItems: "center",
-        gap: 2,
-        minHeight: "90dvh",
+        justifyContent: "center",
+        px: 2,
+        textAlign: "center",
       }}
     >
-      <Typography
-        sx={{
-          textAlign: "center",
-          mb: 1.5,
-          fontWeight: "bold",
-          fontStyle: "italic",
-        }}
-        variant="h5"
-      >
-        Please first login to your account or create a new one
+      <LockPersonIcon color="error" sx={{ fontSize: 80, mb: 2 }} />
+
+      <Typography variant="h5" fontWeight="bold" gutterBottom>
+        Access Restricted
       </Typography>
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          columnGap: 2,
-        }}
-      >
+
+      <Typography variant="body1" color="text.secondary" mb={3}>
+        Please log in to your account or create a new one to continue.
+      </Typography>
+
+      <Stack direction="row" spacing={2}>
         <Button
           variant="contained"
-          onClick={() => {
-            handleNavigate("login");
-          }}
-          size="small"
+          color="primary"
+          startIcon={<LoginIcon />}
+          onClick={() => handleNavigate("login")}
         >
           Login
         </Button>
         <Button
-          variant="contained"
-          onClick={() => {
-            handleNavigate("signup");
-          }}
-          size="small"
+          variant="outlined"
+          color="primary"
+          startIcon={<PersonAddAltIcon />}
+          onClick={() => handleNavigate("signup")}
         >
-          Sign up
+          Sign Up
         </Button>
-      </Box>
+      </Stack>
     </Box>
   );
 };

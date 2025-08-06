@@ -1,14 +1,25 @@
+import { Box, CircularProgress, Typography } from "@mui/material";
+
 const Fallback = () => {
   return (
-    <div
-      style={{
+    <Box
+      sx={{
         display: "flex",
+        flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
+        gap: 2,
+        textAlign: "center",
       }}
     >
-      <h2>Loading...</h2>
-    </div>
+      <CircularProgress size={48} thickness={4} />
+      <Typography variant="h6" color="text.primary">
+        Loading, please wait...
+      </Typography>
+      <Typography variant="body2" color="text.secondary">
+        Bringing your content in just a moment.
+      </Typography>
+    </Box>
   );
 };
 

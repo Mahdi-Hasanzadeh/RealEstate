@@ -1,17 +1,19 @@
+import { Box, Button, Typography, Stack } from "@mui/material";
+import LoginIcon from "@mui/icons-material/Login";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { addLocationHistory } from "../redux/userLocationHistory";
-import { Box, Button, Typography } from "@mui/material";
 
 const ProtectedRoute = (props) => {
   const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
   const currentUser = useSelector((store) => store.persistData.user);
+
   const handleNavigate = (to) => {
-    const currentLocation = location.pathname;
     dispatch(addLocationHistory(location));
-    if (to == "login") {
+    if (to === "login") {
       navigate("/signin");
     } else {
       navigate("/signup");
@@ -20,51 +22,58 @@ const ProtectedRoute = (props) => {
 
   if (currentUser.userInfo) {
     return props.children;
-  } else {
-    // const currentLocation =
-    //   "/" + location.pathname.split("/").slice(2).join("/");
+  }
 
-    // alert("redirecting to sign in page");
-    return (
-      <Box padding={2}>
-        <Typography
-          sx={{
-            textAlign: "center",
-            mb: 1.5,
-          }}
-          variant="body1"
-        >
-          Please first login to your account or create a new one
+  // ✨ Beautiful fallback UI for unauthenticated access
+  return (
+    <Box
+      sx={{
+        height: "70dvh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        px: 2,
+        textAlign: "center",
+      }}
+    >
+      <Box
+        sx={{
+          maxWidth: 400,
+          width: "100%",
+          p: 4,
+          borderRadius: 4,
+          boxShadow: 3,
+          backgroundColor: "background.paper",
+        }}
+      >
+        <Typography variant="h5" mb={2} fontWeight="bold">
+          Access Denied
         </Typography>
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            columnGap: 2,
-          }}
-        >
+        <Typography variant="body1" color="text.secondary" mb={3}>
+          Please log in to your account or sign up to access this page.
+        </Typography>
+
+        <Stack direction="row" spacing={2} justifyContent="center">
           <Button
             variant="contained"
-            onClick={() => {
-              handleNavigate("/login");
-            }}
-            size="small"
+            color="primary"
+            startIcon={<LoginIcon />}
+            onClick={() => handleNavigate("login")}
           >
             Login
           </Button>
           <Button
-            variant="contained"
-            onClick={() => {
-              handleNavigate("/signup");
-            }}
-            size="small"
+            variant="outlined"
+            color="primary"
+            startIcon={<PersonAddIcon />}
+            onClick={() => handleNavigate("signup")}
           >
-            Sign up
+            Sign Up
           </Button>
-        </Box>
+        </Stack>
       </Box>
-    );
-  }
+    </Box>
+  );
 };
 
 export default ProtectedRoute;

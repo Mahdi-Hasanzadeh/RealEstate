@@ -1,8 +1,6 @@
 //#region Imports
 
-import axios from "axios";
 import { useEffect, useState, Suspense, lazy } from "react";
-import { URL } from "../../config/PortConfig.js";
 import { useSelector } from "react-redux";
 import { Box, Container } from "@mui/material";
 import { useNavigate } from "react-router-dom";
@@ -14,11 +12,8 @@ import NotFound from "../../Components/UI/NotFound.jsx";
 import Fallback from "../../Components/UI/Fallback.jsx";
 import ItemCard from "../../Components/CustomizedCard/ItemCard.jsx";
 import ConfirmDialog from "../../Components/UI/ConfirmDialog.jsx";
-
-//#endregion
-
-//#region Constants
-const autoCloseTime = 3000;
+import axiosInstance from "../../config/axiosConfig.js";
+import { cellPhoneAndTablets, digitalEquipment } from "../../utils/utility.js";
 
 //#endregion
 
@@ -47,19 +42,15 @@ const UserListings = () => {
   const fetchUserListing = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${URL}api/listing/${currentUser.id}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      });
+      const response = await axiosInstance.get(`api/listing/${currentUser.id}`);
 
       if (response.data.succeess === false) {
-        toast.error(response?.data?.message, { autoClose: autoCloseTime });
+        toast.error(response?.data?.message);
         return;
       }
       setListings(response.data);
     } catch (error) {
-      toast.error(error.message, { autoClose: autoCloseTime });
+      toast.error(error.message);
     } finally {
       setLoading(false);
     }
@@ -68,18 +59,11 @@ const UserListings = () => {
   const deleteListing = async (id) => {
     try {
       const listToDelete = listings.filter((item) => item._id == id)[0];
-      const response = await axios.delete(
-        `${URL}api/listing/${id}`,
-
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-          data: {
-            mainCategoryName: listToDelete.mainCategoryName,
-          },
-        }
-      );
+      await axiosInstance.delete(`api/listing/${id}`, {
+        data: {
+          mainCategoryName: listToDelete.mainCategoryName,
+        },
+      });
 
       toast.success("Listing Deleted Successfully");
       const filteredListings = listings.filter((item) => item._id != id);
@@ -92,11 +76,16 @@ const UserListings = () => {
 
   //#region Navigation
   const updateListing = (listing) => {
-    navigate(
-      `/listing/update/${listing?._id},${listing?.mainCategoryName},${
-        listing?.subCategoryName || null
-      }`
-    );
+    const mainCategory = listing?.mainCategoryName;
+    const subCategory = listing?.subCategoryName;
+    if (mainCategory.toLowerCase() == "estate") {
+      navigate(`/listing/update/${listing?._id},${listing?.mainCategoryName}`);
+    } else if (
+      mainCategory == digitalEquipment &&
+      subCategory == cellPhoneAndTablets
+    ) {
+      navigate(`/cellphone/update/${listing?._id}`);
+    }
   };
   //#endregion
 
@@ -108,18 +97,7 @@ const UserListings = () => {
 
   //#region Render
   if (loading) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          marginTop: "20%",
-        }}
-      >
-        <Loader />
-      </Box>
-    );
+    return <Fallback />;
   }
 
   if (listings.length === 0) {

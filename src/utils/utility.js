@@ -379,7 +379,7 @@ export const CellPhoneStorage = [
   },
   {
     name: "2 TB",
-    value: "tb1",
+    value: "tb2",
   },
 ];
 

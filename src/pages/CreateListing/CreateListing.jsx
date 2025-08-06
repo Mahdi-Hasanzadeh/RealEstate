@@ -10,8 +10,17 @@ import {
   Button,
   useMediaQuery,
   useTheme,
+  Typography,
+  Paper,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  RadioGroup,
+  Radio,
+  FormGroup,
 } from "@mui/material";
-import { Suspense, lazy, useEffect, useState } from "react";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import { Suspense, lazy, useCallback, useEffect, useState } from "react";
 import {
   getDownloadURL,
   getStorage,
@@ -22,7 +31,6 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
-const autoCloseTime = 3000;
 
 //#endregion
 
@@ -52,6 +60,7 @@ import {
   ValidateMobileNumber,
   ValidateMobileNumberLength,
 } from "../../utils/utility.js";
+import axiosInstance from "../../config/axiosConfig.js";
 
 const Wave = lazy(() => import("../../Components/WaveHeader.jsx"));
 
@@ -140,7 +149,7 @@ const CreateListing = () => {
     });
   };
 
-  const handleEstateFormInfo = (event) => {
+  const handleEstateFormInfo = useCallback((event) => {
     const attributeName = event.target.name;
     const inputType = event.target.type;
 
@@ -162,7 +171,7 @@ const CreateListing = () => {
         };
       }
     });
-  };
+  }, []);
 
   const handleCellPhoneInfo = (event) => {
     setCellPhoneInfo((prevData) => {
@@ -224,19 +233,10 @@ const CreateListing = () => {
   };
 
   const AddUserMobileNumberToDatabase = async (userId, mobileNumber) => {
-    const accessToken = localStorage.getItem("accessToken");
     try {
-      const resp = await axios.put(
-        `${URL}api/user/update/${userId}`,
-        {
-          mobileNumber: mobileNumber,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
+      const resp = await axiosInstance.put(`api/user/update/${userId}`, {
+        mobileNumber: mobileNumber,
+      });
 
       if (resp?.data?.succeess == false) {
         return {
@@ -257,13 +257,12 @@ const CreateListing = () => {
   };
 
   const addProductToDatabase = async (product) => {
-    const accessToken = localStorage.getItem("accessToken");
-    console.log(product);
     try {
-      const response = await axios.post(`${URL}api/listing/create`, product, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
+      const response = await axiosInstance.post(`api/listing/create`, {
+        ...product,
+        discountPrice: generalFormInfo.offer
+          ? generalFormInfo.discountPrice
+          : 0,
       });
 
       if (response?.data?.succeess == false) {
@@ -281,7 +280,6 @@ const CreateListing = () => {
         data: response?.data,
       };
     } catch (error) {
-      console.log(error);
       toast.error(error.message);
       return {
         success: false,
@@ -319,11 +317,11 @@ const CreateListing = () => {
       }
     }
 
+    const discount = parseFloat(generalFormInfo.discountPrice);
+    const price = parseFloat(generalFormInfo.regularPrice);
     if (mainCategory === "estate") {
       const beds = parseFloat(estateFormInfo.bedrooms);
       const bath = parseFloat(estateFormInfo.bath);
-      const price = parseFloat(generalFormInfo.regularPrice);
-      const discount = parseFloat(generalFormInfo.discountPrice);
 
       if (isNaN(beds) || beds <= 0) {
         toast.error("Beds must be greater than zero");
@@ -339,24 +337,25 @@ const CreateListing = () => {
         toast.error("Price must be greater than zero");
         return;
       }
+    }
+    // else if (mainCategory === "Digital_Equipment") {
+    //   if (
+    //     !generalFormInfo.regularPrice ||
+    //     parseFloat(generalFormInfo.regularPrice) <= 0
+    //   ) {
+    //     toast.error("Price must be greater than zero");
+    //     return;
+    //   }
+    // }
 
-      if (generalFormInfo.offer) {
-        if (isNaN(discount) || discount <= 0) {
-          toast.error("Discount price must be greater than zero");
-          return;
-        }
-
-        if (discount >= price) {
-          toast.error("Discount must be smaller than the regular price");
-          return;
-        }
+    if (generalFormInfo.offer) {
+      if (isNaN(discount) || discount <= 0) {
+        toast.error("Discount price must be greater than zero");
+        return;
       }
-    } else if (mainCategory === "Digital_Equipment") {
-      if (
-        !generalFormInfo.regularPrice ||
-        parseFloat(generalFormInfo.regularPrice) <= 0
-      ) {
-        toast.error("Price must be greater than zero");
+
+      if (discount >= price) {
+        toast.error("Discount must be smaller than the regular price");
         return;
       }
     }
@@ -458,432 +457,401 @@ const CreateListing = () => {
   //#endregion
 
   return (
-    <>
-      <Container
-        maxWidth="md"
-        sx={{
-          paddingBottom: 10,
-        }}
-      >
-        <Suspense fallback={<Fallback />}>
-          <Wave title={"Create Listing"} />
-        </Suspense>
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Suspense fallback={<Fallback />}>
+        <Typography variant="h4" fontWeight="bold" mb={3}>
+          Create Listing
+        </Typography>
+      </Suspense>
 
-        <Grid
-          container
-          spacing={md ? 0 : 1}
-          justifyContent={md ? "normal" : "flex-start"}
-        >
-          <Grid item xs={12} md={6}>
-            <Box
-              component={"form"}
-              sx={{
-                padding: 2,
-              }}
-            >
-              {/* General information about the product and user */}
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  rowGap: 1,
-                }}
-              >
-                <ComboBox
-                  name={"Choose Category"}
-                  defaultValue={"ALL PRODUCTS"}
-                  value={mainCategory}
-                  handleValueMethod={handleCategory}
-                  items={CategoryItems.filter(
-                    (item) => item.value != allProducts
-                  )}
-                />
-                {mainCategory == digitalEquipment && (
-                  <>
+      <Grid container spacing={4}>
+        <Grid item xs={12}>
+          <Paper
+            elevation={2}
+            sx={{
+              p: 2,
+              borderRadius: 2,
+              maxHeight: "80vh",
+              overflowY: "auto",
+            }}
+          >
+            <Accordion defaultExpanded>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography variant="h6" fontWeight={500}>
+                  General Info
+                </Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Box display="flex" flexDirection="column" gap={2}>
+                  <ComboBox
+                    name="Choose Category"
+                    defaultValue="ALL PRODUCTS"
+                    value={mainCategory}
+                    handleValueMethod={handleCategory}
+                    items={CategoryItems.filter(
+                      (item) => item.value !== allProducts
+                    )}
+                  />
+                  {mainCategory === digitalEquipment && (
                     <ComboBox
-                      name={"Choose Sub Category"}
+                      name="Choose Sub Category"
                       defaultValue={cellPhoneAndTablets}
                       value={subCategory}
                       items={SubCategoryItemsForDigitalEquiments}
                       handleValueMethod={handleSubCategoryForDigitalEquipment}
                     />
-                  </>
-                )}
-                <TextField
-                  fullWidth
-                  type="text"
-                  label="Name"
-                  variant="outlined"
-                  name="name"
-                  value={generalFormInfo.name || ""}
-                  onChange={handleGeneralFormInfo}
-                  required
-                  size={md ? "small" : "medium"}
-                />
-                <TextField
-                  multiline
-                  fullWidth
-                  maxRows={10}
-                  type="text"
-                  label="Description"
-                  variant="outlined"
-                  name="description"
-                  value={generalFormInfo.description}
-                  onChange={handleGeneralFormInfo}
-                  required
-                  size={md ? "small" : "medium"}
-                />
-                <TextField
-                  multiline
-                  fullWidth
-                  maxRows={10}
-                  type="text"
-                  label="address"
-                  variant="outlined"
-                  name="address"
-                  value={generalFormInfo?.address || ""}
-                  onChange={handleGeneralFormInfo}
-                  required
-                  size={md ? "small" : "medium"}
-                />
-                {!currentUser.mobileNumber && (
+                  )}
                   <TextField
+                    label="Name"
+                    name="name"
+                    value={generalFormInfo.name || ""}
+                    onChange={handleGeneralFormInfo}
                     fullWidth
-                    type="text"
-                    label="Mobile"
-                    variant="outlined"
-                    name="mobileNumber"
-                    value={generalFormInfo?.mobileNumber || ""}
-                    onChange={handleGeneralFormInfo}
-                    required
-                    size={md ? "small" : "medium"}
                   />
-                )}
-              </Box>
-              {/*End of General information about the product and user */}
-
-              {/* property type: sell or rent */}
-              {mainCategory == estate && (
-                <>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: { xs: "space-between", sm: "flex-start" },
-                    }}
-                  >
-                    <FormControlLabel
-                      value="sell"
-                      label="Sell"
-                      labelPlacement="start"
-                      name="type"
-                      onChange={handleEstateFormInfo}
-                      control={
-                        <Checkbox
-                          size={md ? "small" : "medium"}
-                          checked={estateFormInfo.type === "sell"}
-                        />
-                      }
-                    />
-                    <FormControlLabel
-                      value={"rent"}
-                      label="Rent"
-                      labelPlacement="start"
-                      name="type"
-                      onChange={handleEstateFormInfo}
-                      control={
-                        <Checkbox
-                          size={md ? "small" : "medium"}
-                          checked={estateFormInfo.type === "rent"}
-                        />
-                      }
-                    />
-                  </Box>
-                  {/* Features of property */}
-                  <Box
-                    sx={{
-                      display: "flex",
-                      flexWrap: "wrap",
-                      flexDirection: { xs: "column", sm: "row" },
-                      alignItems: "flex-start",
-                      mb: 1.5,
-                    }}
-                  >
-                    <FormControlLabel
-                      value={estateFormInfo.parking}
-                      label="Parking spot"
-                      labelPlacement="start"
-                      name="parking"
-                      onChange={handleEstateFormInfo}
-                      control={
-                        <Checkbox
-                          size={md ? "small" : "medium"}
-                          checked={estateFormInfo.parking || false}
-                        />
-                      }
-                    />
-                    <FormControlLabel
-                      value={true}
-                      label="Furnished"
-                      labelPlacement="start"
-                      name="furnished"
-                      onChange={handleEstateFormInfo}
-                      control={
-                        <Checkbox
-                          size={md ? "small" : "medium"}
-                          checked={estateFormInfo.furnished || false}
-                        />
-                      }
-                    />
-                  </Box>
-                </>
-              )}
-              {mainCategory == digitalEquipment &&
-                subCategory == cellPhoneAndTablets && (
-                  <>
-                    <ComboBox
-                      name={"brand"}
-                      defaultValue={samsung}
-                      items={CellPhoneBrands.filter(
-                        (item) => item.value != allBrands
-                      )}
-                      value={cellPhoneInfo.brand}
-                      handleValueMethod={handleCellPhoneInfo}
-                    />
-                    <ComboBox
-                      name={"storage"}
-                      defaultValue={"Choose Storage"}
-                      items={CellPhoneStorage}
-                      value={cellPhoneInfo.storage}
-                      handleValueMethod={handleCellPhoneInfo}
-                    />
-                    <ComboBox
-                      name="RAM"
-                      defaultValue={"Choose RAM"}
-                      value={cellPhoneInfo.RAM}
-                      items={CellPhoneRAM}
-                      handleValueMethod={handleCellPhoneInfo}
-                    />
-                    <ComboBox
-                      name={"color"}
-                      defaultValue={"Choose Color"}
-                      items={ColorValues}
-                      value={cellPhoneInfo.color}
-                      handleValueMethod={handleCellPhoneInfo}
-                    />
-                  </>
-                )}
-              {/* Offer input */}
-
-              {mainCategory == estate && (
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexWrap: "wrap",
-                    flexDirection: { xs: "column", sm: "row" },
-                    alignItems: "flex-start",
-                    mb: 1.5,
-                  }}
-                >
-                  <FormControlLabel
-                    value={true}
-                    label="Offer"
-                    labelPlacement="start"
-                    name="offer"
-                    onChange={handleGeneralFormInfo}
-                    control={
-                      <Checkbox
-                        size={md ? "small" : "medium"}
-                        checked={generalFormInfo.offer || false}
-                      />
-                    }
-                  />
-                </Box>
-              )}
-
-              {/* End of Offer input */}
-
-              {/* Price Input */}
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "flex-start",
-                  gap: 3,
-                  flexWrap: "wrap",
-                  marginTop: 2,
-                }}
-              >
-                {mainCategory == estate && (
-                  <>
-                    <TextField
-                      type="number"
-                      label="Beds"
-                      size={md ? "small" : "medium"}
-                      name="bedrooms"
-                      value={estateFormInfo.bedrooms}
-                      onChange={handleEstateFormInfo}
-                    />
-                    <TextField
-                      type="number"
-                      label="Baths"
-                      size={md ? "small" : "medium"}
-                      name="bath"
-                      value={estateFormInfo.bath}
-                      onChange={handleEstateFormInfo}
-                    />
-                  </>
-                )}
-
-                {/* <TextField
-                  type="number"
-                  label={
-                    generalFormInfo.type === "rent"
-                      ? "Regular Price / month"
-                      : "Regular Price"
-                  }
-                  size={md ? "small" : "medium"}
-                  name="regularPrice"
-                  value={generalFormInfo.regularPrice}
-                  onChange={handleEstateFormInfo}
-                /> */}
-
-                <TextField
-                  type="number"
-                  label={"Price"}
-                  size={md ? "small" : "medium"}
-                  name="regularPrice"
-                  value={generalFormInfo.regularPrice}
-                  onChange={handleGeneralFormInfo}
-                />
-                {generalFormInfo.offer && (
                   <TextField
-                    type="number"
-                    label="Discount"
-                    size={md ? "small" : "medium"}
-                    name="discountPrice"
-                    value={generalFormInfo.discountPrice}
+                    label="Description"
+                    name="description"
+                    multiline
+                    maxRows={6}
+                    value={generalFormInfo.description || ""}
                     onChange={handleGeneralFormInfo}
+                    fullWidth
                   />
+                  <TextField
+                    label="Address"
+                    name="address"
+                    value={generalFormInfo.address || ""}
+                    onChange={handleGeneralFormInfo}
+                    fullWidth
+                  />
+                  {!currentUser?.mobileNumber && (
+                    <TextField
+                      label="Mobile"
+                      name="mobileNumber"
+                      value={generalFormInfo.mobileNumber || ""}
+                      onChange={handleGeneralFormInfo}
+                      fullWidth
+                    />
+                  )}
+                </Box>
+              </AccordionDetails>
+            </Accordion>
+
+            {mainCategory === estate && (
+              <Accordion>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                  <Typography variant="h6" fontWeight={500}>
+                    Property Details
+                  </Typography>
+                </AccordionSummary>
+
+                <AccordionDetails>
+                  <Grid container spacing={2}>
+                    {/* Type: Sell / Rent */}
+                    <Grid item xs={12}>
+                      <Typography variant="subtitle1" fontWeight={500} mb={1}>
+                        Type
+                      </Typography>
+                      <RadioGroup
+                        row
+                        name="type"
+                        value={estateFormInfo.type}
+                        onChange={handleEstateFormInfo}
+                        sx={{ flexWrap: "wrap" }} // wrap on small screens
+                      >
+                        <FormControlLabel
+                          value="sell"
+                          control={<Radio size="small" />}
+                          label="Sell"
+                          sx={{ mr: 2 }}
+                        />
+                        <FormControlLabel
+                          value="rent"
+                          control={<Radio size="small" />}
+                          label="Rent"
+                          sx={{ mr: 2 }}
+                        />
+                      </RadioGroup>
+                    </Grid>
+
+                    {/* Options: Parking, Furnished */}
+                    <Grid item xs={12}>
+                      <Typography variant="subtitle1" fontWeight={500} mb={1}>
+                        Options
+                      </Typography>
+                      <FormGroup row sx={{ flexWrap: "wrap" }}>
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              size="small"
+                              checked={estateFormInfo.parking || false}
+                              onChange={handleEstateFormInfo}
+                              name="parking"
+                            />
+                          }
+                          label="Parking Spot"
+                          sx={{ mr: 2 }}
+                        />
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              size="small"
+                              checked={estateFormInfo.furnished || false}
+                              onChange={handleEstateFormInfo}
+                              name="furnished"
+                            />
+                          }
+                          label="Furnished"
+                          sx={{ mr: 2 }}
+                        />
+                      </FormGroup>
+                    </Grid>
+
+                    {/* Beds and Baths */}
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        fullWidth
+                        label="Beds"
+                        type="number"
+                        name="bedrooms"
+                        value={estateFormInfo.bedrooms}
+                        onChange={handleEstateFormInfo}
+                        size="small"
+                      />
+                    </Grid>
+
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        fullWidth
+                        label="Baths"
+                        type="number"
+                        name="bath"
+                        value={estateFormInfo.bath}
+                        onChange={handleEstateFormInfo}
+                        size="small"
+                      />
+                    </Grid>
+                  </Grid>
+                </AccordionDetails>
+              </Accordion>
+            )}
+
+            {mainCategory === digitalEquipment &&
+              subCategory === cellPhoneAndTablets && (
+                <Accordion
+                  sx={{
+                    overflow: "hidden",
+                    bgcolor: "background.paper",
+                  }}
+                >
+                  <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                    <Typography variant="h6" fontWeight={500}>
+                      Device Details
+                    </Typography>
+                  </AccordionSummary>
+
+                  <AccordionDetails sx={{ px: 3, py: 2 }}>
+                    <Grid container spacing={2}>
+                      <Grid item xs={12} sm={6}>
+                        <ComboBox
+                          label="Brand"
+                          name="brand"
+                          defaultValue="Samsung"
+                          value={cellPhoneInfo.brand}
+                          items={CellPhoneBrands.filter(
+                            (b) => b.name != "ALL BRANDS"
+                          )}
+                          handleValueMethod={handleCellPhoneInfo}
+                        />
+                      </Grid>
+                      <Grid item xs={12} sm={6}>
+                        <ComboBox
+                          label="Storage"
+                          name="storage"
+                          defaultValue="Choose Storage"
+                          value={cellPhoneInfo.storage}
+                          items={CellPhoneStorage}
+                          handleValueMethod={handleCellPhoneInfo}
+                        />
+                      </Grid>
+                      <Grid item xs={12} sm={6}>
+                        <ComboBox
+                          label="RAM"
+                          name="RAM"
+                          defaultValue="Choose RAM"
+                          value={cellPhoneInfo.RAM}
+                          items={CellPhoneRAM}
+                          handleValueMethod={handleCellPhoneInfo}
+                        />
+                      </Grid>
+                      <Grid item xs={12} sm={6}>
+                        <ComboBox
+                          label="Color"
+                          name="color"
+                          defaultValue="Choose Color"
+                          value={cellPhoneInfo.color}
+                          items={ColorValues}
+                          handleValueMethod={handleCellPhoneInfo}
+                        />
+                      </Grid>
+                    </Grid>
+                  </AccordionDetails>
+                </Accordion>
+              )}
+
+            <Accordion>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography variant="h6" fontWeight={500}>
+                  Pricing
+                </Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Grid container spacing={2}>
+                  {/* Offer Checkbox */}
+                  <Grid item xs={12}>
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={generalFormInfo.offer || false}
+                          onChange={handleGeneralFormInfo}
+                          name="offer"
+                        />
+                      }
+                      label="This listing has an offer"
+                    />
+                  </Grid>
+
+                  {/* Pricing */}
+                  <Grid item xs={12} sm={4}>
+                    <TextField
+                      fullWidth
+                      label="Regular Price"
+                      type="number"
+                      name="regularPrice"
+                      value={generalFormInfo.regularPrice}
+                      onChange={handleGeneralFormInfo}
+                      size="small"
+                    />
+                  </Grid>
+
+                  {generalFormInfo.offer && (
+                    <Grid item xs={12} sm={4}>
+                      <TextField
+                        fullWidth
+                        label="Discount Price"
+                        type="number"
+                        name="discountPrice"
+                        value={generalFormInfo.discountPrice}
+                        onChange={handleGeneralFormInfo}
+                        size="small"
+                        color="success"
+                      />
+                    </Grid>
+                  )}
+                </Grid>
+              </AccordionDetails>
+            </Accordion>
+            <Accordion>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography variant="h6" fontWeight={500}>
+                  Upload Images
+                </Typography>
+              </AccordionSummary>
+
+              <AccordionDetails>
+                <Typography variant="body2" color="text.secondary" mb={2}>
+                  The first image will be the cover (maximum: 6)
+                </Typography>
+
+                {/* File Input + Upload Button */}
+                <Grid container spacing={2} mb={2}>
+                  <Grid item xs={12} sm={8}>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={handleChoosenFiles}
+                      style={{ width: "100%" }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={4}>
+                    <Button
+                      fullWidth
+                      variant="contained"
+                      color="success"
+                      onClick={handleUpload}
+                      disabled={uploading}
+                    >
+                      {uploading ? "Uploading..." : "Upload"}
+                    </Button>
+                  </Grid>
+                </Grid>
+
+                {/* Upload Error */}
+                {uploadError && (
+                  <Typography color="error" variant="body2" mb={2}>
+                    {uploadError}
+                  </Typography>
                 )}
-              </Box>
-            </Box>
-          </Grid>
-          {/* Upload Photo section */}
 
-          <Grid
-            item
-            xs={12}
-            md={6}
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              gap: 1,
-            }}
-          >
-            <Box>
-              <h3
-                style={{
-                  fontSize: md ? "16.5px" : "20px",
-                  fontWeight: "bolder",
-                  textAlign: "justify",
-                }}
-              >
-                Images:
-                <span
-                  style={{
-                    color: BLACK,
-                  }}
-                >
-                  The first image will be the cover (maximum:6)
-                </span>
-              </h3>
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "flex-start",
-                  flexWrap: "wrap",
-                  gap: 1.5,
-                }}
-              >
-                <input
-                  style={{
-                    border: "1p solid aqua",
-                    outline: "2px solid",
-                    outlineColor: LIGHTGRAY,
-                    textIndent: "4px",
-                  }}
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  onChange={handleChoosenFiles}
-                />
-                <Button
-                  onClick={handleUpload}
-                  variant="contained"
-                  color="success"
-                  size={md ? "small" : "large"}
-                  disabled={uploading}
-                  fullWidth
-                >
-                  {uploading ? "Uploading...." : "UPLOAD"}
-                </Button>
-              </Box>
-            </Box>
-            <Box className="show image section">
-              <p>{uploadError && uploadError}</p>
-
-              {generalFormInfo.imageURLs.length > 0 &&
-                generalFormInfo.imageURLs.map((item, index) => {
-                  return (
-                    <Box
+                {/* Uploaded Images */}
+                <Grid container spacing={2} mb={2}>
+                  {generalFormInfo.imageURLs.map((item, index) => (
+                    <Grid
+                      item
+                      xs={12}
+                      sm={6}
+                      md={4}
                       key={index}
-                      sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        mb: 1,
-                      }}
+                      display="flex"
+                      alignItems="center"
+                      gap={1}
                     >
                       <img
-                        width={"100"}
-                        height={"100"}
-                        style={{
-                          borderRadius: "5px",
-                          objectFit: "cotain",
-                        }}
                         src={item}
-                        alt={item}
+                        alt={`uploaded-${index}`}
+                        style={{
+                          width: 100,
+                          height: 100,
+                          borderRadius: 5,
+                          objectFit: "contain",
+                        }}
                       />
                       <Button
-                        onClick={() => {
-                          deleteImageFromlist(item);
-                        }}
                         variant="text"
-                        color="warning"
+                        color="error"
+                        onClick={() => deleteImageFromlist(item)}
                       >
                         Delete
                       </Button>
-                    </Box>
-                  );
-                })}
-            </Box>
+                    </Grid>
+                  ))}
+                </Grid>
+              </AccordionDetails>
+            </Accordion>
+            {/* Submit Button */}
             <Button
-              sx={{}}
-              type="submit"
-              onClick={handleSubmit}
               variant="contained"
-              fullWidth
-              size={md ? "small" : "large"}
               color="success"
-              disabled={uploading ? true : false}
+              onClick={handleSubmit}
+              disabled={uploading}
+              sx={{
+                mt: 4,
+                width: { xs: "100%", sm: "auto" }, // full width on mobile, auto on larger
+                px: 4, // horizontal padding
+                py: 1.5, // vertical padding
+                fontSize: { xs: "0.9rem", sm: "1rem" },
+                alignSelf: "center", // center when not full width
+                display: "block", // ensures margin auto works
+                mx: { sm: "auto" }, // center horizontally on larger screens
+              }}
             >
-              {uploading ? "Loading" : "Create list"}
+              {uploading ? "Loading..." : "Create Listing"}
             </Button>
-          </Grid>
-
-          {/* End of Upload Photo section */}
+          </Paper>
         </Grid>
-      </Container>
-    </>
+      </Grid>
+    </Container>
   );
 };
 

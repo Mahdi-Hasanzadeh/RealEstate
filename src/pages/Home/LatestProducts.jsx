@@ -2,6 +2,7 @@ import { Box, Container, Typography, Link } from "@mui/material";
 import { BLACK } from "../../styles/Color.js";
 import { Suspense, lazy } from "react";
 import Fallback from "../../Components/UI/Fallback.jsx";
+import { Link as RouterLink } from "react-router-dom";
 
 const Card = lazy(() =>
   import("../../Components/CustomizedCard/SearchResultCard.jsx")
@@ -35,18 +36,20 @@ const LatestProducts = ({
       }}
       className="scroll-animation"
     >
-      <Typography variant="h5" color={BLACK} gutterBottom>
-        {title}
+      <Typography variant="h5" gutterBottom>
+        <Link
+          component={RouterLink}
+          to={`/search?${queryString}`}
+          underline="hover"
+          color={BLACK}
+          sx={{
+            textDecoration: "none",
+            "&:hover": { color: "black", textDecoration: "none" },
+          }}
+        >
+          {title}
+        </Link>
       </Typography>
-
-      <Link
-        href={`/search?${queryString}`}
-        underline="hover"
-        color="purple"
-        sx={{ display: "inline-block", mb: 2 }}
-      >
-        {title}
-      </Link>
 
       <Box
         sx={{

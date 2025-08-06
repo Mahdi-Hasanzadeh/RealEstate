@@ -13,6 +13,7 @@ import Navbar from "./pages/Navbar/Navbar.jsx";
 import Fallback from "./Components/UI/Fallback.jsx";
 import { setWelcomeToast } from "./redux/showToast.js";
 import styleModule from "./styles/style.module.css";
+import ErrorUI from "./Components/UI/Error.jsx";
 
 //#endregion
 
@@ -42,6 +43,10 @@ const UserListings = lazy(() =>
 const ProtectedRoute = lazy(() => import("./auth/ProtectedRoute.jsx"));
 const CreateListing = lazy(() =>
   import("./pages/CreateListing/CreateListing.jsx")
+);
+
+const EditCellPhone = lazy(() =>
+  import("./pages/EditListing/EditCellPhone.jsx")
 );
 
 //#endregion
@@ -140,7 +145,7 @@ const App = () => {
               </ProtectedRoute>
             }
           />
-          <Route path="/listing/:listingId" element={<ShowListing />} />
+          <Route path="listing/:listingId" element={<ShowListing />} />
           <Route
             path="/listing/update/:listingId"
             element={
@@ -151,17 +156,15 @@ const App = () => {
           />
 
           <Route
-            path="*"
+            path="/cellphone/update/:listingId"
             element={
-              <h1
-                style={{
-                  marginTop: "100px",
-                }}
-              >
-                No route match
-              </h1>
+              <ProtectedRoute>
+                <EditCellPhone />
+              </ProtectedRoute>
             }
           />
+
+          <Route path="*" element={<ErrorUI error="Route Not Defined" />} />
         </Route>
       </Routes>
 
@@ -183,28 +186,3 @@ const App = () => {
   );
 };
 export default App;
-
-// Based on project, what folder structure should be used?
-
-// The folder structure should be organized to separate components, pages, and utilities for better maintainability and scalability. Here's a suggested structure:
-// public/
-// ├── Components/
-// │   ├── Common/          # Reusable components like buttons, cards, etc.
-// │   ├── InfoComponents/  # Components that display information, like empty states
-// │   ├── Home Page Component/ # Components specific to the home page
-// │   ├── Dashboard/       # Components related to the admin dashboard
-// │   ├── UserProfile/     # Components for user profile management
-// │   ├── CreateListing/   # Components for creating listings
-// │   ├── EditListing/     # Components for editing listings
-// │   ├── SingleList/      # Components for displaying a single listing
-// │   ├── SearchListings/  # Components for searching listings
-// │   ├── FavoritesListing/ # Components for displaying favorite listings
-// │   ├── YourListings/    # Components for displaying user's listings
-// │   ├── ProtectedRoute/  # Components for protected routes
-// │   └── Navbar/          # Navigation bar component
-// ├── styleComponents/     # Components for styling, like NotFound, ErrorState
-// ├── App.jsx              # Main application component
-// ├── index.js             # Entry point of the application
-// ├── style.module.css     # Global styles
-// └── reactRedux/          # Redux-related files, like store configuration and actions
-// └── utils/               # Utility functions and constants

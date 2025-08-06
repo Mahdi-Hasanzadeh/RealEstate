@@ -55,20 +55,14 @@ const Home = () => {
   const [errorRent, setErrorRent] = useState(null);
   const [errorSale, setErrorSale] = useState(null);
 
-  const [specialListingsLoading, setSpecialListingsLoading] = useState(false);
-  const [loadingOffer, setLoadingOffer] = useState(false);
-  const [loadingRent, setLoadingRent] = useState(false);
-  const [loadingSale, setLoadingSale] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   //#endregion
 
   //#region methods
 
   const fetchAllListings = async () => {
-    setSpecialListingsLoading(true);
-    setLoadingOffer(true);
-    setLoadingRent(true);
-    setLoadingSale(true);
+    setLoading(true);
 
     try {
       const [specialRes, offerRes, rentRes, saleRes] = await Promise.all([
@@ -78,7 +72,6 @@ const Home = () => {
         axiosInstance.get(`api/listing/get?${saleQuery}`),
       ]);
 
-      // Handle Special Listings
       if (specialRes.data.success === false) {
         setSpecialError(specialRes.data.message);
       } else {
@@ -86,7 +79,6 @@ const Home = () => {
         setSpecialError(null);
       }
 
-      // Handle Offers
       if (offerRes.data.success === false) {
         setErrorOffer(offerRes.data.message);
       } else {
@@ -94,7 +86,6 @@ const Home = () => {
         setErrorOffer(null);
       }
 
-      // Handle Rent
       if (rentRes.data.success === false) {
         setErrorRent(rentRes.data.message);
       } else {
@@ -102,7 +93,6 @@ const Home = () => {
         setErrorRent(null);
       }
 
-      // Handle Sale
       if (saleRes.data.success === false) {
         setErrorSale(saleRes.data.message);
       } else {
@@ -116,10 +106,7 @@ const Home = () => {
       setErrorRent(message);
       setErrorSale(message);
     } finally {
-      setSpecialListingsLoading(false);
-      setLoadingOffer(false);
-      setLoadingRent(false);
-      setLoadingSale(false);
+      setLoading(false);
     }
   };
 
@@ -144,47 +131,55 @@ const Home = () => {
       >
         <MainPageTopic isLaptop={isLaptop} isMobile={isMobile} />
       </Container>
-      {/* Slider */}
-      <Suspense fallback={<Fallback />}>
-        <ProductsSlider
-          loading={specialListingsLoading}
-          error={specialError}
-          listings={specialListings}
-        />
-      </Suspense>
 
-      {/* Recent Offers */}
-      <Suspense fallback={<Fallback />}>
-        <LatestProducts
-          query={"offer"}
-          title="Recent Offers"
-          loading={loadingOffer}
-          error={errorOffer}
-          listings={recentOffers}
-          category={category}
-        />
-      </Suspense>
-      <Suspense fallback={<Fallback />}>
-        <LatestProducts
-          query={"rent"}
-          title="Recent Places For Rent"
-          loading={loadingRent}
-          error={errorRent}
-          listings={recentRent}
-          category={category}
-        />
-      </Suspense>
-      <Suspense fallback={<Fallback />}>
-        <LatestProducts
-          query={"sell"}
-          title="Recent Places For Sale"
-          loading={loadingSale}
-          error={errorSale}
-          listings={recentSale}
-          category={category}
-        />
-      </Suspense>
+      {loading ? (
+        <Fallback />
+      ) : (
+        <>
+          <Suspense fallback={<Fallback />}>
+            <ProductsSlider
+              loading={false}
+              error={specialError}
+              listings={specialListings}
+            />
+          </Suspense>
+
+          <Suspense fallback={<Fallback />}>
+            <LatestProducts
+              query={"offer"}
+              title="Recent Offers"
+              loading={false}
+              error={errorOffer}
+              listings={recentOffers}
+              category={category}
+            />
+          </Suspense>
+
+          <Suspense fallback={<Fallback />}>
+            <LatestProducts
+              query={"rent"}
+              title="Recent Places For Rent"
+              loading={false}
+              error={errorRent}
+              listings={recentRent}
+              category={category}
+            />
+          </Suspense>
+
+          <Suspense fallback={<Fallback />}>
+            <LatestProducts
+              query={"sell"}
+              title="Recent Places For Sale"
+              loading={false}
+              error={errorSale}
+              listings={recentSale}
+              category={category}
+            />
+          </Suspense>
+        </>
+      )}
     </>
   );
 };
+
 export default Home;

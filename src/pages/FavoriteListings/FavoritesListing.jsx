@@ -14,6 +14,7 @@ import SentimentDissatisfiedIcon from "@mui/icons-material/SentimentDissatisfied
 import ErrorState from "../../Components/UI/ErrorState";
 import ItemCard from "../../Components/CustomizedCard/ItemCard";
 import ConfirmDialog from "../../Components/UI/ConfirmDialog";
+import Fallback from "../../Components/UI/Fallback";
 
 //#endregion
 
@@ -137,18 +138,7 @@ const FavoritesListing = () => {
   //#region Render
 
   if (loading) {
-    return (
-      <Container maxWidth="lg" sx={{ py: 6 }}>
-        <Box
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-          minHeight="40vh"
-        >
-          <Loader />
-        </Box>
-      </Container>
-    );
+    return <Fallback />;
   }
 
   if (error) {
