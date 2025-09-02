@@ -1,0 +1,1 @@
+import{ak as e}from"./index-Gdgiy31r.js";const t={},r=Object.freeze(Object.defineProperty({__proto__:null,default:t},Symbol.toStringTag,{value:"Module"})),a=e(r);export{a as r};
