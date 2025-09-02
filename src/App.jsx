@@ -49,6 +49,8 @@ const EditCellPhone = lazy(() =>
   import("./pages/EditListing/EditCellPhone.jsx")
 );
 
+const EditComputer = lazy(() => import("./pages/EditListing/EditComputer.jsx"));
+
 //#endregion
 
 const App = () => {
@@ -108,7 +110,7 @@ const App = () => {
           <Route
             path="/userListings"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={["Admin", "User"]}>
                 <UserListings />
               </ProtectedRoute>
             }
@@ -116,7 +118,7 @@ const App = () => {
           <Route
             path="/favoriteListings"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={["Admin", "User"]}>
                 <FavoritesListing />
               </ProtectedRoute>
             }
@@ -124,7 +126,7 @@ const App = () => {
           <Route
             path="/profile"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={["Admin", "User"]}>
                 <UserProfile />
               </ProtectedRoute>
             }
@@ -132,7 +134,7 @@ const App = () => {
           <Route
             path="/dashboard"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={["Admin"]}>
                 <Dashboard />
               </ProtectedRoute>
             }
@@ -140,7 +142,7 @@ const App = () => {
           <Route
             path="/create-list"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={["Admin", "User"]}>
                 <CreateListing />
               </ProtectedRoute>
             }
@@ -149,7 +151,7 @@ const App = () => {
           <Route
             path="/listing/update/:listingId"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={["Admin", "User"]}>
                 <EditListing />
               </ProtectedRoute>
             }
@@ -158,8 +160,16 @@ const App = () => {
           <Route
             path="/cellphone/update/:listingId"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={["Admin", "User"]}>
                 <EditCellPhone />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/computer/update/:listingId"
+            element={
+              <ProtectedRoute allowedRoles={["Admin", "User"]}>
+                <EditComputer />
               </ProtectedRoute>
             }
           />

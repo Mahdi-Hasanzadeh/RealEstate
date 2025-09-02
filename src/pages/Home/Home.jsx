@@ -11,6 +11,12 @@ import { Suspense, lazy, useEffect, useState } from "react";
 import Fallback from "../../Components/UI/Fallback.jsx";
 import MainPageTopic from "./MainPageTopic.jsx";
 import axiosInstance from "../../config/axiosConfig.js";
+import {
+  cellPhoneAndTablets,
+  computer,
+  digitalEquipment,
+  estate,
+} from "../../utils/utility.js";
 
 //#endregion
 
@@ -25,16 +31,16 @@ const LatestProducts = lazy(() => import("./LatestProducts.jsx"));
 
 //#region Public Fields
 
-const category = "estate";
-
 const numberOfListings = 4;
 const offer = true;
 const rent = "rent";
 const sale = "sell";
-const offerQuery = `category=${category}&limit=${numberOfListings}&offer=${offer}`;
-const rentQuery = `category=${category}&limit=${numberOfListings}&type=${rent}`;
-const saleQuery = `category=${category}&limit=${numberOfListings}&type=${sale}`;
-const specialListingsQuery = `category=estate&limit=${numberOfListings}&offer=${offer}&furnished=true&parking=true`;
+const offerQuery = `category=${estate}&limit=${numberOfListings}&offer=${offer}`;
+const rentQuery = `category=${estate}&limit=${numberOfListings}&type=${rent}`;
+const saleQuery = `category=${estate}&limit=${numberOfListings}&type=${sale}`;
+const specialListingsQuery = `category=${estate}&limit=${numberOfListings}&offer=${offer}&furnished=true&parking=true`;
+const cellPhoneQuery = `category=${digitalEquipment}&subCategory=${cellPhoneAndTablets}&limit=${numberOfListings}`;
+const computerQuery = `category=${digitalEquipment}&subCategory=${computer}&limit=${numberOfListings}`;
 
 //#endregion
 
@@ -55,6 +61,12 @@ const Home = () => {
   const [errorRent, setErrorRent] = useState(null);
   const [errorSale, setErrorSale] = useState(null);
 
+  const [cellPhoneListings, setCellPhoneListings] = useState([]);
+  const [errorCellPhone, setErrorCellPhone] = useState(null);
+
+  const [computerListings, setComputerListings] = useState([]);
+  const [errorComputer, setErrorComputer] = useState(null);
+
   const [loading, setLoading] = useState(false);
 
   //#endregion
@@ -65,13 +77,23 @@ const Home = () => {
     setLoading(true);
 
     try {
-      const [specialRes, offerRes, rentRes, saleRes] = await Promise.all([
+      const [
+        specialRes,
+        offerRes,
+        rentRes,
+        saleRes,
+        cellPhoneRes,
+        computerRes,
+      ] = await Promise.all([
         axiosInstance.get(`api/listing/get?${specialListingsQuery}`),
         axiosInstance.get(`api/listing/get?${offerQuery}`),
         axiosInstance.get(`api/listing/get?${rentQuery}`),
         axiosInstance.get(`api/listing/get?${saleQuery}`),
+        axiosInstance.get(`api/listing/get?${cellPhoneQuery}`),
+        axiosInstance.get(`api/listing/get?${computerQuery}`),
       ]);
 
+      // Special Listings
       if (specialRes.data.success === false) {
         setSpecialError(specialRes.data.message);
       } else {
@@ -79,6 +101,7 @@ const Home = () => {
         setSpecialError(null);
       }
 
+      // Offers
       if (offerRes.data.success === false) {
         setErrorOffer(offerRes.data.message);
       } else {
@@ -86,6 +109,7 @@ const Home = () => {
         setErrorOffer(null);
       }
 
+      // Rent
       if (rentRes.data.success === false) {
         setErrorRent(rentRes.data.message);
       } else {
@@ -93,11 +117,28 @@ const Home = () => {
         setErrorRent(null);
       }
 
+      // Sale
       if (saleRes.data.success === false) {
         setErrorSale(saleRes.data.message);
       } else {
         setRecentSale(saleRes.data.listings);
         setErrorSale(null);
+      }
+
+      // Cell Phones
+      if (cellPhoneRes.data.success === false) {
+        setErrorCellPhone(cellPhoneRes.data.message);
+      } else {
+        setCellPhoneListings(cellPhoneRes.data.listings);
+        setErrorCellPhone(null);
+      }
+
+      // Computers
+      if (computerRes.data.success === false) {
+        setErrorComputer(computerRes.data.message);
+      } else {
+        setComputerListings(computerRes.data.listings);
+        setErrorComputer(null);
       }
     } catch (error) {
       const message = error.message || "Unknown error";
@@ -105,6 +146,8 @@ const Home = () => {
       setErrorOffer(message);
       setErrorRent(message);
       setErrorSale(message);
+      setErrorCellPhone(message);
+      setErrorComputer(message);
     } finally {
       setLoading(false);
     }
@@ -136,46 +179,61 @@ const Home = () => {
         <Fallback />
       ) : (
         <>
-          <Suspense fallback={<Fallback />}>
-            <ProductsSlider
-              loading={false}
-              error={specialError}
-              listings={specialListings}
-            />
-          </Suspense>
+          {specialListings.length > 0 && (
+            <Suspense fallback={<Fallback />}>
+              <ProductsSlider error={specialError} listings={specialListings} />
+            </Suspense>
+          )}
 
-          <Suspense fallback={<Fallback />}>
-            <LatestProducts
-              query={"offer"}
-              title="Recent Offers"
-              loading={false}
-              error={errorOffer}
-              listings={recentOffers}
-              category={category}
-            />
-          </Suspense>
+          {recentOffers.length > 0 && (
+            <Suspense fallback={<Fallback />}>
+              <LatestProducts
+                title="Recent Offers"
+                error={errorOffer}
+                listings={recentOffers}
+              />
+            </Suspense>
+          )}
 
-          <Suspense fallback={<Fallback />}>
-            <LatestProducts
-              query={"rent"}
-              title="Recent Places For Rent"
-              loading={false}
-              error={errorRent}
-              listings={recentRent}
-              category={category}
-            />
-          </Suspense>
+          {recentRent.length > 0 && (
+            <Suspense fallback={<Fallback />}>
+              <LatestProducts
+                title="Recent Places For Rent"
+                error={errorRent}
+                listings={recentRent}
+              />
+            </Suspense>
+          )}
 
-          <Suspense fallback={<Fallback />}>
-            <LatestProducts
-              query={"sell"}
-              title="Recent Places For Sale"
-              loading={false}
-              error={errorSale}
-              listings={recentSale}
-              category={category}
-            />
-          </Suspense>
+          {recentSale.length > 0 && (
+            <Suspense fallback={<Fallback />}>
+              <LatestProducts
+                title="Recent Places For Sale"
+                error={errorSale}
+                listings={recentSale}
+              />
+            </Suspense>
+          )}
+
+          {cellPhoneListings.length > 0 && (
+            <Suspense fallback={<Fallback />}>
+              <LatestProducts
+                title="Recent CellPhones & Tablets"
+                error={errorSale}
+                listings={cellPhoneListings}
+              />
+            </Suspense>
+          )}
+
+          {computerListings.length > 0 && (
+            <Suspense fallback={<Fallback />}>
+              <LatestProducts
+                title="Recent Computers"
+                error={errorSale}
+                listings={computerListings}
+              />
+            </Suspense>
+          )}
         </>
       )}
     </>

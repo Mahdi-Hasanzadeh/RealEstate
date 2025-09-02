@@ -1,83 +1,62 @@
-import { Container, Typography } from "@mui/material";
+import { Container, Typography, Box } from "@mui/material";
 import styleModule from "../../styles/style.module.css";
 import { GRAY } from "../../styles/Color.js";
 
 const About = () => {
   return (
-    <div className={styleModule.backgroundcolor}>
-      <Container maxWidth={"lg"}>
-        <Typography
-          fontWeight={"bold"}
-          fontSize={"24px"}
-          variant="h6"
-          sx={{ my: 5, ml: 1 }}
-        >
-          ABOUT SAMRT
+    <Box className={styleModule.backgroundcolor} py={6}>
+      <Container maxWidth="lg">
+        <Typography variant="h4" fontWeight="bold" gutterBottom>
+          About{" "}
           <Typography
-            fontWeight={"bold"}
-            fontSize={"24px"}
-            variant="h6"
-            component={"span"}
+            component="span"
+            variant="h4"
+            fontWeight="bold"
             color={GRAY}
           >
-            TRADE
+            SmartTrade
           </Typography>
         </Typography>
-        <Typography
-          sx={{
-            whiteSpace: "wrap",
-            wordBreak: "break-word",
-          }}
-          mb={2}
-        >
+
+        <Typography variant="body1" color="text.secondary" mb={3}>
           Welcome to{" "}
-          <span
-            style={{
-              fontWeight: "bold",
-            }}
-          >
+          <Typography component="span" fontWeight="bold" color="text.primary">
             SmartTrade
-          </span>
+          </Typography>
           , a modern platform designed to revolutionize the buying and selling
           of digital equipment and real estate. Our mission is to create a
-          seamless, secure, and efficient experience for users, whether they are
-          looking to list their products or explore new opportunities.
+          seamless, secure, and efficient experience for users—whether you're
+          listing your products or exploring new opportunities.
         </Typography>
-        <Typography mb={2}>
+
+        <Typography variant="body1" color="text.secondary" mb={3}>
           At{" "}
-          <span
-            style={{
-              fontWeight: "bold",
-            }}
-          >
+          <Typography component="span" fontWeight="bold" color="text.primary">
             SmartTrade
-          </span>
-          , we pride ourselves on offering advanced features, including
-          comprehensive listings, powerful search tools, and a user-friendly
-          design. Whether you are a seller showcasing your products or a buyer
-          searching for the perfect deal, we aim to make every transaction
-          smooth and successful.
+          </Typography>
+          , we take pride in delivering powerful features: advanced listings,
+          real-time search tools, and a modern, intuitive user interface.
+          Whether you're a seller or a buyer, our platform makes every
+          transaction smooth, reliable, and fast.
         </Typography>
-        <Typography mb={2}>
-          With a focus on innovation and reliability, our platform is built to
-          cater to a diverse audience, from seasoned investors to first-time
-          buyers. Security, transparency, and professionalism are the core
-          values that drive everything we do.
+
+        <Typography variant="body1" color="text.secondary" mb={3}>
+          Built with innovation in mind, our system serves a diverse range of
+          users— from professional investors to first-time buyers. With a strong
+          focus on transparency and security, we ensure you trade with
+          confidence and ease.
         </Typography>
-        <Typography mb={10}>
-          Start exploring our listings and resources today. Discover the future
-          of trading with{" "}
-          <span
-            style={{
-              fontWeight: "bold",
-            }}
-          >
+
+        <Typography variant="body1" color="text.secondary" mb={6}>
+          Start exploring today and discover the future of online trading with{" "}
+          <Typography component="span" fontWeight="bold" color="text.primary">
             SmartTrade
-          </span>
-          , where your success is our priority.
+          </Typography>
+          . Your success is our priority.
         </Typography>
       </Container>
-    </div>
+    </Box>
   );
 };
+
 export default About;

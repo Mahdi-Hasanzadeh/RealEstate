@@ -5,18 +5,25 @@ import {
   Card,
   CardContent,
   CardHeader,
-  IconButton,
   useTheme,
   Avatar,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
 } from "@mui/material";
 import {
   TrendingUp,
   TrendingDown,
-  MoreVert,
   ShowChart,
   Category,
   CalendarToday,
+  ThumbUp,
+  RemoveShoppingCart,
+  ReportProblem,
+  HelpOutline,
+  ExpandMore,
 } from "@mui/icons-material";
+
 import {
   LineChart,
   Line,
@@ -32,44 +39,65 @@ import {
   Pie,
   Cell,
 } from "recharts";
-
-// Dummy data for the dashboard
-const currentMonthListings = 120;
-const previousMonthListings = 109;
-const growthRate =
-  ((currentMonthListings - previousMonthListings) / previousMonthListings) *
-  100;
-const isGrowthPositive = growthRate >= 0;
-
-// Dummy data for the chart
-const chartData = [
-  { month: "Jan", listings: 80 },
-  { month: "Feb", listings: 95 },
-  { month: "Mar", listings: 87 },
-  { month: "Apr", listings: 109 },
-  { month: "May", listings: 120 },
-  { month: "Jun", listings: 150 },
-];
-
-// Dummy data for category breakdown
-const categoryData = [
-  { name: "Electronics", value: 35 },
-  { name: "Home", value: 20 },
-];
-
-// Dummy data for today's products
-const todayProductsData = [
-  { name: "Home Products", value: 24 },
-  { name: "Digital Products", value: 38 },
-];
+import { useEffect, useState } from "react";
+import axiosInstance from "../../config/axiosConfig";
+import { toast } from "react-toastify";
+import DownloadDashboardPDF from "./PDF";
 
 // Modern color palette
 const COLORS = ["#6366F1", "#EC4899", "#8B5CF6", "#10B981", "#F59E0B"];
 const PRODUCT_COLORS = ["#10B981", "#6366F1"];
+const reasonIcons = {
+  sold: <ThumbUp />,
+  no_longer_selling: <RemoveShoppingCart />,
+  incorrect_info: <ReportProblem />,
+  other: <HelpOutline />,
+};
+
+const reasonColors = {
+  sold: "#10B981",
+  no_longer_selling: "#F59E0B",
+  incorrect_info: "#EF4444",
+  other: "#6366F1",
+};
 
 function Dashboard() {
-  const theme = useTheme();
+  const [dashboardData, setDashboardData] = useState({
+    totalItems: 0,
+    growth: 0,
+    totalThisMonth: 0,
+    totalLastMonth: 0,
+    chartData: [],
+    todayProductsData: [],
+    deletionStats: {
+      sold: 0,
+      incorrect_info: 0,
+      no_longer_selling: 0,
+      other: 0,
+    },
+  });
 
+  const [categoryData, setCategoryDate] = useState([
+    { name: "Home", value: 0 },
+    { name: "Digital", value: 0 },
+  ]);
+
+  const fetchDashboardData = async () => {
+    try {
+      const response = await axiosInstance.get("api/dashboard");
+      const data = response.data.data;
+      setDashboardData(data);
+      setCategoryDate([
+        { name: "Home", value: data?.totalListings },
+        { name: "Digital", value: data?.totalCellPhone + data?.totalComputers },
+      ]);
+    } catch (error) {
+      toast.error(error);
+    }
+  };
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
   // Custom tooltip styles
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
@@ -102,221 +130,311 @@ function Dashboard() {
   return (
     <>
       <Box sx={{ p: { xs: 2, md: 4 }, bgcolor: "#f8fafc", minHeight: "100vh" }}>
-        <Typography
-          variant="h4"
-          component="h1"
+        <Box
           sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            flexWrap: "wrap", // makes it responsive
             mb: 4,
-            fontWeight: 700,
-            background: "linear-gradient(90deg, #1a237e 0%, #534bae 100%)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            letterSpacing: "-0.5px",
           }}
         >
-          Analytics Dashboard
-        </Typography>
+          <Typography
+            variant="h4"
+            component="h1"
+            sx={{
+              fontWeight: 700,
+              background: "linear-gradient(90deg, #1a237e 0%, #534bae 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              letterSpacing: "-0.5px",
+              mb: { xs: 2, md: 0 }, // adds bottom margin only on small screens
+            }}
+          >
+            Analytics Dashboard
+          </Typography>
+
+          <DownloadDashboardPDF dashboardData={dashboardData} />
+        </Box>
 
         {/* Metric Cards */}
-        <Grid container spacing={3} sx={{ mb: 4 }}>
-          <Grid item xs={12} sm={6} md={4}>
-            <Card
-              elevation={0}
-              sx={{
-                borderRadius: 4,
-                p: 1,
-                height: "100%",
-                boxShadow: "0 4px 20px rgba(0, 0, 0, 0.05)",
-                transition:
-                  "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
-                "&:hover": {
-                  boxShadow: "0 8px 30px rgba(0, 0, 0, 0.12)",
-                  transform: "translateY(-4px)",
-                  cursor: "pointer",
-                },
-              }}
-            >
-              <CardContent>
-                <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-                  <Avatar
-                    sx={{
-                      bgcolor: "rgba(99, 102, 241, 0.1)",
-                      color: "#6366F1",
-                      width: 48,
-                      height: 48,
-                      mr: 2,
-                    }}
-                  >
-                    <ShowChart />
-                  </Avatar>
-                  <Typography
-                    color="text.secondary"
-                    variant="subtitle2"
-                    sx={{ fontWeight: 500 }}
-                  >
-                    Total Listings This Month
-                  </Typography>
-                </Box>
-                <Typography
-                  variant="h3"
-                  component="div"
-                  sx={{ fontWeight: 700, mb: 1 }}
-                >
-                  {currentMonthListings}
-                </Typography>
-                <Box sx={{ display: "flex", alignItems: "center" }}>
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      color: isGrowthPositive ? "#10B981" : "#EF4444",
-                      display: "flex",
-                      alignItems: "center",
-                      fontWeight: 600,
-                      py: 0.5,
-                      px: 1,
-                      borderRadius: 1,
-                      bgcolor: isGrowthPositive
-                        ? "rgba(16, 185, 129, 0.1)"
-                        : "rgba(239, 68, 68, 0.1)",
-                    }}
-                  >
-                    {isGrowthPositive ? (
-                      <TrendingUp fontSize="small" sx={{ mr: 0.5 }} />
-                    ) : (
-                      <TrendingDown fontSize="small" sx={{ mr: 0.5 }} />
-                    )}
-                    {Math.abs(growthRate).toFixed(1)}% from last month
-                  </Typography>
-                </Box>
-              </CardContent>
-            </Card>
-          </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
-            <Card
-              elevation={0}
-              sx={{
-                borderRadius: 4,
-                p: 1,
-                height: "100%",
-                boxShadow: "0 4px 20px rgba(0, 0, 0, 0.05)",
-                transition:
-                  "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
-                "&:hover": {
-                  boxShadow: "0 8px 30px rgba(0, 0, 0, 0.12)",
-                  transform: "translateY(-4px)",
-                  cursor: "pointer",
-                },
-              }}
-            >
-              <CardContent>
-                <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-                  <Avatar
-                    sx={{
-                      bgcolor: isGrowthPositive
-                        ? "rgba(16, 185, 129, 0.1)"
-                        : "rgba(239, 68, 68, 0.1)",
-                      color: isGrowthPositive ? "#10B981" : "#EF4444",
-                      width: 48,
-                      height: 48,
-                      mr: 2,
-                    }}
-                  >
-                    {isGrowthPositive ? <TrendingUp /> : <TrendingDown />}
-                  </Avatar>
-                  <Typography
-                    color="text.secondary"
-                    variant="subtitle2"
-                    sx={{ fontWeight: 500 }}
-                  >
-                    Monthly Growth Rate
-                  </Typography>
-                </Box>
-                <Typography
-                  variant="h3"
-                  component="div"
+        <Accordion defaultExpanded sx={{ mb: 2 }}>
+          <AccordionSummary expandIcon={<ExpandMore />}>
+            <Typography variant="h6" sx={{ fontWeight: 600 }}>
+              Listings Overview
+            </Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <Grid container spacing={3} sx={{ mb: 4 }}>
+              {/* Total Listings This Month */}
+              <Grid item xs={12} sm={6} md={4}>
+                <Card
+                  elevation={0}
                   sx={{
-                    fontWeight: 700,
-                    mb: 1,
-                    color: isGrowthPositive ? "#10B981" : "#EF4444",
+                    borderRadius: 4,
+                    p: 1,
+                    height: "100%",
+                    boxShadow: "0 4px 20px rgba(0, 0, 0, 0.05)",
+                    transition:
+                      "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
+                    "&:hover": {
+                      boxShadow: "0 8px 30px rgba(0, 0, 0, 0.12)",
+                      transform: "translateY(-4px)",
+                      cursor: "pointer",
+                    },
                   }}
                 >
-                  {growthRate.toFixed(1)}%
-                </Typography>
-                <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                  Compared to {previousMonthListings} listings last month
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
+                  <CardContent>
+                    <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                      <Avatar
+                        sx={{
+                          bgcolor: "rgba(99, 102, 241, 0.1)",
+                          color: "#6366F1",
+                          width: 48,
+                          height: 48,
+                          mr: 2,
+                        }}
+                      >
+                        <ShowChart />
+                      </Avatar>
+                      <Typography
+                        color="text.secondary"
+                        variant="subtitle2"
+                        sx={{ fontWeight: 500 }}
+                      >
+                        Total Listings This Month
+                      </Typography>
+                    </Box>
+                    <Typography
+                      variant="h3"
+                      component="div"
+                      sx={{ fontWeight: 700, mb: 1 }}
+                    >
+                      {dashboardData.totalThisMonth}
+                    </Typography>
+                    <Box sx={{ display: "flex", alignItems: "center" }}>
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          color:
+                            dashboardData.growth > 0 ? "#10B981" : "#EF4444",
+                          display: "flex",
+                          alignItems: "center",
+                          fontWeight: 600,
+                          py: 0.5,
+                          px: 1,
+                          borderRadius: 1,
+                          bgcolor:
+                            dashboardData.growth > 0
+                              ? "rgba(16, 185, 129, 0.1)"
+                              : "rgba(239, 68, 68, 0.1)",
+                        }}
+                      >
+                        {dashboardData.growth > 0 ? (
+                          <TrendingUp fontSize="small" sx={{ mr: 0.5 }} />
+                        ) : (
+                          <TrendingDown
+                            color="error"
+                            fontSize="small"
+                            sx={{ mr: 0.5 }}
+                          />
+                        )}
+                        {dashboardData.growth}% from last month
+                      </Typography>
+                    </Box>
+                  </CardContent>
+                </Card>
+              </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
-            <Card
-              elevation={0}
-              sx={{
-                borderRadius: 4,
-                p: 1,
-                height: "100%",
-                boxShadow: "0 4px 20px rgba(0, 0, 0, 0.05)",
-                transition:
-                  "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
-                "&:hover": {
-                  boxShadow: "0 8px 30px rgba(0, 0, 0, 0.12)",
-                  transform: "translateY(-4px)",
-                  cursor: "pointer",
-                },
-              }}
-            >
-              <CardContent>
-                <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-                  <Avatar
-                    sx={{
-                      bgcolor: "rgba(236, 72, 153, 0.1)",
-                      color: "#EC4899",
-                      width: 48,
-                      height: 48,
-                      mr: 2,
-                    }}
-                  >
-                    $
-                  </Avatar>
-                  <Typography
-                    color="text.secondary"
-                    variant="subtitle2"
-                    sx={{ fontWeight: 500 }}
-                  >
-                    Average Listing Price
-                  </Typography>
-                </Box>
-                <Typography
-                  variant="h3"
-                  component="div"
-                  sx={{ fontWeight: 700, mb: 1 }}
+              {/* Monthly Growth Rate */}
+              <Grid item xs={12} sm={6} md={4}>
+                <Card
+                  elevation={0}
+                  sx={{
+                    borderRadius: 4,
+                    p: 1,
+                    height: "100%",
+                    boxShadow: "0 4px 20px rgba(0, 0, 0, 0.05)",
+                    transition:
+                      "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
+                    "&:hover": {
+                      boxShadow: "0 8px 30px rgba(0, 0, 0, 0.12)",
+                      transform: "translateY(-4px)",
+                      cursor: "pointer",
+                    },
+                  }}
                 >
-                  $249.99
-                </Typography>
-                <Box sx={{ display: "flex", alignItems: "center" }}>
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      color: "#10B981",
-                      display: "flex",
-                      alignItems: "center",
-                      fontWeight: 600,
-                      py: 0.5,
-                      px: 1,
-                      borderRadius: 1,
-                      bgcolor: "rgba(16, 185, 129, 0.1)",
-                    }}
-                  >
-                    <TrendingUp fontSize="small" sx={{ mr: 0.5 }} />
-                    5.2% from last month
-                  </Typography>
-                </Box>
-              </CardContent>
-            </Card>
-          </Grid>
-        </Grid>
+                  <CardContent>
+                    <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                      <Avatar
+                        sx={{
+                          bgcolor: dashboardData.growth
+                            ? "rgba(16, 185, 129, 0.1)"
+                            : "rgba(239, 68, 68, 0.1)",
+                          color: dashboardData.growth ? "#10B981" : "#EF4444",
+                          width: 48,
+                          height: 48,
+                          mr: 2,
+                        }}
+                      >
+                        {dashboardData.growth > 0 ? (
+                          <TrendingUp />
+                        ) : (
+                          <TrendingDown color="error" />
+                        )}
+                      </Avatar>
+                      <Typography
+                        color="text.secondary"
+                        variant="subtitle2"
+                        sx={{ fontWeight: 500 }}
+                      >
+                        Monthly Growth Rate
+                      </Typography>
+                    </Box>
+                    <Typography
+                      variant="h3"
+                      component="div"
+                      sx={{
+                        fontWeight: 700,
+                        mb: 1,
+                        color: dashboardData.growth > 0 ? "#10B981" : "#EF4444",
+                      }}
+                    >
+                      {dashboardData.growth}%
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      sx={{ color: "text.secondary" }}
+                    >
+                      Compared to {dashboardData.totalLastMonth} listings last
+                      month
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+
+              {/* Total Listings */}
+              <Grid item xs={12} sm={6} md={4}>
+                <Card
+                  elevation={0}
+                  sx={{
+                    borderRadius: 4,
+                    p: 1,
+                    height: "100%",
+                    boxShadow: "0 4px 20px rgba(0, 0, 0, 0.05)",
+                    transition:
+                      "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
+                    "&:hover": {
+                      boxShadow: "0 8px 30px rgba(0, 0, 0, 0.12)",
+                      transform: "translateY(-4px)",
+                      cursor: "pointer",
+                    },
+                  }}
+                >
+                  <CardContent>
+                    <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                      <Avatar
+                        sx={{
+                          bgcolor: "rgba(99, 102, 241, 0.1)",
+                          color: "#6366F1",
+                          width: 48,
+                          height: 48,
+                          mr: 2,
+                        }}
+                      >
+                        <ShowChart />
+                      </Avatar>
+                      <Typography
+                        color="text.secondary"
+                        variant="subtitle2"
+                        sx={{ fontWeight: 500 }}
+                      >
+                        Total Listings
+                      </Typography>
+                    </Box>
+                    <Typography
+                      variant="h3"
+                      component="div"
+                      sx={{ fontWeight: 700, mb: 1 }}
+                    >
+                      {dashboardData.totalItems}
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+            </Grid>
+          </AccordionDetails>
+        </Accordion>
+
+        <Accordion defaultExpanded sx={{ mb: 2 }}>
+          <AccordionSummary expandIcon={<ExpandMore />}>
+            <Typography variant="h6" sx={{ fontWeight: 600 }}>
+              Deletion Reasons
+            </Typography>
+          </AccordionSummary>
+          <AccordionDetails sx={{ padding: 2 }}>
+            <Grid container spacing={3}>
+              {Object.keys(dashboardData?.deletionStats).map((reason) => {
+                const count = dashboardData?.deletionStats[reason] || 0;
+                return (
+                  <Grid item xs={12} sm={6} md={4} key={reason}>
+                    <Card
+                      elevation={0}
+                      sx={{
+                        borderRadius: 4,
+                        p: 1,
+                        height: "100%",
+                        boxShadow: "0 4px 20px rgba(0, 0, 0, 0.05)",
+                        transition:
+                          "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
+                        "&:hover": {
+                          boxShadow: "0 8px 30px rgba(0, 0, 0, 0.12)",
+                          transform: "translateY(-4px)",
+                          cursor: "pointer",
+                        },
+                      }}
+                    >
+                      <CardContent>
+                        <Box
+                          sx={{ display: "flex", alignItems: "center", mb: 2 }}
+                        >
+                          <Avatar
+                            sx={{
+                              bgcolor: `${reasonColors[reason]}33`,
+                              color: reasonColors[reason],
+                              width: 48,
+                              height: 48,
+                              mr: 2,
+                            }}
+                          >
+                            {reasonIcons[reason]}
+                          </Avatar>
+                          <Typography
+                            color="text.secondary"
+                            variant="subtitle2"
+                            sx={{ fontWeight: 500 }}
+                          >
+                            {reason
+                              .replace(/_/g, " ")
+                              .replace(/\b\w/g, (c) => c.toUpperCase())}
+                          </Typography>
+                        </Box>
+                        <Typography
+                          variant="h3"
+                          component="div"
+                          sx={{ fontWeight: 700 }}
+                        >
+                          {count}
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                );
+              })}
+            </Grid>
+          </AccordionDetails>
+        </Accordion>
 
         {/* Charts */}
         <Grid container spacing={3}>
@@ -338,11 +456,6 @@ function Dashboard() {
                     </Typography>
                   </Box>
                 }
-                action={
-                  <IconButton sx={{ color: "#94a3b8" }}>
-                    <MoreVert />
-                  </IconButton>
-                }
                 sx={{
                   borderBottom: "1px solid rgba(0, 0, 0, 0.05)",
                   bgcolor: "rgba(248, 250, 252, 0.8)",
@@ -352,7 +465,7 @@ function Dashboard() {
                 <Box sx={{ height: 350 }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart
-                      data={chartData}
+                      data={dashboardData.chartData}
                       margin={{ top: 10, right: 30, left: 10, bottom: 10 }}
                     >
                       <defs>
@@ -430,11 +543,6 @@ function Dashboard() {
                       Listings by Category
                     </Typography>
                   </Box>
-                }
-                action={
-                  <IconButton sx={{ color: "#94a3b8" }}>
-                    <MoreVert />
-                  </IconButton>
                 }
                 sx={{
                   borderBottom: "1px solid rgba(0, 0, 0, 0.05)",
@@ -519,11 +627,11 @@ function Dashboard() {
                     </Typography>
                   </Box>
                 }
-                action={
-                  <IconButton sx={{ color: "#94a3b8" }}>
-                    <MoreVert />
-                  </IconButton>
-                }
+                // action={
+                //   <IconButton sx={{ color: "#94a3b8" }}>
+                //     <MoreVert />
+                //   </IconButton>
+                // }
                 sx={{
                   borderBottom: "1px solid rgba(0, 0, 0, 0.05)",
                   bgcolor: "rgba(248, 250, 252, 0.8)",
@@ -533,7 +641,7 @@ function Dashboard() {
                 <Box sx={{ height: 300 }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart
-                      data={todayProductsData}
+                      data={dashboardData.todayProductsData}
                       margin={{ top: 10, right: 30, left: 20, bottom: 10 }}
                       barSize={60}
                     >
@@ -578,7 +686,7 @@ function Dashboard() {
                         name="Number of Products"
                         radius={[4, 4, 0, 0]}
                       >
-                        {todayProductsData.map((entry, index) => (
+                        {dashboardData.todayProductsData.map((entry, index) => (
                           <Cell
                             key={`cell-${index}`}
                             fill={PRODUCT_COLORS[index % PRODUCT_COLORS.length]}

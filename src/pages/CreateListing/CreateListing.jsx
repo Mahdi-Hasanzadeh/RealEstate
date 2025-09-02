@@ -52,6 +52,10 @@ import {
   CellPhoneRAM,
   CellPhoneStorage,
   ColorValues,
+  computer,
+  ComputerBrands,
+  ComputerRAMOptions,
+  ComputerStorageOptions,
   digitalEquipment,
   estate,
   samsung,
@@ -82,10 +86,16 @@ const CreateListing = () => {
   const [subCategory, setSubCategory] = useState("");
 
   const [cellPhoneInfo, setCellPhoneInfo] = useState({
-    brand: CellPhoneBrands[1].value, // default is samsung
+    brand: CellPhoneBrands[1].value,
     storage: CellPhoneStorage[0].value,
     color: ColorValues[0].value,
     RAM: CellPhoneRAM[0].value,
+  });
+
+  const [computerInfo, setComputerInfo] = useState({
+    brand: ComputerBrands[1].value,
+    storage: ComputerStorageOptions[0].value,
+    RAM: ComputerRAMOptions[0].value,
   });
 
   const [estateFormInfo, setEstateFormInfo] = useState({
@@ -182,6 +192,15 @@ const CreateListing = () => {
     });
   };
 
+  const handleComputerInfo = (event) => {
+    setComputerInfo((prevData) => {
+      return {
+        ...prevData,
+        [event.target.name]: event.target.value,
+      };
+    });
+  };
+
   const deleteImageFromlist = (item) => {
     setGeneralFormInfo((prevData) => {
       return {
@@ -265,14 +284,16 @@ const CreateListing = () => {
           : 0,
       });
 
-      if (response?.data?.succeess == false) {
-        toast.error(response?.data?.message);
-        setUploadError(response?.data?.message);
-        return {
-          success: false,
-          message: response?.data?.message,
-        };
-      }
+      console.log(response);
+
+      // if (response?.data?.succeess == false) {
+      //   toast.error(response?.data?.message);
+      //   setUploadError(response?.data?.message);
+      //   return {
+      //     success: false,
+      //     message: response?.data?.message,
+      //   };
+      // }
 
       toast.success("Your product added successfully");
       return {
@@ -280,7 +301,8 @@ const CreateListing = () => {
         data: response?.data,
       };
     } catch (error) {
-      toast.error(error.message);
+      console.log(error);
+      toast.error(error?.response?.data?.message);
       return {
         success: false,
         message: error.message,
@@ -338,16 +360,6 @@ const CreateListing = () => {
         return;
       }
     }
-    // else if (mainCategory === "Digital_Equipment") {
-    //   if (
-    //     !generalFormInfo.regularPrice ||
-    //     parseFloat(generalFormInfo.regularPrice) <= 0
-    //   ) {
-    //     toast.error("Price must be greater than zero");
-    //     return;
-    //   }
-    // }
-
     if (generalFormInfo.offer) {
       if (isNaN(discount) || discount <= 0) {
         toast.error("Discount price must be greater than zero");
@@ -416,11 +428,24 @@ const CreateListing = () => {
         break;
       }
       case digitalEquipment: {
-        productInfo = {
-          ...productInfo,
-          ...cellPhoneInfo,
-          subCategory,
-        };
+        switch (subCategory) {
+          case cellPhoneAndTablets: {
+            productInfo = {
+              ...productInfo,
+              ...cellPhoneInfo,
+              subCategory,
+            };
+            break;
+          }
+          case computer: {
+            productInfo = {
+              ...productInfo,
+              ...computerInfo,
+              subCategory,
+            };
+            break;
+          }
+        }
         break;
       }
     }
@@ -485,6 +510,7 @@ const CreateListing = () => {
                 <Box display="flex" flexDirection="column" gap={2}>
                   <ComboBox
                     name="Choose Category"
+                    label="Choose Category"
                     defaultValue="ALL PRODUCTS"
                     value={mainCategory}
                     handleValueMethod={handleCategory}
@@ -495,6 +521,7 @@ const CreateListing = () => {
                   {mainCategory === digitalEquipment && (
                     <ComboBox
                       name="Choose Sub Category"
+                      label="Choose Sub Category"
                       defaultValue={cellPhoneAndTablets}
                       value={subCategory}
                       items={SubCategoryItemsForDigitalEquiments}
@@ -698,6 +725,58 @@ const CreateListing = () => {
                   </AccordionDetails>
                 </Accordion>
               )}
+
+            {mainCategory === digitalEquipment && subCategory === computer && (
+              <Accordion
+                sx={{
+                  overflow: "hidden",
+                  bgcolor: "background.paper",
+                }}
+              >
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                  <Typography variant="h6" fontWeight={500}>
+                    Device Details
+                  </Typography>
+                </AccordionSummary>
+
+                <AccordionDetails sx={{ px: 3, py: 2 }}>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} sm={6}>
+                      <ComboBox
+                        label="Brand"
+                        name="brand"
+                        defaultValue="DELL"
+                        value={computerInfo.brand}
+                        items={ComputerBrands.filter(
+                          (b) => b.name != "ALL BRANDS"
+                        )}
+                        handleValueMethod={handleComputerInfo}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <ComboBox
+                        label="Storage"
+                        name="storage"
+                        defaultValue="Choose Storage"
+                        value={computerInfo.storage}
+                        items={ComputerStorageOptions}
+                        handleValueMethod={handleComputerInfo}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <ComboBox
+                        label="RAM"
+                        name="RAM"
+                        defaultValue="Choose RAM"
+                        value={computerInfo.RAM}
+                        items={ComputerRAMOptions}
+                        handleValueMethod={handleComputerInfo}
+                      />
+                    </Grid>
+                  </Grid>
+                </AccordionDetails>
+              </Accordion>
+            )}
 
             <Accordion>
               <AccordionSummary expandIcon={<ExpandMoreIcon />}>

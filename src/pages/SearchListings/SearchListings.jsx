@@ -17,7 +17,7 @@ import {
   useTheme,
 } from "@mui/material";
 import axios from "axios";
-import { Suspense, lazy, useEffect, useState } from "react";
+import { Suspense, lazy, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import qs from "qs";
 //#endregion
@@ -34,12 +34,16 @@ import {
   allProducts,
   CategoryItems,
   cellPhoneAndTablets,
+  computer,
   digitalEquipment,
   estate,
   filterProdcutsBy,
   SubCategoryItemsForDigitalEquiments,
   transportation,
 } from "../../utils/utility.js";
+import ComputerFilter from "./ComputersFilter.jsx";
+import axiosInstance from "../../config/axiosConfig.js";
+import NoListingsUI from "../../Components/UI/NoListings.jsx";
 const CardItem = lazy(() =>
   import("../../Components/CustomizedCard/SearchResultCard.jsx")
 );
@@ -80,6 +84,7 @@ const SearchListings = () => {
   });
 
   const [cellPhoneBrand, setCellPhoneBrand] = useState(allBrands);
+  const [computerBrand, setComputerBrand] = useState(allBrands);
 
   const [checkedStorage, setCheckedStorage] = useState({
     mb512: false,
@@ -134,6 +139,27 @@ const SearchListings = () => {
     purple: false,
   });
 
+  // Initial state for computer Storage checkboxes
+  const [computerCheckedStorage, setComputerCheckedStorage] = useState({
+    gb128: false,
+    gb256: false,
+    gb512: false,
+    tb1: false,
+    tb2: false,
+    tb4: false,
+    tb8: false,
+  });
+
+  // Initial state for computer RAM checkboxes
+  const [computerCheckedRAM, setComputerCheckedRAM] = useState({
+    gb4: false,
+    gb8: false,
+    gb16: false,
+    gb32: false,
+    gb64: false,
+    gb128: false,
+  });
+
   const [searchParams, setSearchParams] = useSearchParams();
   const location = useLocation();
   const [showMore, setShowMore] = useState(false);
@@ -145,6 +171,8 @@ const SearchListings = () => {
   const navigate = useNavigate();
   const theme = useTheme();
   const md = useMediaQuery(theme.breakpoints.down("md"));
+  const abortControllerRef = useRef(null);
+
   //#endregion
 
   //#region methods
@@ -191,20 +219,27 @@ const SearchListings = () => {
     // set the category
     setCategory(event.target.value);
 
-    ResetPrice();
+    // ResetPrice();
+    ResetBrand();
     ResetColor();
     ResetStorage();
     ResetRAM();
     ResetSubCategoryForDigitalEquipments();
   };
 
+  const ResetBrand = () => {
+    setCellPhoneBrand(allBrands);
+    setComputerBrand(allBrands);
+  };
+
   const handleSubCategory = (event) => {
     // Set the sub category
     setSubCategory(event.target.value);
+    ResetBrand();
     ResetColor();
     ResetStorage();
     ResetRAM();
-    ResetPrice();
+    // ResetPrice();
   };
 
   const handleFormData = (event) => {
@@ -236,24 +271,39 @@ const SearchListings = () => {
 
   const fetchListings = async () => {
     try {
+      // Abort previous request if it exists
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+
+      // Create a new AbortController for this request
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
+
       setLoading(true);
-      const response = await axios.get(
+
+      const response = await axiosInstance.get(
         `${URL}api/listing/get?${searchParams.toString()}`,
         {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
+          signal: controller.signal, // Pass the signal to axios
         }
       );
+
       if (response.data.listings.length > 8) {
         setShowMore(true);
       } else {
         setShowMore(false);
       }
+
       setListings(response.data.listings);
       setError(null);
     } catch (error) {
-      setError(error.message);
+      if (error.name === "CanceledError") {
+        // Request was aborted, do nothing
+        console.log("Request canceled");
+      } else {
+        setError(error.message);
+      }
     } finally {
       setLoading(false);
     }
@@ -284,10 +334,6 @@ const SearchListings = () => {
 
     searchParams.set("category", category);
     switch (category) {
-      case allProducts: {
-        // * all products section
-        break;
-      }
       case estate: {
         // * set filters into the URL
         // console.log("estate");
@@ -322,17 +368,16 @@ const SearchListings = () => {
           }
           case computer: {
             // console.log(computer);
-            break;
-          }
-          case console: {
-            // console.log(console);
+            searchParams.set("brand", computerBrand);
+
+            //* set storage to the url
+            setObjectToURL("storage", computerCheckedStorage);
+
+            //* set RAM to the url
+            setObjectToURL("RAM", computerCheckedRAM);
             break;
           }
         }
-        break;
-      }
-      case transportation: {
-        // * transportation's filter section
         break;
       }
     }
@@ -370,30 +415,41 @@ const SearchListings = () => {
     navigate(`/search?${searchParams.toString()}`);
   };
 
+  // Fetch more listings (pagination)
   const fetchMoreListings = async () => {
-    // console.log(searchParams.toString());
-    // searchParams.set("startIndex", listings.length);
-
-    const response = await axios.get(
-      `${URL}api/listing/get?${searchParams.toString()}&startIndex=${
-        listings.length
-      }`,
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
+    try {
+      // Abort previous request
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
       }
-    );
-    delay = 0;
-    setListings([...listings, ...response.data.listings]);
-    if (response.data.listings.length < 9) {
-      setShowMore(false);
+
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
+
+      const response = await axiosInstance.get(
+        `${URL}api/listing/get?${searchParams.toString()}&startIndex=${
+          listings.length
+        }`,
+        { signal: controller.signal }
+      );
+
+      setListings([...listings, ...response.data.listings]);
+
+      if (response.data.listings.length < 9) {
+        setShowMore(false);
+      }
+    } catch (error) {
+      if (error.name === "CanceledError") {
+        console.log("Request canceled");
+      } else {
+        setError(error.message);
+      }
     }
   };
 
-  const ResetPrice = () => {
-    setPrice({ minimumPrice: 0, maximumPrice: 0 });
-  };
+  // const ResetPrice = () => {
+  //   setPrice({ minimumPrice: 0, maximumPrice: 0 });
+  // };
 
   const ResetSubCategoryForDigitalEquipments = () => {
     setSubCategory(cellPhoneAndTablets);
@@ -439,6 +495,16 @@ const SearchListings = () => {
       gb640: false,
       tb1: false,
     });
+
+    setComputerCheckedStorage({
+      gb128: false,
+      gb256: false,
+      gb512: false,
+      tb1: false,
+      tb2: false,
+      tb4: false,
+      tb8: false,
+    });
   };
 
   const ResetRAM = () => {
@@ -455,6 +521,14 @@ const SearchListings = () => {
       gb12: false,
       gb16: false,
       gb18: false,
+    });
+    setComputerCheckedRAM({
+      gb4: false,
+      gb8: false,
+      gb16: false,
+      gb32: false,
+      gb64: false,
+      gb128: false,
     });
   };
 
@@ -481,6 +555,30 @@ const SearchListings = () => {
       });
     } else if (name == "color") {
       setCheckedColor((prevData) => {
+        const obj = {};
+        values.map((item) => (obj[item] = true));
+        return {
+          ...prevData,
+          ...obj,
+        };
+      });
+    }
+  };
+
+  const setURLQueriesToLocalStateForComputer = (params, name) => {
+    const parsedValue = qs.parse(params);
+    const values = Object.values(parsedValue);
+    if (name == "storage") {
+      setComputerCheckedStorage((prevData) => {
+        const obj = {};
+        values.map((item) => (obj[item] = true));
+        return {
+          ...prevData,
+          ...obj,
+        };
+      });
+    } else if (name == "RAM") {
+      setComputerCheckedRAM((prevData) => {
         const obj = {};
         values.map((item) => (obj[item] = true));
         return {
@@ -557,6 +655,7 @@ const SearchListings = () => {
       //   fetchListings();
       //   break;
       // }
+
       case estate: {
         const type = searchParams.get("type");
         const parking = searchParams.get("parking");
@@ -574,23 +673,44 @@ const SearchListings = () => {
       case digitalEquipment: {
         const subCategory = searchParams.get("subCategory");
         setSubCategory(subCategory);
+        console.log(subCategory);
+        switch (subCategory) {
+          case cellPhoneAndTablets: {
+            // todo
+            const brand = searchParams.get("brand");
+            setCellPhoneBrand(brand == null ? "all_brands" : brand);
 
-        // todo
-        const brand = searchParams.get("brand");
-        setCellPhoneBrand(brand == null ? "all_brands" : brand);
+            const storage = searchParams.get("storage");
+            const RAM = searchParams.get("RAM");
+            const color = searchParams.get("color");
 
-        const storage = searchParams.get("storage");
-        const RAM = searchParams.get("RAM");
-        const color = searchParams.get("color");
+            setURLQueriesToLocalState(storage, "storage");
+            setURLQueriesToLocalState(RAM, "RAM");
+            setURLQueriesToLocalState(color, "color");
 
-        setURLQueriesToLocalState(storage, "storage");
-        setURLQueriesToLocalState(RAM, "RAM");
-        setURLQueriesToLocalState(color, "color");
+            fetchListings();
+            break;
+          }
+          case computer: {
+            console.log(computer);
+            // todo
+            const brand = searchParams.get("brand");
+            setComputerBrand(brand == null ? "all_brands" : brand);
 
-        fetchListings();
+            const storage = searchParams.get("storage");
+            const RAM = searchParams.get("RAM");
+
+            setURLQueriesToLocalStateForComputer(storage, "storage");
+            setURLQueriesToLocalStateForComputer(RAM, "RAM");
+
+            fetchListings();
+            break;
+          }
+        }
         break;
       }
       default: {
+        alert("default");
         setSearchParams({ category: "estate" });
         fetchListings();
         break;
@@ -598,6 +718,14 @@ const SearchListings = () => {
     }
     // * end of fetching the products
     delay = 0;
+
+    // Cleanup function to abort any ongoing request when component unmounts
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+        console.log("Aborted ongoing fetch on component unmount");
+      }
+    };
   }, [location.search]);
 
   useEffect(() => {
@@ -779,7 +907,8 @@ const SearchListings = () => {
 
                 {/* Category Section */}
                 <ComboBox
-                  name={"Category"}
+                  name="Category"
+                  label="Category"
                   defaultValue={"ALL PRODUCTS"}
                   value={category}
                   handleValueMethod={handleCategory}
@@ -797,7 +926,8 @@ const SearchListings = () => {
                   <>
                     <Suspense>
                       <ComboBox
-                        name={"Sub Category"}
+                        name="Sub Category"
+                        label="Sub Category"
                         defaultValue={"CELL PHONE & TABLETS"}
                         value={subCategory}
                         handleValueMethod={handleSubCategory}
@@ -814,6 +944,17 @@ const SearchListings = () => {
                           setCheckedRAM={setCheckedRAM}
                           checkedColor={checkedColor}
                           setCheckedColor={setCheckedColor}
+                        />
+                      </Suspense>
+                    )}
+                    {subCategory == computer && (
+                      <Suspense>
+                        <ComputerFilter
+                          setComputerBrand={setComputerBrand}
+                          checkedStorage={computerCheckedStorage}
+                          setCheckedStorage={setComputerCheckedStorage}
+                          checkedRAM={computerCheckedRAM}
+                          setCheckedRAM={setComputerCheckedRAM}
                         />
                       </Suspense>
                     )}
@@ -967,7 +1108,7 @@ const SearchListings = () => {
                 <ErrorUI error={error} />
               ) : listings.length == 0 ? (
                 <Suspense fallback={<Fallback />}>
-                  <ErrorUI error={"Not Found"} />
+                  <NoListingsUI />
                 </Suspense>
               ) : (
                 <>

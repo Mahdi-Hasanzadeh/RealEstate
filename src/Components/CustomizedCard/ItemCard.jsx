@@ -13,7 +13,6 @@ const ItemCard = ({
   onViewClick,
   showEdit = false,
   showView = false,
-  sx = {},
 }) => {
   const navigate = useNavigate();
 
@@ -28,7 +27,6 @@ const ItemCard = ({
           transform: "translateY(-5px)",
           boxShadow: 3,
         },
-        ...sx,
       }}
     >
       <Box sx={{ p: 2 }}>

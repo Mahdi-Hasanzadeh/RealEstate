@@ -1,26 +1,24 @@
 import { Box, Stack, Typography } from "@mui/material";
 import {
-  ColorLens,
   SdStorageRounded,
   StorageRounded,
-  TabletAndroid,
+  LaptopMac,
 } from "@mui/icons-material";
-import { CellPhoneRAM, CellPhoneStorage } from "../../utils/utility.js";
+import {
+  ComputerRAMOptions,
+  ComputerStorageOptions,
+} from "../../utils/utility.js";
 
-const CellPhoneUI = ({ product }) => {
-  const RAM = CellPhoneRAM.find((item) => item.value == product?.RAM);
-  const Storage = CellPhoneStorage.find(
+const ComputerUI = ({ product }) => {
+  const RAM = ComputerRAMOptions.find((item) => item.value == product?.RAM);
+  const Storage = ComputerStorageOptions.find(
     (item) => item.value == product?.storage
   );
 
   const features = [
     {
-      icon: <TabletAndroid fontSize="large" color="success" />,
+      icon: <LaptopMac fontSize="large" color="success" />,
       label: `Brand: ${product?.brand?.toUpperCase()}`,
-    },
-    {
-      icon: <ColorLens fontSize="large" color="success" />,
-      label: `Color: ${product?.color?.toUpperCase()}`,
     },
     {
       icon: <SdStorageRounded fontSize="large" color="success" />,
@@ -56,9 +54,9 @@ const CellPhoneUI = ({ product }) => {
             transition:
               "background-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease",
             "&:hover": {
-              bgcolor: "#d4edda", // Slightly darker green background on hover
+              bgcolor: "#d4edda",
               boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-              transform: "translateY(-2px)", // Optional: slight lift on hover
+              transform: "translateY(-2px)",
             },
           }}
         >
@@ -72,4 +70,4 @@ const CellPhoneUI = ({ product }) => {
   );
 };
 
-export default CellPhoneUI;
+export default ComputerUI;

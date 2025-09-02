@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
 import { URL } from "../config/PortConfig";
+import axiosInstance from "../config/axiosConfig";
 
 export const fetchUserListing = createAsyncThunk(
   "fetchUserListing",
@@ -13,13 +13,8 @@ export const fetchUserListing = createAsyncThunk(
         value.subCategory,
       ].join(",");
 
-      const response = await axios.get(
-        `${URL}api/listing/userListing/${id_main_sub}`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-        }
+      const response = await axiosInstance.get(
+        `${URL}api/listing/userListing/${id_main_sub}`
       );
 
       if (response.data.success === false) {
@@ -27,13 +22,8 @@ export const fetchUserListing = createAsyncThunk(
       }
       // get the current user information to see if current user have the above single product
       // in it's favorites list or not
-      const response1 = await axios.get(
-        `${URL}api/user/userInfo/${value.currentUserId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-        }
+      const response1 = await axiosInstance.get(
+        `${URL}api/user/userInfo/${value.currentUserId}`
       );
       if (response1.data.success === false) {
         throw new Error(response.data.message);

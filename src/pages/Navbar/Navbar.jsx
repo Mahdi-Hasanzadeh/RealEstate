@@ -336,13 +336,35 @@ const Navbar = () => {
                     );
                   }
                 } else {
-                  return (
-                    <Tooltip key={index} title={item.name}>
-                      <NavLink to={item.link} key={index} className={"Navlink"}>
-                        <Button sx={{ color: "#334155" }}>{item.name}</Button>
-                      </NavLink>
-                    </Tooltip>
-                  );
+                  if (item.name == "Dashboard") {
+                    if (user?.role == "Admin") {
+                      return (
+                        <Tooltip key={index} title={item.name}>
+                          <NavLink
+                            to={item.link}
+                            key={index}
+                            className={"Navlink"}
+                          >
+                            <Button sx={{ color: "#334155" }}>
+                              {item.name}
+                            </Button>
+                          </NavLink>
+                        </Tooltip>
+                      );
+                    }
+                  } else {
+                    return (
+                      <Tooltip key={index} title={item.name}>
+                        <NavLink
+                          to={item.link}
+                          key={index}
+                          className={"Navlink"}
+                        >
+                          <Button sx={{ color: "#334155" }}>{item.name}</Button>
+                        </NavLink>
+                      </Tooltip>
+                    );
+                  }
                 }
               })}
             </Box>

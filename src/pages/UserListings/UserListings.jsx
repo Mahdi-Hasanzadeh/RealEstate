@@ -7,13 +7,16 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import SentimentDissatisfiedIcon from "@mui/icons-material/SentimentDissatisfied";
 
-import Loader from "../../Components/UI/loader.jsx";
 import NotFound from "../../Components/UI/NotFound.jsx";
 import Fallback from "../../Components/UI/Fallback.jsx";
 import ItemCard from "../../Components/CustomizedCard/ItemCard.jsx";
-import ConfirmDialog from "../../Components/UI/ConfirmDialog.jsx";
 import axiosInstance from "../../config/axiosConfig.js";
-import { cellPhoneAndTablets, digitalEquipment } from "../../utils/utility.js";
+import {
+  cellPhoneAndTablets,
+  computer,
+  digitalEquipment,
+} from "../../utils/utility.js";
+import DeleteDialog from "../../Components/UI/DeleteDialog.jsx";
 
 //#endregion
 
@@ -25,6 +28,8 @@ const UserListings = () => {
   const [listingToDelete, setListingToDelete] = useState({});
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
+  const [deleteReason, setDeleteReason] = useState("");
+
   //#endregion
 
   //#region Handlers
@@ -62,6 +67,8 @@ const UserListings = () => {
       await axiosInstance.delete(`api/listing/${id}`, {
         data: {
           mainCategoryName: listToDelete.mainCategoryName,
+          subCategoryName: listToDelete.subCategoryName,
+          reason: deleteReason,
         },
       });
 
@@ -80,11 +87,12 @@ const UserListings = () => {
     const subCategory = listing?.subCategoryName;
     if (mainCategory.toLowerCase() == "estate") {
       navigate(`/listing/update/${listing?._id},${listing?.mainCategoryName}`);
-    } else if (
-      mainCategory == digitalEquipment &&
-      subCategory == cellPhoneAndTablets
-    ) {
-      navigate(`/cellphone/update/${listing?._id}`);
+    } else if (mainCategory == digitalEquipment) {
+      if (subCategory == cellPhoneAndTablets) {
+        navigate(`/cellphone/update/${listing?._id}`);
+      } else if (subCategory == computer) {
+        navigate(`/computer/update/${listing?._id}`);
+      }
     }
   };
   //#endregion
@@ -150,7 +158,7 @@ const UserListings = () => {
         </Box>
       </Container>
 
-      <ConfirmDialog
+      <DeleteDialog
         open={open}
         title="Warning"
         message={`Are you sure to delete listing (${listingToDelete?.name})?`}
@@ -158,6 +166,8 @@ const UserListings = () => {
         onConfirm={handleConfirmDelete}
         cancelText="Disagree"
         confirmText="Agree"
+        reason={deleteReason}
+        setReason={setDeleteReason}
       />
     </>
   );

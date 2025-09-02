@@ -1,10 +1,17 @@
 import { Box, MenuItem, Select, Typography } from "@mui/material";
 
-const ComboBox = ({ name, defaultValue, value, handleValueMethod, items }) => {
+const ComboBox = ({
+  name,
+  label,
+  defaultValue,
+  value,
+  handleValueMethod,
+  items,
+}) => {
   return (
     <>
       <Typography mt={2} mb={1} component={"label"} display={"block"} mr={0.5}>
-        {name}:
+        {label}:
       </Typography>
       <Box
         sx={{

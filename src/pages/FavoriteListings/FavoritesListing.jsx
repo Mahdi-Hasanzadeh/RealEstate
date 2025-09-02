@@ -1,20 +1,19 @@
 //#region Imports
 
 import { Box, Container, Typography } from "@mui/material";
-import axios from "axios";
 import { useEffect, useState } from "react";
 import { URL } from "../../config/PortConfig";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
-import Loader from "../../Components/UI/loader";
 import NotFound from "../../Components/UI/NotFound";
 import SentimentDissatisfiedIcon from "@mui/icons-material/SentimentDissatisfied";
 import ErrorState from "../../Components/UI/ErrorState";
 import ItemCard from "../../Components/CustomizedCard/ItemCard";
 import ConfirmDialog from "../../Components/UI/ConfirmDialog";
 import Fallback from "../../Components/UI/Fallback";
+import axiosInstance from "../../config/axiosConfig";
 
 //#endregion
 
@@ -62,13 +61,8 @@ const FavoritesListing = () => {
   const fetchFavoritesListing = async () => {
     setLoading(true);
     try {
-      const { data: userData } = await axios.get(
-        `${URL}api/user/userInfo/${currentUser.id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-        }
+      const { data: userData } = await axiosInstance.get(
+        `${URL}api/user/userInfo/${currentUser.id}`
       );
 
       if (!userData?.favorites?.length) {
@@ -78,13 +72,8 @@ const FavoritesListing = () => {
       }
 
       const listingsIds = userData.favorites.join(",");
-      const { data: favoriteItems } = await axios.get(
-        `${URL}api/listing/favoriteListings?ListingsId=${listingsIds}`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-        }
+      const { data: favoriteItems } = await axiosInstance.get(
+        `${URL}api/listing/favoriteListings?ListingsId=${listingsIds}`
       );
 
       setFavorites(favoriteItems);
@@ -99,16 +88,11 @@ const FavoritesListing = () => {
 
   const deleteFromFavorites = async (id) => {
     try {
-      const response = await axios.put(
-        `${URL}api/user/update/${currentUser.id}`,
+      const response = await axiosInstance.put(
+        `${URL}api/user/update/${currentUser.id}/favorites`,
         {
           favorites: id,
           removeFavorites: true,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
         }
       );
 
@@ -119,9 +103,7 @@ const FavoritesListing = () => {
       toast.success("Removed from favorites.");
       setFavorites((prev) => prev.filter((item) => item._id !== id));
     } catch (err) {
-      toast.error(err?.response?.data?.message || err.message, {
-        autoClose: 3000,
-      });
+      toast.error(err?.response?.data?.message || err.message);
     }
   };
 

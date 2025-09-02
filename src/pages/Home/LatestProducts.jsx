@@ -8,47 +8,17 @@ const Card = lazy(() =>
   import("../../Components/CustomizedCard/SearchResultCard.jsx")
 );
 
-const LatestProducts = ({
-  title,
-  loading,
-  error,
-  listings,
-  query,
-  category,
-}) => {
-  //#region Fields
-  let queryString = `category=${category}&`;
-  queryString +=
-    query === "offer"
-      ? "offer=true"
-      : query === "rent"
-      ? "type=rent"
-      : query === "sell"
-      ? "type=sell"
-      : "";
-  //#endregion
-
+const LatestProducts = ({ title, loading, error, listings }) => {
   return (
     <Container
       maxWidth="lg"
       sx={{
         py: 2,
       }}
-      className="scroll-animation"
+      // className="scroll-animation"
     >
       <Typography variant="h5" gutterBottom>
-        <Link
-          component={RouterLink}
-          to={`/search?${queryString}`}
-          underline="hover"
-          color={BLACK}
-          sx={{
-            textDecoration: "none",
-            "&:hover": { color: "black", textDecoration: "none" },
-          }}
-        >
-          {title}
-        </Link>
+        {title}
       </Typography>
 
       <Box

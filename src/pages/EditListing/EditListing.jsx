@@ -35,8 +35,6 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import axiosInstance from "../../config/axiosConfig.js";
 import { estate } from "../../utils/utility.js";
 
-const Wave = lazy(() => import("../../Components/WaveHeader.jsx"));
-
 const EditListing = () => {
   const navigate = useNavigate();
   const [file, setFile] = useState([]);
@@ -307,7 +305,7 @@ const EditListing = () => {
 
         {loading ? (
           <Typography variant="h4" textAlign="center" mt={4}>
-            <fallback />
+            <Fallback />
           </Typography>
         ) : error ? (
           <Typography variant="h5" color="error" textAlign="center" mt={4}>

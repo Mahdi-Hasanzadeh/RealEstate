@@ -18,11 +18,10 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { Suspense, useEffect, useState } from "react";
 import Fallback from "../../Components/UI/Fallback.jsx";
 import {
-  cellPhoneAndTablets,
-  CellPhoneBrands,
-  CellPhoneRAM,
-  CellPhoneStorage,
-  ColorValues,
+  computer,
+  ComputerBrands,
+  ComputerRAMOptions,
+  ComputerStorageOptions,
   digitalEquipment,
 } from "../../utils/utility.js";
 import axiosInstance from "../../config/axiosConfig.js";
@@ -38,7 +37,7 @@ import {
 } from "firebase/storage";
 import ComboBox from "../SearchListings/ComboBox.jsx";
 
-const EditCellPhone = () => {
+const EditComputer = () => {
   const { listingId } = useParams();
   const navigate = useNavigate();
   const [file, setFile] = useState([]);
@@ -59,10 +58,9 @@ const EditCellPhone = () => {
     offer: false,
   });
   const [deviceInfo, setDivceInfo] = useState({
-    brand: CellPhoneBrands[1].value,
-    storage: CellPhoneStorage[0].value,
-    color: ColorValues[0].value,
-    RAM: CellPhoneRAM[0].value,
+    brand: ComputerBrands[1].value,
+    storage: ComputerStorageOptions[0].value,
+    RAM: ComputerRAMOptions[0].value,
   });
 
   const handleFormData = (event) => {
@@ -129,16 +127,14 @@ const EditCellPhone = () => {
       };
 
       await axiosInstance.put(
-        `api/listing/cellPhone/${listingId}`,
+        `api/listing/computer/${listingId}`,
         updatedProduct
       );
 
       toast.success("Product Updated Successfully");
 
       navigate(
-        `/listing/${
-          listingId + "," + digitalEquipment + "," + cellPhoneAndTablets
-        }`
+        `/listing/${listingId + "," + digitalEquipment + "," + computer}`
       );
     } catch (error) {
       toast.error(error.message);
@@ -224,14 +220,13 @@ const EditCellPhone = () => {
     });
   };
 
-  const fetchCellPhone = async () => {
+  const fetchComputer = async () => {
     setLoading(true);
     try {
       const response = await axiosInstance.get(
-        `api/listing/cellPhone/${listingId}`
+        `api/listing/computer/${listingId}`
       );
 
-      console.log(response.data);
       const data = response.data.data;
 
       setFormData({
@@ -247,7 +242,6 @@ const EditCellPhone = () => {
       setDivceInfo({
         brand: data.brand,
         storage: data.storage,
-        color: data.color,
         RAM: data.RAM,
       });
     } catch (error) {
@@ -259,14 +253,13 @@ const EditCellPhone = () => {
   };
 
   useEffect(() => {
-    fetchCellPhone();
+    fetchComputer();
   }, []);
 
   return (
     <>
       <Container maxWidth="lg" sx={{ paddingBottom: 10 }}>
         <Suspense fallback={<Fallback />}>
-          {/* <Wave title={"Edit"} /> */}
           <Typography variant="h4" fontWeight="bold" mb={3}>
             Edit Listing
           </Typography>
@@ -362,9 +355,9 @@ const EditCellPhone = () => {
                         <ComboBox
                           label="Brand"
                           name="brand"
-                          defaultValue="Samsung"
+                          defaultValue="DELL"
                           value={deviceInfo.brand}
-                          items={CellPhoneBrands.filter(
+                          items={ComputerBrands.filter(
                             (b) => b.name != "ALL BRANDS"
                           )}
                           handleValueMethod={handleDeviceInfo}
@@ -376,7 +369,7 @@ const EditCellPhone = () => {
                           name="storage"
                           defaultValue="Choose Storage"
                           value={deviceInfo.storage}
-                          items={CellPhoneStorage}
+                          items={ComputerStorageOptions}
                           handleValueMethod={handleDeviceInfo}
                         />
                       </Grid>
@@ -386,17 +379,7 @@ const EditCellPhone = () => {
                           name="RAM"
                           defaultValue="Choose RAM"
                           value={deviceInfo.RAM}
-                          items={CellPhoneRAM}
-                          handleValueMethod={handleDeviceInfo}
-                        />
-                      </Grid>
-                      <Grid item xs={12} sm={6}>
-                        <ComboBox
-                          label="Color"
-                          name="color"
-                          defaultValue="Choose Color"
-                          value={deviceInfo.color}
-                          items={ColorValues}
+                          items={ComputerRAMOptions}
                           handleValueMethod={handleDeviceInfo}
                         />
                       </Grid>
@@ -558,9 +541,6 @@ const EditCellPhone = () => {
                 </Button>
               </Paper>
             </Grid>
-
-            {/* ROW 2: Image Upload Accordion */}
-            <Grid item xs={12}></Grid>
           </Grid>
         )}
       </Container>
@@ -568,4 +548,4 @@ const EditCellPhone = () => {
   );
 };
 
-export default EditCellPhone;
+export default EditComputer;

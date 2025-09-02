@@ -8,9 +8,9 @@ const Wave = ({ title }) => {
       <div className="wave-container">
         <svg
           width="75%"
-          height="100%"
+          height="8%"
           id="svg"
-          viewBox="0 0 1440 390"
+          viewBox="0 0 1440 300"
           xmlns="http://www.w3.org/2000/svg"
           className="transition duration-300 ease-in-out delay-150 wave"
         >

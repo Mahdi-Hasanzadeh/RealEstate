@@ -20,6 +20,7 @@ const ContactLandlord = ({ userRef, name, isSmall }) => {
   const [message, setMessage] = useState("");
   const isMobile = /mobile/.test(userAgent);
 
+  console.log(userRef);
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
@@ -28,13 +29,15 @@ const ContactLandlord = ({ userRef, name, isSmall }) => {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },
         });
+        console.log(response.data);
         setUserInfo(response.data);
       } catch (err) {
+        console.log(err);
         setError(err.message || "Failed to load user info");
       }
     };
     fetchUserInfo();
-  }, [userRef]);
+  }, []);
 
   const handleMessageChange = (e) => {
     setMessage(e.target.value);

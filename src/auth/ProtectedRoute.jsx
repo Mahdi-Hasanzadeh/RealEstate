@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { addLocationHistory } from "../redux/userLocationHistory";
 
-const ProtectedRoute = (props) => {
+const ProtectedRoute = ({ children, allowedRoles }) => {
   const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
@@ -20,60 +20,94 @@ const ProtectedRoute = (props) => {
     }
   };
 
-  if (currentUser.userInfo) {
-    return props.children;
-  }
+  const userInfo = currentUser?.userInfo;
 
-  // ✨ Beautiful fallback UI for unauthenticated access
-  return (
-    <Box
-      sx={{
-        height: "70dvh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        px: 2,
-        textAlign: "center",
-      }}
-    >
+  if (!userInfo) {
+    return (
       <Box
         sx={{
-          maxWidth: 400,
-          width: "100%",
-          p: 4,
-          borderRadius: 4,
-          boxShadow: 3,
-          backgroundColor: "background.paper",
+          height: "70dvh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          px: 2,
+          textAlign: "center",
         }}
       >
-        <Typography variant="h5" mb={2} fontWeight="bold">
-          Access Denied
-        </Typography>
-        <Typography variant="body1" color="text.secondary" mb={3}>
-          Please log in to your account or sign up to access this page.
-        </Typography>
+        <Box
+          sx={{
+            maxWidth: 400,
+            width: "100%",
+            p: 4,
+            borderRadius: 4,
+            boxShadow: 3,
+            backgroundColor: "background.paper",
+          }}
+        >
+          <Typography variant="h5" mb={2} fontWeight="bold">
+            Access Denied
+          </Typography>
+          <Typography variant="body1" color="text.secondary" mb={3}>
+            Please log in to your account or sign up to access this page.
+          </Typography>
 
-        <Stack direction="row" spacing={2} justifyContent="center">
-          <Button
-            variant="contained"
-            color="primary"
-            startIcon={<LoginIcon />}
-            onClick={() => handleNavigate("login")}
-          >
-            Login
-          </Button>
-          <Button
-            variant="outlined"
-            color="primary"
-            startIcon={<PersonAddIcon />}
-            onClick={() => handleNavigate("signup")}
-          >
-            Sign Up
-          </Button>
-        </Stack>
+          <Stack direction="row" spacing={2} justifyContent="center">
+            <Button
+              variant="contained"
+              color="primary"
+              startIcon={<LoginIcon />}
+              onClick={() => handleNavigate("login")}
+            >
+              Login
+            </Button>
+            <Button
+              variant="outlined"
+              color="primary"
+              startIcon={<PersonAddIcon />}
+              onClick={() => handleNavigate("signup")}
+            >
+              Sign Up
+            </Button>
+          </Stack>
+        </Box>
       </Box>
-    </Box>
-  );
+    );
+  }
+
+  if (allowedRoles && !allowedRoles.includes(userInfo.role)) {
+    return (
+      <Box
+        sx={{
+          height: "70dvh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          px: 2,
+          textAlign: "center",
+        }}
+      >
+        <Box
+          sx={{
+            maxWidth: 400,
+            width: "100%",
+            p: 4,
+            borderRadius: 4,
+            boxShadow: 3,
+            backgroundColor: "background.paper",
+          }}
+        >
+          <Typography variant="h5" mb={2} fontWeight="bold">
+            Unauthorized
+          </Typography>
+          <Typography variant="body1" color="text.secondary">
+            You do not have permission to access this page.
+          </Typography>
+        </Box>
+      </Box>
+    );
+  }
+
+  return children;
 };
 
 export default ProtectedRoute;

@@ -9,12 +9,25 @@ export const cellPhoneAndTablets = "cellphone_tablet";
 export const computer = "computer";
 export const entertainmentConsole = "console";
 
+export const allBrands = "all_brands";
+
 export const iphone = "iphone";
 export const samsung = "samsung";
 export const shiaomi = "shiaomi";
-export const allBrands = "all_brands";
+
+export const dell = "dell";
+export const hp = "hp";
+export const lenovo = "lenovo";
+export const apple = "apple";
+export const asus = "asus";
+export const acer = "acer";
+export const msi = "msi";
 
 export const navItems = [
+  {
+    name: "Dashboard",
+    link: "/dashboard",
+  },
   {
     name: "Home",
     link: "/",
@@ -69,13 +82,13 @@ export const SubCategoryItemsForDigitalEquiments = [
   {
     name: "COMPUTER",
     value: computer,
-    disabled: true,
+    disabled: false,
   },
-  {
-    name: "CONSOLE",
-    value: entertainmentConsole,
-    disabled: true,
-  },
+  // {
+  //   name: "CONSOLE",
+  //   value: entertainmentConsole,
+  //   disabled: true,
+  // },
   // {
   //   name: "ALL DIGITAL EQUIPMENTS",
   //   value: allDigitalEquipment,
@@ -107,6 +120,58 @@ export const CellPhoneBrands = [
   },
 ];
 
+export const ColorValues = [
+  {
+    name: "black",
+    value: "BLACK",
+  },
+  {
+    name: "white",
+    value: "WHITE",
+  },
+  {
+    name: "green",
+    value: "GREEN",
+  },
+  {
+    name: "red",
+    value: "RED",
+  },
+  {
+    name: "gray",
+    value: "GRAY",
+  },
+  {
+    name: "gold",
+    value: "GOLD",
+  },
+  {
+    name: "silver",
+    value: "SILVER",
+  },
+  {
+    name: "pink",
+    value: "PINK",
+  },
+  {
+    name: "blue",
+    value: "BLUE",
+  },
+  {
+    name: "yellow",
+    value: "YELLOW",
+  },
+  {
+    name: "brown",
+    value: "BROWN",
+  },
+  {
+    name: "purple",
+    value: "PURPLE",
+  },
+];
+
+// Storage values for mobile in filter section
 export const StorageValues = [
   {
     name: "mb512",
@@ -190,8 +255,13 @@ export const StorageValues = [
     name: "tb1",
     value: 1024,
   },
+  {
+    name: "tb2",
+    value: 2048,
+  },
 ];
 
+// RAM values for mobile in filter section
 export const RAMValues = [
   {
     name: "mb512",
@@ -241,59 +311,25 @@ export const RAMValues = [
     name: "gb18",
     value: 18,
   },
-];
-
-export const ColorValues = [
   {
-    name: "black",
-    value: "BLACK",
+    name: "gb20",
+    value: 20,
   },
   {
-    name: "white",
-    value: "WHITE",
+    name: "gb24",
+    value: 24,
   },
   {
-    name: "green",
-    value: "GREEN",
+    name: "gb32",
+    value: 32,
   },
   {
-    name: "red",
-    value: "RED",
-  },
-  {
-    name: "gray",
-    value: "GRAY",
-  },
-  {
-    name: "gold",
-    value: "GOLD",
-  },
-  {
-    name: "silver",
-    value: "SILVER",
-  },
-  {
-    name: "pink",
-    value: "PINK",
-  },
-  {
-    name: "blue",
-    value: "BLUE",
-  },
-  {
-    name: "yellow",
-    value: "YELLOW",
-  },
-  {
-    name: "brown",
-    value: "BROWN",
-  },
-  {
-    name: "purple",
-    value: "PURPLE",
+    name: "gb64",
+    value: 64,
   },
 ];
 
+// Storage values for mobile when creating a listing
 export const CellPhoneStorage = [
   {
     name: "512 MB",
@@ -383,6 +419,7 @@ export const CellPhoneStorage = [
   },
 ];
 
+// RAM values for mobile when creating a listing
 export const CellPhoneRAM = [
   {
     name: "512 MB",
@@ -436,23 +473,106 @@ export const CellPhoneRAM = [
     name: "18 GB",
     value: "gb18",
   },
+  {
+    name: "20 GB",
+    value: "gb20",
+  },
+  {
+    name: "24 GB",
+    value: "gb24",
+  },
+  {
+    name: "32 GB",
+    value: "gb32",
+  },
+  {
+    name: "64 GB",
+    value: "gb64",
+  },
 ];
 
-export const ValidateMobileNumber = (mobileNumber) => {
-  const reg = /^\d+$/;
-  if (!reg.test(mobileNumber.toString())) {
-    return false;
-  }
-  return true;
-};
+// Storage values for computer in filter section
+export const ComputerStorageValues = [
+  { name: "gb128", value: 128 },
+  { name: "gb256", value: 256 },
+  { name: "gb512", value: 512 },
+  { name: "tb1", value: 1024 },
+  { name: "tb2", value: 2048 },
+  { name: "tb4", value: 4096 },
+  { name: "tb8", value: 8192 },
+];
 
-export const ValidateMobileNumberLength = (mobileNumber) => {
-  const length = mobileNumber.length;
-  if (length < 10 || length > 10) {
-    return false;
-  }
-  return true;
-};
+// Storage values for Computer when creating a listing
+
+export const ComputerStorageOptions = [
+  { name: "128 GB", value: "gb128" },
+  { name: "256 GB", value: "gb256" },
+  { name: "512 GB", value: "gb512" },
+  { name: "1 TB", value: "tb1" },
+  { name: "2 TB", value: "tb2" },
+  { name: "4 TB", value: "tb4" },
+  { name: "8 TB", value: "tb8" },
+];
+
+// Computer brands
+export const ComputerBrands = [
+  {
+    name: "ALL BRANDS",
+    value: allBrands,
+  },
+  {
+    name: "DELL",
+    value: dell,
+  },
+  {
+    name: "HP",
+    value: hp,
+  },
+  {
+    name: "LENOVO",
+    value: lenovo,
+  },
+  {
+    name: "APPLE",
+    value: apple,
+  },
+  {
+    name: "ASUS",
+    value: asus,
+  },
+  {
+    name: "ACER",
+    value: acer,
+  },
+  {
+    name: "MSI",
+    value: msi,
+  },
+  {
+    name: "OTHERS",
+    value: "others",
+  },
+];
+
+// RAM values for computers (filter section)
+export const ComputerRAMValues = [
+  { name: "gb4", value: 4 },
+  { name: "gb8", value: 8 },
+  { name: "gb16", value: 16 },
+  { name: "gb32", value: 32 },
+  { name: "gb64", value: 64 },
+  { name: "gb128", value: 128 },
+];
+
+// RAM values for computers when creating a listing
+export const ComputerRAMOptions = [
+  { name: "4 GB", value: "gb4" },
+  { name: "8 GB", value: "gb8" },
+  { name: "16 GB", value: "gb16" },
+  { name: "32 GB", value: "gb32" },
+  { name: "64 GB", value: "gb64" },
+  { name: "128 GB", value: "gb128" },
+];
 
 export const filterProdcutsBy = [
   {
@@ -472,3 +592,26 @@ export const filterProdcutsBy = [
     value: "regularPrice_desc",
   },
 ];
+
+export const ValidateMobileNumber = (mobileNumber) => {
+  const reg = /^\d+$/;
+  if (!reg.test(mobileNumber.toString())) {
+    return false;
+  }
+  return true;
+};
+
+export const ValidateMobileNumberLength = (mobileNumber) => {
+  const length = mobileNumber.length;
+  if (length < 10 || length > 10) {
+    return false;
+  }
+  return true;
+};
+
+export const calculateDiscountPercentage = (regularPrice, discountPrice) => {
+  if (!regularPrice || regularPrice <= 0) return 0;
+
+  const discount = ((regularPrice - discountPrice) / regularPrice) * 100;
+  return parseFloat(discount.toFixed(1)); // one decimal place
+};

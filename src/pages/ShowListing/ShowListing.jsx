@@ -36,12 +36,19 @@ import Fallback from "../../Components/UI/Fallback.jsx";
 import { fetchUserListing } from "../../redux/userListing.js";
 import { URL } from "../../config/PortConfig.js";
 import Loader from "../../Components/UI/loader.jsx";
-import { cellPhoneAndTablets, estate } from "../../utils/utility.js";
+import {
+  calculateDiscountPercentage,
+  cellPhoneAndTablets,
+  computer,
+  estate,
+} from "../../utils/utility.js";
 import CellPhoneUI from "./CellPhoneUI.jsx";
 import TimePassed from "../../Components/TimePassed.jsx";
 import ErrorUI from "../../Components/UI/Error.jsx";
 import Unauthorized from "../../auth/Unauthorized.jsx";
 import ImageSlider from "./ImageSlider.jsx";
+import ComputerUI from "./ComputerUI.jsx";
+import axiosInstance from "../../config/axiosConfig.js";
 const ContactUser = lazy(() => import("./ContactLandlord.jsx"));
 //#endregion
 
@@ -112,16 +119,11 @@ const ShowListing = () => {
     const id = listingId.split(",")[0];
 
     try {
-      const response = await axios.put(
-        `${URL}api/user/update/${currentUser.id}`,
+      const response = await axiosInstance.put(
+        `${URL}api/user/update/${currentUser.id}/favorites`,
         {
           favorites: userListing.data._id,
           removeFavorites: isFavoriteChecked,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
         }
       );
 
@@ -415,21 +417,25 @@ const ShowListing = () => {
   // );
 
   const ProductDescriptions = () => {
+    //Estate
     const isEstate =
       userListing?.data?.mainCategoryName?.toLowerCase() === "estate";
     const isRent = userListing?.data?.type === "rent";
+
+    // cellPhone
     const isCellPhone =
       userListing?.data?.subCategoryName === cellPhoneAndTablets;
     const offer = userListing?.data?.offer;
+
     // Calculate discount percentage
-    const discountPercentage =
-      offer && userListing.data?.regularPrice
-        ? Math.round(
-            ((userListing.data.regularPrice - userListing.data.discountPrice) /
-              userListing.data.regularPrice) *
-              100
-          )
-        : 0;
+    const discountPercentage = offer
+      ? calculateDiscountPercentage(
+          userListing.data?.regularPrice,
+          userListing.data?.discountPrice
+        )
+      : 0;
+
+    const isComputer = userListing?.data?.subCategoryName === computer;
 
     return (
       <Paper
@@ -660,6 +666,8 @@ const ShowListing = () => {
         {/* Cell Phone Info */}
         {isCellPhone && <CellPhoneUI product={userListing?.data} />}
 
+        {isComputer && <ComputerUI product={userListing?.data} />}
+
         <Divider sx={{ my: 3 }} />
         {currentUser.id !== userListing.data.userRef && show && (
           <Box sx={{ mt: 2, textAlign: "left" }}>
@@ -706,35 +714,32 @@ const ShowListing = () => {
         >
           <Loader />
         </Box>
+      ) : userListing.success && !userListing.error ? (
+        <Container maxWidth="lg" sx={{ py: 5 }}>
+          <Box mb={4}>
+            <ImageSlider
+              images={userListing.data?.imageURLs || []}
+              title={userListing.data?.name}
+            />
+          </Box>
+
+          <ProductDescriptions />
+
+          <Suspense fallback={<Fallback />}>
+            {!show && (
+              <Box mt={4}>
+                <ContactUser
+                  userRef={userListing.data.userRef}
+                  name={userListing.data.name}
+                  isSmall={isSmall}
+                />
+              </Box>
+            )}
+          </Suspense>
+        </Container>
       ) : userListing.success === false ? (
         <ErrorUI error={userListing?.error} />
-      ) : (
-        userListing.success &&
-        !userListing.error && (
-          <Container maxWidth="lg" sx={{ py: 5 }}>
-            <Box mb={4}>
-              <ImageSlider
-                images={userListing.data?.imageURLs || []}
-                title={userListing.data?.name}
-              />
-            </Box>
-
-            <ProductDescriptions />
-
-            <Suspense fallback={<Fallback />}>
-              {!show && (
-                <Box mt={4}>
-                  <ContactUser
-                    userRef={userListing.data.userRef}
-                    name={userListing.data.name}
-                    isSmall={isSmall}
-                  />
-                </Box>
-              )}
-            </Suspense>
-          </Container>
-        )
-      )}
+      ) : null}
     </>
   );
 };
