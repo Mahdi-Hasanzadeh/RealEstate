@@ -22,6 +22,7 @@ import ErrorUI from "./Components/UI/Error.jsx";
 const Home = lazy(() => import("./pages/Home/Home.jsx"));
 
 const Dashboard = lazy(() => import("./pages/Dashboard/AdminDashboard.jsx"));
+const AdminPanel = lazy(() => import("./pages/AdminPanel/AdminPanel.jsx"));
 
 const About = lazy(() => import("./pages/About/About.jsx"));
 
@@ -29,6 +30,9 @@ const Signup = lazy(() => import("./pages/Account/Sign-up.jsx"));
 
 const UserProfile = lazy(() => import("./pages/UserProfile/UserProfile.jsx"));
 const ShowListing = lazy(() => import("./pages/ShowListing/ShowListing.jsx"));
+const AdminShowListing = lazy(() =>
+  import("./pages/ShowListing/AdminShowListing.jsx")
+);
 const EditListing = lazy(() => import("./pages/EditListing/EditListing.jsx"));
 const FavoritesListing = lazy(() =>
   import("./pages/FavoriteListings/FavoritesListing.jsx")
@@ -136,6 +140,22 @@ const App = () => {
             element={
               <ProtectedRoute allowedRoles={["Admin"]}>
                 <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/adminPanel"
+            element={
+              <ProtectedRoute allowedRoles={["Admin"]}>
+                <AdminPanel />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/listing/:listingId"
+            element={
+              <ProtectedRoute allowedRoles={["Admin"]}>
+                <AdminShowListing />
               </ProtectedRoute>
             }
           />

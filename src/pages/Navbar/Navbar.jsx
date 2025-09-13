@@ -33,7 +33,7 @@ import { useDispatch, useSelector } from "react-redux";
 //#endregion
 
 //#region My Modules
-import profilePicture from "../../public/assets/profile.png";
+import profilePicture from "../../assets/profile.png";
 import { setWelcomeToast } from "../../redux/showToast.js";
 import { deleteUser } from "../../redux/userSlice.js";
 import { BLACK, GRAY, LIGHTGRAY } from "../../styles/Color.js";
@@ -211,28 +211,6 @@ const Navbar = () => {
               </Typography>
             </Typography>
 
-            <Box>
-              {/* <TextField
-                label="Search"
-                size="small"
-                sx={{
-                  width: { xs: 150, sm: 250 },
-                }}
-                value={searchTerm}
-                onChange={handleSearchTerm}
-                placeholder=""
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <IconButton onClick={handleSearch}>
-                        <SearchRounded />
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-                variant="outlined"
-              /> */}
-            </Box>
             {/* Navbar in medium size */}
             <Box
               sx={{
@@ -337,6 +315,22 @@ const Navbar = () => {
                   }
                 } else {
                   if (item.name == "Dashboard") {
+                    if (user?.role == "Admin") {
+                      return (
+                        <Tooltip key={index} title={item.name}>
+                          <NavLink
+                            to={item.link}
+                            key={index}
+                            className={"Navlink"}
+                          >
+                            <Button sx={{ color: "#334155" }}>
+                              {item.name}
+                            </Button>
+                          </NavLink>
+                        </Tooltip>
+                      );
+                    }
+                  } else if (item.name == "Admin Panel") {
                     if (user?.role == "Admin") {
                       return (
                         <Tooltip key={index} title={item.name}>

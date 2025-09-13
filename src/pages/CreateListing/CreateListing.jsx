@@ -284,18 +284,9 @@ const CreateListing = () => {
           : 0,
       });
 
-      console.log(response);
-
-      // if (response?.data?.succeess == false) {
-      //   toast.error(response?.data?.message);
-      //   setUploadError(response?.data?.message);
-      //   return {
-      //     success: false,
-      //     message: response?.data?.message,
-      //   };
-      // }
-
-      toast.success("Your product added successfully");
+      toast.success(
+        "Success! Your product is submitted and will be verified by our admin shortly."
+      );
       return {
         succeess: true,
         data: response?.data,
@@ -408,9 +399,10 @@ const CreateListing = () => {
     }
     setUploading(false);
 
-    navigate(
-      `/listing/${response.data._id + "," + mainCategory + "," + subCategory}`
-    );
+    // navigate(
+    //   `/listing/${response.data._id + "," + mainCategory + "," + subCategory}`
+    // );
+    navigate("/");
   };
 
   const CreateProductObjectBasedOnCategory = (mainCategory) => {

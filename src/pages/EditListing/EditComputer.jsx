@@ -131,10 +131,8 @@ const EditComputer = () => {
         updatedProduct
       );
 
-      toast.success("Product Updated Successfully");
-
-      navigate(
-        `/listing/${listingId + "," + digitalEquipment + "," + computer}`
+      toast.success(
+        "Your changes have been saved. The listing will be reviewed by admin shortly."
       );
     } catch (error) {
       toast.error(error.message);

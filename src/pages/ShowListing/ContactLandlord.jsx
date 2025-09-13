@@ -5,11 +5,10 @@ import {
   Box,
   Button,
   Paper,
-  Alert,
   Stack,
 } from "@mui/material";
-import axios from "axios";
 import { URL } from "../../config/PortConfig";
+import axiosInstance from "../../config/axiosConfig";
 
 const afghanistanCodeNumber = "+93";
 const userAgent = navigator.userAgent.toLowerCase();
@@ -20,19 +19,14 @@ const ContactLandlord = ({ userRef, name, isSmall }) => {
   const [message, setMessage] = useState("");
   const isMobile = /mobile/.test(userAgent);
 
-  console.log(userRef);
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
-        const response = await axios.get(`${URL}api/user/userInfo/${userRef}`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-        });
-        console.log(response.data);
+        const response = await axiosInstance.get(
+          `${URL}api/user/userInfo/${userRef}`
+        );
         setUserInfo(response.data);
       } catch (err) {
-        console.log(err);
         setError(err.message || "Failed to load user info");
       }
     };

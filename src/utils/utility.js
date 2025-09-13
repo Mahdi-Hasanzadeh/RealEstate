@@ -29,6 +29,10 @@ export const navItems = [
     link: "/dashboard",
   },
   {
+    name: "Admin Panel",
+    link: "/adminPanel",
+  },
+  {
     name: "Home",
     link: "/",
   },

@@ -14,7 +14,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { Link, useNavigate } from "react-router-dom";
-import { Suspense, lazy, useEffect, useRef, useState } from "react";
+import { Suspense, lazy, useRef, useState } from "react";
 
 import {
   getDownloadURL,
@@ -29,7 +29,7 @@ import { toast } from "react-toastify";
 import Fallback from "../../Components/UI/Fallback.jsx";
 import ConfirmDialog from "../../Components/UI/ConfirmDialog.jsx";
 import axiosInstance from "../../config/axiosConfig.js";
-import profilePicture from "../../public/assets/profile.png";
+import profilePicture from "../../assets/profile.png";
 import { BLACK } from "../../styles/Color.js";
 import { URL } from "../../config/PortConfig.js";
 

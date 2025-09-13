@@ -17,8 +17,7 @@ import {
   RadioGroup,
   Radio,
 } from "@mui/material";
-import { Suspense, lazy, useCallback, useEffect, useState } from "react";
-import { BLACK, LIGHTGRAY } from "../../styles/Color.js";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import {
   getDownloadURL,
   getStorage,
@@ -62,13 +61,8 @@ const EditListing = () => {
   const fetchUserListing = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(
-        `${URL}api/listing/userListing/${listingId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-        }
+      const response = await axiosInstance.get(
+        `${URL}api/listing/userListing/${listingId}`
       );
       if (response.data.success === false) {
         setError(response.data.message);
@@ -145,9 +139,10 @@ const EditListing = () => {
         toast.error(response.data.succeess);
         return;
       }
-      toast.success("Listing updated successfully");
+      toast.success(
+        "Your changes have been saved. The listing will be reviewed by admin shortly."
+      );
       // setFormData(response.data.updatedListing);
-      navigate(`/listing/${listingId + "," + estate}`);
       setError(null);
     } catch (error) {
       toast.error(error.message);

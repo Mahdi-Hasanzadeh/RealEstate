@@ -147,6 +147,7 @@ const UserListings = () => {
             <ItemCard
               key={index}
               item={item}
+              showStatus={true}
               onDeleteClick={() => {
                 setOpen(true);
                 setListingToDelete({ id: item._id, name: item.name });

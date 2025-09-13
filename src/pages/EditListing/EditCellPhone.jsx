@@ -133,12 +133,8 @@ const EditCellPhone = () => {
         updatedProduct
       );
 
-      toast.success("Product Updated Successfully");
-
-      navigate(
-        `/listing/${
-          listingId + "," + digitalEquipment + "," + cellPhoneAndTablets
-        }`
+      toast.success(
+        "Your changes have been saved. The listing will be reviewed by admin shortly."
       );
     } catch (error) {
       toast.error(error.message);
